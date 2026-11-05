@@ -27,3 +27,21 @@
 - Access and refresh tokens remain in `localStorage`.
 - No ESLint config. Tests are still mapper-level. Dialog focus is not trapped.
 - Frontend history is one initial commit plus fixes. Author email in git config contains a comma.
+
+## Iteration 3 — Score: 2.0 / 3.0 — 2026-11-05 — edc41b2
+
+### Fixed Issues:
+- Checkout no longer drops the idempotency key before the cart reload. Bootstrap applies the server cart before the local fulfillment PUT. `setMode` restores the previous mode on failure. Dead `AppShell` was removed. Unit tests run in CI.
+
+### Outstanding Blockers:
+- Tokens stay in `localStorage`. `useStoreChrome` is still one hook that imports features.
+- No ESLint. Tests are still pure functions.
+
+## Iteration 4 — Score: 2.0 / 3.0 — 2026-11-05 — edc41b2
+
+### Fixed Issues:
+- None beyond iteration 3.
+
+### Outstanding Blockers:
+- `saveAddress` wrote the street before the server accepted it. The OAuth error screen replaced itself with `missing_code`. Cart quantity could go past 99.
+- Same structural blockers as iteration 3.

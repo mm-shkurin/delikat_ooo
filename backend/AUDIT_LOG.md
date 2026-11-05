@@ -30,3 +30,23 @@
 - No Ruff config and no workflow that runs pytest from `backend/`.
 - Catalog filtering still happens in Python. Default city `Омск` is still copied in three modules.
 - `test_oauth_fake.py` still needs live Postgres and Redis.
+
+## Iteration 3 — Score: 2.0 / 3.0 — 2026-11-05 — edc41b2
+
+### Fixed Issues:
+- Checkout locks the cart row, JWT secrets must be distinct and at least 16 characters, OAuth Redis errors become 503, and a non-empty existing session cookie is reused.
+
+### Outstanding Blockers:
+- Catalog still filters in Python. One seeded description is reused. CI still skips the two HTTP tests that need Postgres.
+- Author email in the existing git config contains a comma. The initial commit stays one bulk import.
+
+## Iteration 4 — Score: 2.0 / 3.0 — 2026-11-05 — edc41b2
+
+### Fixed Issues:
+- None beyond iteration 3. The audit ran on that commit.
+
+### Outstanding Blockers:
+- `save_order` can still persist a cart snapshot taken before the row lock.
+- Seeded product descriptions are empty, so every card gets the same fallback text.
+- CI ignores the live HTTP tests. No Ruff config.
+- Git history is still a bulk import on `main` by `trape3977@g,ail.com`.

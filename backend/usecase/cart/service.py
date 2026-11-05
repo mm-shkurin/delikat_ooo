@@ -1,5 +1,6 @@
 from uuid import UUID, uuid4
 
+from domain.cart.defaults import DEFAULT_CITY
 from domain.cart.models import Cart, CartLine, DeliveryAddress, Fulfillment, OrderCreated, OrderLineSnapshot
 from usecase.cart.errors import (
     AddressRequired,
@@ -14,7 +15,6 @@ from usecase.catalog.errors import ProductNotFound
 from usecase.catalog.ports import CatalogRepository
 
 _ORDER_MESSAGE = "Заказ принят. Мы свяжемся для подтверждения доставки."
-_DEFAULT_FULFILLMENT = Fulfillment(mode="delivery", address=DeliveryAddress(city="Омск", street_line=None))
 
 
 class CartService:
@@ -41,7 +41,7 @@ class CartService:
             raise InvalidFulfillment(mode)
         await self._carts.ensure(session_id)
         cart = await self._carts.load(session_id)
-        address_city = (city or "Омск").strip() or "Омск"
+        address_city = (city or DEFAULT_CITY).strip() or DEFAULT_CITY
         street = street_line.strip() if street_line and street_line.strip() else None
         if mode == "pickup":
             street = None
@@ -70,7 +70,9 @@ class CartService:
         unit_price = product.price_rub
         for line in cart.lines:
             if line.product_id == product_id and line.weight_label == weight:
-                line.quantity = min(99, line.quantity + quantity)
+                if line.quantity + quantity > 99:
+                    raise InvalidFulfillment("quantity")
+                line.quantity += quantity
                 await self._carts.save(cart)
                 return cart
         cart.lines.append(

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from adapters.http.shop_session import ensure_shop_session, require_shop_session
+from domain.cart.defaults import DEFAULT_CITY
 from usecase.cart.service import CartService, serialize_cart
 
 router = APIRouter(tags=["cart"])
@@ -12,7 +13,7 @@ router = APIRouter(tags=["cart"])
 
 class DeliveryAddressBody(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    city: str = Field(default="Омск", max_length=64)
+    city: str = Field(default=DEFAULT_CITY, max_length=64)
     street_line: str | None = Field(default=None, max_length=80)
 
 

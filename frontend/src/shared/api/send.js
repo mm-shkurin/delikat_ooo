@@ -1,5 +1,4 @@
-import { isSessionExpired } from '../session/authorizedRequest'
-import { authorizedRequest } from '../session/authorizedRequest'
+import { authorizedRequest, isSessionExpired } from '../session/authorizedRequest'
 import { request } from './httpClient'
 import { failureText } from './failureText'
 

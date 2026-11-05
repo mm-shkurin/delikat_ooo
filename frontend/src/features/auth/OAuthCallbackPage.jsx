@@ -33,6 +33,7 @@ export function OAuthCallbackPage() {
       .catch(() => {
         started.current = false
         setError('exchange_failed')
+        navigate('/auth/callback', { replace: true })
       })
   }, [params, navigate])
 

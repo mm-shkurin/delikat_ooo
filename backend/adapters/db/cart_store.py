@@ -7,10 +7,11 @@ from sqlalchemy.exc import DBAPIError, IntegrityError, InterfaceError, Operation
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
+from domain.cart.defaults import DEFAULT_CITY
 from domain.cart.models import Cart, Fulfillment, OrderCreated, OrderLineSnapshot, DeliveryAddress
 from adapters.db.models import CartLineRow, OrderLineRow, OrderRow, ShopCartRow
 from usecase.account.errors import StoreUnavailable
-from usecase.cart.errors import IdempotencyConflict
+from usecase.cart.errors import CartEmpty, IdempotencyConflict
 
 
 class PostgresCartStore:
@@ -115,14 +116,21 @@ class PostgresCartStore:
                             line_total_rub=line.line_total_rub,
                         )
                     )
-                session.add(row)
                 cart_row = await session.scalar(
                     select(ShopCartRow)
                     .where(ShopCartRow.session_id == session_id)
                     .options(selectinload(ShopCartRow.lines))
+                    .with_for_update()
                 )
-                if cart_row is not None:
-                    cart_row.lines.clear()
+                if cart_row is None or not cart_row.lines:
+                    existing = await _order_row(session, idempotency_key)
+                    if existing is not None and existing.session_id == session_id:
+                        return _order_to_domain(existing)
+                    if existing is not None:
+                        raise IdempotencyConflict()
+                    raise CartEmpty()
+                session.add(row)
+                cart_row.lines.clear()
                 await session.commit()
                 return order
         except IntegrityError:
@@ -142,7 +150,7 @@ def _default_cart_row(session_id: str) -> ShopCartRow:
     return ShopCartRow(
         session_id=session_id,
         fulfillment_mode="delivery",
-        city="Омск",
+        city=DEFAULT_CITY,
         street_line=None,
     )
 
@@ -150,7 +158,7 @@ def _default_cart_row(session_id: str) -> ShopCartRow:
 def _default_cart(session_id: str) -> Cart:
     return Cart(
         session_id=session_id,
-        fulfillment=Fulfillment(mode="delivery", address=DeliveryAddress(city="Омск", street_line=None)),
+        fulfillment=Fulfillment(mode="delivery", address=DeliveryAddress(city=DEFAULT_CITY, street_line=None)),
         lines=[],
     )
 

@@ -76,10 +76,15 @@ export function useStoreChrome() {
   const bootstrapCart = useCallback(async () => {
     setCartSyncing(true)
     try {
-      let body = await loadCartWithSession()
-      const local = readStoredFulfillment()
-      body = await updateFulfillment(buildFulfillmentUpdate(local.mode, local.address))
-      applyCartBody(body)
+      const loaded = await loadCartWithSession()
+      applyCartBody(loaded)
+      try {
+        const local = readStoredFulfillment()
+        const updated = await updateFulfillment(buildFulfillmentUpdate(local.mode, local.address))
+        applyCartBody(updated)
+      } catch (error) {
+        setCheckoutError(failureText(error))
+      }
     } catch (error) {
       setCheckoutError(failureText(error))
     } finally {
@@ -103,16 +108,19 @@ export function useStoreChrome() {
 
   const setMode = useCallback(
     async (next) => {
+      const previous = mode
       setModeState(next)
       writeStoredFulfillment({ mode: next, address })
       try {
         const body = await updateFulfillment(buildFulfillmentUpdate(next, address))
         applyCartBody(body)
       } catch (error) {
+        setModeState(previous)
+        writeStoredFulfillment({ mode: previous, address })
         setCheckoutError(failureText(error))
       }
     },
-    [address, applyCartBody],
+    [address, applyCartBody, mode],
   )
 
   useEffect(() => {
@@ -301,12 +309,12 @@ export function useStoreChrome() {
     if (!checkoutKey.current) checkoutKey.current = crypto.randomUUID()
     try {
       const body = await createOrder({ idempotencyKey: checkoutKey.current })
-      checkoutKey.current = null
       const view = orderCreatedToView(body)
       setLastOrder(view)
       const cartBody = await loadCartWithSession()
       applyCartBody(cartBody)
       setLayer('receipt')
+      checkoutKey.current = null
     } catch (error) {
       const failure = httpErrorIn(error)
       if (failure?.errorCode === 'address_required') {

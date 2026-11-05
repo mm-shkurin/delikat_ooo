@@ -1,6 +1,7 @@
 from copy import deepcopy
 from uuid import UUID
 
+from domain.cart.defaults import DEFAULT_CITY
 from domain.cart.models import Cart, Fulfillment, DeliveryAddress, OrderCreated
 from domain.catalog.product import Product
 from usecase.cart.errors import IdempotencyConflict
@@ -15,7 +16,7 @@ class FakeCartRepository:
         if session_id not in self._carts:
             self._carts[session_id] = Cart(
                 session_id=session_id,
-                fulfillment=Fulfillment(mode="delivery", address=DeliveryAddress(city="Омск", street_line=None)),
+                fulfillment=Fulfillment(mode="delivery", address=DeliveryAddress(city=DEFAULT_CITY, street_line=None)),
                 lines=[],
             )
 

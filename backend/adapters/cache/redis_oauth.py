@@ -1,6 +1,10 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
+from redis.exceptions import RedisError
+
+from usecase.account.errors import StoreUnavailable
+
 
 class RedisOAuthStore:
     def __init__(self, redis):
@@ -23,10 +27,16 @@ class RedisOAuthStore:
 
     async def _mint(self, key: str, value: str, expires_at: datetime) -> None:
         ttl = max(_millis(expires_at) - _millis(datetime.now(timezone.utc)), 1)
-        await self.redis.set(key, value, px=ttl)
+        try:
+            await self.redis.set(key, value, px=ttl)
+        except RedisError as exc:
+            raise StoreUnavailable() from exc
 
     async def _take(self, key: str, expected: str, now_ms: int, match_browser: bool) -> str | None:
-        raw = await self.redis.eval(_TAKE, 1, key, expected, str(now_ms), "1" if match_browser else "0")
+        try:
+            raw = await self.redis.eval(_TAKE, 1, key, expected, str(now_ms), "1" if match_browser else "0")
+        except RedisError as exc:
+            raise StoreUnavailable() from exc
         if not raw:
             return None
         return raw.decode() if isinstance(raw, bytes) else raw

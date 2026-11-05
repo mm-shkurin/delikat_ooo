@@ -74,6 +74,8 @@ def load_settings(env: Mapping[str, str] | None = None) -> Settings:
     refresh_secret = _required(source, "JWT_REFRESH_SECRET")
     if access_secret in _PLACEHOLDER_SECRETS or refresh_secret in _PLACEHOLDER_SECRETS:
         raise StartupError("Replace JWT_ACCESS_SECRET and JWT_REFRESH_SECRET; example placeholders are refused")
+    if len(access_secret) < 16 or len(refresh_secret) < 16 or access_secret == refresh_secret:
+        raise StartupError("JWT access and refresh secrets must be distinct and at least 16 characters")
     return Settings(
         database_url=database_url,
         redis_url=_required(source, "REDIS_URL"),

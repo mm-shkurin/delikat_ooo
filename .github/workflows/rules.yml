@@ -33,3 +33,35 @@ jobs:
 
       - name: Wire types (optional TS)
         run: python scripts/check_contract_types.py
+
+  backend-unit:
+    name: Backend unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Hermetic pytest
+        working-directory: backend
+        run: >
+          pytest usecase/tests -q
+          --ignore=usecase/tests/test_oauth_fake.py
+          --ignore=usecase/tests/test_catalog_http_validation.py
+
+  frontend-unit:
+    name: Frontend unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test
+        working-directory: frontend
+        run: npm ci && npm test

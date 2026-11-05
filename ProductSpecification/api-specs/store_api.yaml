@@ -1,0 +1,883 @@
+openapi: 3.0.3
+info:
+  title: Delikat Store API
+  version: 1.0.0
+  description: |
+    Store API v1 для витрины Деликат. Сессия корзины — cookie `delikat_session`.
+    Суммы integer RUB. Поля JSON — snake_case.
+    Примеры тел: ProductSpecification/api-specs/json-contracts.md
+    Фронт: ProductSpecification/api-specs/frontend-integration.md
+
+servers:
+  - url: http://127.0.0.1:8000
+    description: Local backend (dev)
+  - url: https://api.example.delikat.local
+    description: Production placeholder
+
+tags:
+  - name: sessions
+  - name: catalog
+  - name: cart
+  - name: auth
+  - name: orders
+
+paths:
+  /api/v1/sessions:
+    post:
+      summary: Создать guest-сессию
+      operationId: createSession
+      tags: [sessions]
+      responses:
+        '201':
+          description: Сессия создана, Set-Cookie delikat_session
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: delikat_session=...; Path=/; HttpOnly; SameSite=Lax
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionCreated'
+
+  /api/v1/sessions/reset:
+    post:
+      summary: Сбросить guest-сессию корзины
+      description: |
+        Выдаёт новый `delikat_session` (старый cookie перезаписывается).
+        Для Wave 2 — «чистый гость» перед server cart. Не затрагивает Bearer JWT;
+        для полного выхода клиент вызывает `POST /auth/logout` и чистит local storage.
+      operationId: resetGuestSession
+      tags: [sessions]
+      responses:
+        '204':
+          description: Новая guest-сессия, Set-Cookie delikat_session
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+
+  /api/v1/catalog/categories:
+    get:
+      summary: Категории каталога
+      operationId: listCategories
+      tags: [catalog]
+      responses:
+        '200':
+          description: Список категорий (включая «all» только на клиенте; сервер без all)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryList'
+
+  /api/v1/catalog/products:
+    get:
+      summary: Список товаров
+      operationId: listProducts
+      tags: [catalog]
+      parameters:
+        - name: category_id
+          in: query
+          description: Фильтр категории; omit = все
+          schema:
+            type: string
+            enum: [beef, pork, poultry, marble, semi, sauce]
+        - name: max_price_rub
+          in: query
+          schema:
+            type: integer
+            minimum: 500
+            maximum: 7000
+            example: 7000
+        - name: property
+          in: query
+          description: OR-фильтр свойств; несколько значений — товар должен иметь хотя бы одно
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProductProperty'
+          style: form
+          explode: true
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [pop, price_asc, sale_first]
+            default: pop
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 16
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Страница товаров
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '400':
+          description: Неверные query-параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/catalog/products/{product_id}:
+    get:
+      summary: Карточка товара
+      operationId: getProduct
+      tags: [catalog]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Детали товара
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+        '404':
+          description: Товар не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/cart:
+    get:
+      summary: Текущая корзина
+      operationId: getCart
+      tags: [cart]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Корзина (пустая или с строками)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '401':
+          description: Нет сессии — создать POST /sessions или первый POST cart/items с Set-Cookie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/cart/fulfillment:
+    put:
+      summary: Доставка или самовывоз и адрес
+      operationId: updateCartFulfillment
+      tags: [cart]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartFulfillmentUpdate'
+      responses:
+        '200':
+          description: Обновлённая корзина
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: validation_error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/cart/items:
+    post:
+      summary: Добавить товар в корзину
+      operationId: addCartItem
+      tags: [cart]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCartItemRequest'
+      responses:
+        '200':
+          description: Строка добавлена или qty увеличена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: product_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: address_required (delivery без street_line)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: address_required
+                message: Укажите адрес доставки перед добавлением в корзину
+
+  /api/v1/cart/items/{line_id}:
+    patch:
+      summary: Изменить количество
+      operationId: updateCartItem
+      tags: [cart]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                  maximum: 99
+      responses:
+        '200':
+          description: Корзина после изменения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: line_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Удалить строку
+      operationId: deleteCartItem
+      tags: [cart]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/LineId'
+      responses:
+        '200':
+          description: Корзина после удаления
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: line_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/oauth/yandex/start:
+    get:
+      summary: Начать вход через Yandex OAuth
+      operationId: startYandexOAuth
+      tags: [auth]
+      responses:
+        '302':
+          description: Redirect to Yandex; Set-Cookie signin_browser
+
+  /api/v1/auth/oauth/yandex/callback:
+    get:
+      summary: OAuth callback (backend)
+      operationId: yandexOAuthCallback
+      tags: [auth]
+      parameters:
+        - name: code
+          in: query
+          schema: { type: string }
+        - name: state
+          in: query
+          schema: { type: string }
+        - name: error
+          in: query
+          schema: { type: string }
+      responses:
+        '302':
+          description: Redirect to frontend callback with handoff code or error
+
+  /api/v1/auth/oauth/exchange:
+    post:
+      summary: Обмен handoff code на JWT
+      operationId: oauthExchange
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+      responses:
+        '200':
+          description: Token pair
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/refresh:
+    post:
+      summary: Обновить access token
+      operationId: refreshTokens
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/me:
+    get:
+      summary: Текущий пользователь
+      operationId: getMe
+      tags: [auth]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Профиль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Изменить отображаемое имя
+      description: |
+        `display_name` — имя в UI магазина; пользователь может менять его в любой момент.
+        `avatar_url` и `provider_display_name` приходят из Yandex при входе и **не** меняются этим запросом.
+      operationId: updateMe
+      tags: [auth]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        '200':
+          description: Обновлённый профиль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: invalid_display_name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/logout:
+    post:
+      summary: Выход
+      operationId: logout
+      tags: [auth]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '204':
+          description: Сессия отозвана
+
+  /api/v1/orders:
+    post:
+      summary: Оформить заказ из корзины
+      operationId: createOrder
+      tags: [orders]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_note:
+                  type: string
+                  maxLength: 500
+      responses:
+        '201':
+          description: Заказ создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreated'
+        '409':
+          description: cart_empty | address_required | cannot_checkout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: delikat_session
+
+  parameters:
+    ProductId:
+      name: product_id
+      in: path
+      required: true
+      schema:
+        type: string
+        example: rib
+    LineId:
+      name: line_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - validation_error
+            - unauthorized
+            - product_not_found
+            - line_not_found
+            - address_required
+            - cart_empty
+            - cannot_checkout
+            - invalid_phone
+            - invalid_code
+            - invalid_display_name
+            - rate_limited
+        message:
+          type: string
+
+    SessionCreated:
+      type: object
+      required: [session_id]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+
+    Category:
+      type: object
+      required: [id, title, sort_order]
+      properties:
+        id:
+          type: string
+          example: beef
+        title:
+          type: string
+          example: Говядина
+        sort_order:
+          type: integer
+
+    CategoryList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    ProductProperty:
+      type: string
+      enum: [chilled, frozen, fresh, premium]
+
+    ProductBadge:
+      type: string
+      enum: [NEW, TOP, SALE]
+
+    ProductSummary:
+      type: object
+      required:
+        - id
+        - name
+        - category_id
+        - default_weight_label
+        - price_rub
+        - popularity_score
+        - properties
+        - image_url
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category_id:
+          type: string
+        default_weight_label:
+          type: string
+          example: "~350 г"
+        price_rub:
+          type: integer
+          example: 1450
+        compare_at_price_rub:
+          type: integer
+          nullable: true
+          description: Было (скидка), как was в мокапе
+        popularity_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductProperty'
+        badge:
+          allOf:
+            - $ref: '#/components/schemas/ProductBadge'
+          nullable: true
+        marble_grade_label:
+          type: string
+          nullable: true
+          example: "Мраморность 4–5"
+        image_url:
+          type: string
+          example: /assets/products/ribeye.jpg
+
+    ProductDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProductSummary'
+        - type: object
+          required: [weight_options]
+          properties:
+            weight_options:
+              type: array
+              items:
+                type: string
+              description: Кнопки веса в карточке (default + presets)
+            description:
+              type: string
+              nullable: true
+
+    ProductListResponse:
+      type: object
+      required: [items, total_count]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductSummary'
+        total_count:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    FulfillmentMode:
+      type: string
+      enum: [delivery, pickup]
+
+    DeliveryAddress:
+      type: object
+      required: [city]
+      properties:
+        city:
+          type: string
+          default: Омск
+          example: Омск
+        street_line:
+          type: string
+          maxLength: 80
+          nullable: true
+          example: Ленина 10
+
+    CartFulfillment:
+      type: object
+      required: [mode, address]
+      properties:
+        mode:
+          $ref: '#/components/schemas/FulfillmentMode'
+        address:
+          $ref: '#/components/schemas/DeliveryAddress'
+
+    CartLine:
+      type: object
+      required:
+        - line_id
+        - product_id
+        - product_name
+        - weight_label
+        - quantity
+        - unit_price_rub
+        - line_total_rub
+      properties:
+        line_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+        product_name:
+          type: string
+        weight_label:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        unit_price_rub:
+          type: integer
+        line_total_rub:
+          type: integer
+
+    Cart:
+      type: object
+      required:
+        - fulfillment
+        - items
+        - items_count
+        - total_rub
+        - can_checkout
+      properties:
+        fulfillment:
+          $ref: '#/components/schemas/CartFulfillment'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartLine'
+        items_count:
+          type: integer
+          description: Сумма quantity по строкам
+        total_rub:
+          type: integer
+        can_checkout:
+          type: boolean
+          description: false если delivery без street_line или пустая корзина
+
+    CartFulfillmentUpdate:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          $ref: '#/components/schemas/FulfillmentMode'
+        address:
+          $ref: '#/components/schemas/DeliveryAddress'
+
+    AddCartItemRequest:
+      type: object
+      required: [product_id, quantity]
+      properties:
+        product_id:
+          type: string
+        weight_label:
+          type: string
+          description: Если omit — default_weight_label товара
+        quantity:
+          type: integer
+          minimum: 1
+          default: 1
+
+    PhoneRequest:
+      type: object
+      required: [phone_e164]
+      properties:
+        phone_e164:
+          type: string
+          example: "+73812300000"
+
+    PhoneRequestAccepted:
+      type: object
+      required: [retry_after_sec]
+      properties:
+        retry_after_sec:
+          type: integer
+          example: 60
+
+    PhoneVerify:
+      type: object
+      required: [phone_e164, sms_code]
+      properties:
+        phone_e164:
+          type: string
+        sms_code:
+          type: string
+          pattern: '^[0-9]{4,6}$'
+
+    TokenPair:
+      type: object
+      required: [access_token, refresh_token, token_type, expires_in_sec]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          enum: [Bearer]
+        expires_in_sec:
+          type: integer
+
+    UserProfile:
+      type: object
+      required: [user_id, email, display_name, provider_display_name]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          description: Имя в UI; по умолчанию из Yandex, пользователь может переименовать (PATCH /me).
+          maxLength: 120
+        provider_display_name:
+          type: string
+          description: Последнее имя из Yandex OAuth (read-only для клиента).
+          maxLength: 120
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+          description: Аватар из Yandex (`default_avatar_id` → avatars.yandex.net); read-only для клиента.
+
+    UserProfileUpdate:
+      type: object
+      required: [display_name]
+      properties:
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+
+    OrderLine:
+      type: object
+      required:
+        - product_id
+        - product_name
+        - weight_label
+        - quantity
+        - unit_price_rub
+        - line_total_rub
+      properties:
+        product_id:
+          type: string
+        product_name:
+          type: string
+        weight_label:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        unit_price_rub:
+          type: integer
+        line_total_rub:
+          type: integer
+
+    OrderCreated:
+      type: object
+      required: [order_id, status, total_rub, message, fulfillment, lines]
+      properties:
+        order_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [accepted]
+          description: v1 — сразу accepted; UI может показывать локальный «processing» до получения 201
+        total_rub:
+          type: integer
+        message:
+          type: string
+          example: Заказ принят. Мы свяжемся для подтверждения доставки.
+        fulfillment:
+          $ref: '#/components/schemas/CartFulfillment'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLine'
+          description: Снимок строк для экрана «чек»

@@ -1,0 +1,46 @@
+---
+description: После разработки пересобрать Docker, чтобы dev-стек отражал изменения
+alwaysApply: true
+---
+
+# Docker — пересборка после разработки
+
+Стек: `infra/docker-compose.yml` (frontend Vite, mock/backend API, site, gateway).
+
+## Когда обязательно
+
+После **завершения** сессии разработки, если менялись:
+
+- `frontend/` (React, Vite, env, зависимости)
+- `infra/` (Dockerfile, compose, mock-api)
+- `backend/` (когда появится hex-приложение в compose)
+- `ProductSpecification/api-specs/examples/` (фикстуры mock API)
+
+Volume mount не заменяет пересборку, если менялись **Dockerfile**, **package.json/lock**, **requirements**, образ mock-api или нужен чистый `node_modules` в volume.
+
+## Что сделать агенту перед «готово»
+
+Из `infra/` (или корень с `--env-file infra/.env`):
+
+```powershell
+docker compose up -d --build
+```
+
+Точечно:
+
+```powershell
+docker compose up -d --build frontend backend
+docker compose restart frontend
+```
+
+`restart` — только для правок в смонтированном коде без смены зависимостей/образа; после сомнений — `--build`.
+
+## Проверка
+
+- http://127.0.0.1:5173/ и /catalog — актуальный UI
+- http://127.0.0.1:8000/health — API
+- При acceptance на Docker: `ACCEPTANCE_BASE_URL=http://127.0.0.1:5173` только **после** rebuild
+
+## Не забывать в отчёте пользователю
+
+Если работали через Docker — явно написать, что контейнеры пересобраны (или дать команду, если rebuild не запускался).

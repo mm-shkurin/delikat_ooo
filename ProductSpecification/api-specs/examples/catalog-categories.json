@@ -1,0 +1,10 @@
+{
+  "items": [
+    { "id": "beef", "title": "Говядина", "sort_order": 1 },
+    { "id": "pork", "title": "Свинина", "sort_order": 2 },
+    { "id": "poultry", "title": "Птица", "sort_order": 3 },
+    { "id": "marble", "title": "Мраморное мясо", "sort_order": 4 },
+    { "id": "semi", "title": "Полуфабрикаты", "sort_order": 5 },
+    { "id": "sauce", "title": "Специи и соусы", "sort_order": 6 }
+  ]
+}

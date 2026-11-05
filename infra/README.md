@@ -1,0 +1,61 @@
+# Infra — Docker
+
+Стек по образцу **adaptive-tutor** (`postgres` + `redis` + hex **backend**) плюс dev-only **frontend**, **site**, **gateway**.
+
+| Сервис | Назначение | URL (по умолчанию) |
+|--------|------------|-------------------|
+| **postgres** | Hex backend DB | хост: `POSTGRES_HOST_PORT` через override |
+| **redis** | OAuth state, JWT revocations | хост: `REDIS_HOST_PORT` через override |
+| **backend** | Hex API (`backend/`), миграции при старте | http://127.0.0.1:8000 |
+| **frontend** | Vite + React, proxy `/api` → backend | http://127.0.0.1:5173 |
+| **site** | Референс-мокап | http://127.0.0.1:8767 |
+| **gateway** | Nginx: `/`, `/api/`, `/ref/` | http://127.0.0.1:8080 |
+| **mock-api** | Полный mock (cart/order) | profile `mock-api`, порт 8001 |
+
+## Быстрый старт
+
+```powershell
+cd infra
+copy .env.example .env
+copy docker-compose.override.yml.example docker-compose.override.yml
+docker compose up -d --build
+```
+
+Проверка:
+
+```powershell
+curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/api/v1/catalog/categories
+```
+
+Каталог и корзина в UI: http://127.0.0.1:5173 — hex API (catalog, auth, cart, orders).
+
+## Корзина / заказы (Wave 2)
+
+Hex backend пока без cart (**story 10**). Для полного mock API:
+
+```powershell
+docker compose --profile mock-api up -d --build mock-api
+# временно: VITE_API_PROXY_TARGET=http://127.0.0.1:8001 в frontend или env override
+```
+
+## Makefile
+
+```powershell
+make up
+make migrate
+make smoke
+make psql
+```
+
+## Локальный uvicorn (без Docker backend)
+
+Postgres/Redis с override → `backend/.env` с `127.0.0.1:5434` и `6379`; `alembic upgrade head`; `uvicorn application.main:app`.
+
+## Пересборка
+
+После правок `backend/`, `infra/docker/backend.Dockerfile`, fixtures:
+
+```powershell
+docker compose up -d --build backend
+```

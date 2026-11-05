@@ -1,0 +1,20 @@
+{
+  "fulfillment": {
+    "mode": "delivery",
+    "address": { "city": "Омск", "street_line": "Ленина 10" }
+  },
+  "items": [
+    {
+      "line_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "product_id": "rib",
+      "product_name": "Стейк Рибай",
+      "weight_label": "~350 г",
+      "quantity": 2,
+      "unit_price_rub": 1450,
+      "line_total_rub": 2900
+    }
+  ],
+  "items_count": 2,
+  "total_rub": 2900,
+  "can_checkout": true
+}

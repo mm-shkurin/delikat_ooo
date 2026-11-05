@@ -1,0 +1,20 @@
+{
+  "order_id": "b10e8400-e29b-41d4-a716-446655440000",
+  "status": "accepted",
+  "total_rub": 2900,
+  "message": "Заказ принят. Мы свяжемся для подтверждения доставки.",
+  "fulfillment": {
+    "mode": "delivery",
+    "address": { "city": "Омск", "street_line": "Ленина 10" }
+  },
+  "lines": [
+    {
+      "product_id": "rib",
+      "product_name": "Стейк Рибай",
+      "weight_label": "~350 г",
+      "quantity": 2,
+      "unit_price_rub": 1450,
+      "line_total_rub": 2900
+    }
+  ]
+}

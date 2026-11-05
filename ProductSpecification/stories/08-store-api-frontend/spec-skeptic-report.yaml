@@ -1,0 +1,35 @@
+mode: spec
+verdict: accept
+findings:
+  - severity: MED
+    where: 08_LandingCatalogApi.md:Flow §6
+    problem: Текст «cart/auth overlays локально до Wave 2/10» устарел после story 10.
+    source: interview.md OUT Wave 1 cart/order → story 10
+    fix: Зафиксировать в спеке: каталог/лендинг — scope 08; cart/checkout — story 10 (сделано в 08_LandingCatalogApi.md Flow §6).
+    resolved: 2026-11-02
+  - severity: LOW
+    where: 08_ProfileAuth_Notes.md:Экран входа
+    problem: Упоминание «Сбросить сессию магазина» — кнопку убрали (Wave 2).
+    source: frontend-wave2-delivery.md
+    fix: Оставить только «Выйти» для полного сброса (сделано в 08_ProfileAuth_Notes.md).
+    resolved: 2026-11-02
+coverage:
+  - item: Vite + React + router; landing + catalog features
+    status: met
+    evidence: frontend/src/features/*
+  - item: catalogApi + credentials + snake_case mappers
+    status: met
+    evidence: shared/api/backend; vitest bodyGuards/catalogQuery
+  - item: Fulfillment shared landing ↔ catalog
+    status: met
+    evidence: StoreChromeProvider; acceptance pickup sync
+  - item: Visual parity vs site/
+    status: not_verified
+    evidence: Side-by-side manual; acceptance covers catalog theme/grid
+  - item: No prod fetch in site/js
+    status: met
+    evidence: site/ unchanged for API
+  - item: Mock until hex 09
+    status: met
+    evidence: Vite proxy :8000 + mock-api for acceptance; hex 09 live
+questions_to_user: []

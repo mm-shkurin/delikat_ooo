@@ -1,0 +1,12 @@
+# Local only. Compose loads override automatically when this file exists as docker-compose.override.yml
+#
+#   cd infra && copy docker-compose.override.yml.example docker-compose.override.yml
+
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT}:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT}:6379"

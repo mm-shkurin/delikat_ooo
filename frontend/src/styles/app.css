@@ -1,0 +1,10 @@
+.app-shell {
+  font-family: system-ui, sans-serif;
+  padding: 1rem 1.5rem;
+}
+
+.app-shell__header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}

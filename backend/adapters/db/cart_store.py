@@ -87,7 +87,7 @@ class PostgresCartStore:
         session_id: str,
         order: OrderCreated,
         customer_note: str | None,
-    ) -> None:
+    ) -> OrderCreated:
         try:
             async with self._open() as session:
                 row = OrderRow(
@@ -124,10 +124,12 @@ class PostgresCartStore:
                 if cart_row is not None:
                     cart_row.lines.clear()
                 await session.commit()
+                return order
         except IntegrityError:
             existing = await self.find_order_by_idempotency(session_id, idempotency_key)
             if existing is None:
                 raise IdempotencyConflict() from None
+            return existing
 
 
 async def _order_row(session: AsyncSession, idempotency_key: UUID) -> OrderRow | None:

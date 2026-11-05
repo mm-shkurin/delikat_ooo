@@ -145,15 +145,12 @@ class CartService:
             fulfillment=cart.fulfillment,
             lines=lines,
         )
-        await self._carts.save_order(
+        return await self._carts.save_order(
             idempotency_key=idempotency_key,
             session_id=session_id,
             order=order,
             customer_note=customer_note,
         )
-        cart.lines = []
-        await self._carts.save(cart)
-        return order
 
 
 def _street_ok(fulfillment: Fulfillment) -> bool:

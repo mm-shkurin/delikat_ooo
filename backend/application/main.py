@@ -1,7 +1,9 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from adapters.http.auth_router import me_router, router as auth_router
@@ -13,6 +15,8 @@ from adapters.http.errors import register_errors
 from application.context import AppContext, build_context
 from application.guest_session_middleware import GuestSessionMiddleware
 from application.settings import Settings, load_settings
+
+_LOG = logging.getLogger("delikat.http")
 
 
 def create_app(settings: Settings | None = None, context: AppContext | None = None) -> FastAPI:
@@ -43,6 +47,13 @@ def create_app(settings: Settings | None = None, context: AppContext | None = No
 
     @app.get("/health")
     async def health():
+        try:
+            async with ctx.engine.connect() as connection:
+                await connection.execute(text("SELECT 1"))
+            await ctx.redis.ping()
+        except Exception:
+            _LOG.exception("health check failed")
+            return JSONResponse({"status": "unavailable"}, status_code=503)
         return {"status": "ok"}
 
     @app.get("/")

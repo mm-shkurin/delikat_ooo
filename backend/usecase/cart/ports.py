@@ -24,5 +24,5 @@ class CartRepository(Protocol):
         session_id: str,
         order: OrderCreated,
         customer_note: str | None,
-    ) -> None:
+    ) -> OrderCreated:
         ...

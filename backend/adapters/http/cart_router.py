@@ -12,8 +12,8 @@ router = APIRouter(tags=["cart"])
 
 class DeliveryAddressBody(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    city: str = "Омск"
-    street_line: str | None = None
+    city: str = Field(default="Омск", max_length=64)
+    street_line: str | None = Field(default=None, max_length=80)
 
 
 class CartFulfillmentUpdateBody(BaseModel):
@@ -26,7 +26,7 @@ class AddCartItemBody(BaseModel):
     model_config = ConfigDict(extra="ignore")
     product_id: str
     quantity: int = Field(default=1, ge=1, le=99)
-    weight_label: str | None = None
+    weight_label: str | None = Field(default=None, max_length=32)
 
 
 class PatchCartItemBody(BaseModel):

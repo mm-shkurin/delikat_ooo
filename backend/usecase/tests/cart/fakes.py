@@ -42,12 +42,13 @@ class FakeCartRepository:
         session_id: str,
         order: OrderCreated,
         customer_note: str | None,
-    ) -> None:
+    ) -> OrderCreated:
         del customer_note
         self._orders[(session_id, idempotency_key)] = order
         cart = self._carts.get(session_id)
         if cart is not None:
             cart.lines = []
+        return order
 
 
 class FakeCatalogForCart:

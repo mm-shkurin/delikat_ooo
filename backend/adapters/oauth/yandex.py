@@ -54,6 +54,7 @@ class YandexOAuthProvider:
                 "code": code,
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
+                "redirect_uri": self.redirect_uri,
             },
         )
         if not answer.is_success:

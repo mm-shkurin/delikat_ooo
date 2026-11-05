@@ -22,7 +22,8 @@ def _attach_session_cookie(response: Response, request: Request, session_id: str
 
 @router.post("/sessions", status_code=201)
 async def create_session(request: Request) -> JSONResponse:
-    session_id = minted_session_id(request) if not request.cookies.get(SESSION_COOKIE_NAME) else str(uuid4())
+    existing = request.cookies.get(SESSION_COOKIE_NAME)
+    session_id = existing if existing else minted_session_id(request)
     await request.app.state.ctx.cart.ensure_session(session_id)
     response = JSONResponse({"session_id": session_id}, status_code=201)
     _attach_session_cookie(response, request, session_id)

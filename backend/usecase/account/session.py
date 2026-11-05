@@ -17,7 +17,8 @@ class SessionService:
     async def refresh(self, refresh_token: str) -> TokenPair:
         claims = await self._live(refresh_token, "refresh")
         await self._account(claims.user_id)
-        return TokenPair(self.tokens.issue_access(claims.user_id), refresh_token, "Bearer")
+        await self.revocations.revoke(refresh_token, claims.expires_at)
+        return self.tokens.issue(claims.user_id)
 
     async def logout(self, access_token: str | None, refresh_token: str | None) -> None:
         claims = self.tokens.read(access_token or "", "access")

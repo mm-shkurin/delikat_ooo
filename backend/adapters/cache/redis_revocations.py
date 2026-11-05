@@ -12,7 +12,10 @@ class RedisRevocations:
 
     async def revoke(self, token: str, expires_at: datetime) -> None:
         ttl = max(int((expires_at - datetime.now(timezone.utc)).total_seconds()), 1)
-        await self.redis.set(_key(token), "1", ex=ttl)
+        try:
+            await self.redis.set(_key(token), "1", ex=ttl)
+        except RedisError as exc:
+            raise StoreUnavailable() from exc
 
     async def is_revoked(self, token: str) -> bool:
         try:

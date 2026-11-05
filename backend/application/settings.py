@@ -2,6 +2,7 @@ import os
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import timedelta
+from urllib.parse import urlsplit
 
 from dotenv import load_dotenv
 
@@ -116,8 +117,8 @@ def _int(env: Mapping[str, str], name: str, default: int) -> int:
 
 
 def _is_local_origin(url: str) -> bool:
-    lowered = url.lower()
-    return "://127.0.0.1" in lowered or "://localhost" in lowered
+    host = (urlsplit(url).hostname or "").lower()
+    return host in {"127.0.0.1", "localhost"}
 
 
 def _text(env: Mapping[str, str], name: str, default: str = "") -> str:

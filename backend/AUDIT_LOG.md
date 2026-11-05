@@ -17,3 +17,16 @@
 - Catalog list is filtered in Python. Default description and default city are duplicated. Quantity and address length errors become generic 500s.
 - Account/session/order HTTP tests are missing. `GET /health` does not check Postgres or Redis. No linter or CI.
 - README layout omits cart/orders and points at another repo for secrets.
+
+## Iteration 2 — Score: 2.0 / 3.0 — 2026-11-05 — a64b6e2
+
+### Fixed Issues:
+- Guest cookie is no longer overwritten; idempotency is session-scoped; order and cart clear share one transaction.
+- Malformed idempotency keys are HTTP 400. Redis revocation checks fail closed. Placeholder JWT secrets and non-local fake OAuth are refused. Alembic stamp uses a bound parameter.
+- After this score: refresh tokens rotate, `redirect_uri` is sent on the token POST, local-origin check uses the hostname, `POST /sessions` keeps an existing cart, `/health` probes Postgres and Redis, address fields are length-capped, and a conflicting idempotency insert returns the stored order.
+
+### Outstanding Blockers:
+- Backend history is still one large initial commit plus fixes. Author email in git config contains a comma; config was not changed.
+- No Ruff config and no workflow that runs pytest from `backend/`.
+- Catalog filtering still happens in Python. Default city `Омск` is still copied in three modules.
+- `test_oauth_fake.py` still needs live Postgres and Redis.

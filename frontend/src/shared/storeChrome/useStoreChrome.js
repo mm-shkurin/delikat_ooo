@@ -164,6 +164,7 @@ export function useStoreChrome() {
     async (street) => {
       const trimmed = street.trim()
       if (!trimmed) return
+      const previous = address
       setAddressState(trimmed)
       writeStoredFulfillment({ mode, address: trimmed })
       const queuedAdd = pendingAdd
@@ -171,22 +172,24 @@ export function useStoreChrome() {
         const body = await updateFulfillment(buildFulfillmentUpdate(mode, trimmed))
         applyCartBody(body)
         if (queuedAdd) {
-          setPendingAdd(null)
           const cartBody = await addCartItem({
             product_id: queuedAdd.productId,
             weight_label: queuedAdd.note,
             quantity: queuedAdd.qty,
           })
+          setPendingAdd(null)
           applyCartBody(cartBody)
           openLayer('cart')
         } else {
           setLayer(null)
         }
       } catch (error) {
+        setAddressState(previous)
+        writeStoredFulfillment({ mode, address: previous })
         setCheckoutError(failureText(error))
       }
     },
-    [applyCartBody, mode, openLayer, pendingAdd],
+    [address, applyCartBody, mode, openLayer, pendingAdd],
   )
 
   const requestAddToCart = useCallback(
@@ -287,6 +290,7 @@ export function useStoreChrome() {
       const line = cartView.items.find((item) => item.lineId === lineId)
       if (!line) return
       const nextQty = line.quantity + delta
+      if (nextQty > 99) return
       try {
         const body =
           nextQty <= 0

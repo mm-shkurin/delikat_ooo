@@ -31,9 +31,8 @@ export function OAuthCallbackPage() {
         navigate('/catalog', { replace: true })
       })
       .catch(() => {
-        started.current = false
         setError('exchange_failed')
-        navigate('/auth/callback', { replace: true })
+        window.history.replaceState({}, '', '/auth/callback')
       })
   }, [params, navigate])
 

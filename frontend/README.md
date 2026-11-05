@@ -10,7 +10,7 @@ cp .env.example .env
 npm install
 ```
 
-Статика с мокапа: junction `public/assets` → `../site/assets` (Windows: `mklink /J public\assets ..\site\assets`). Vite копирует `public/` в `dist` при сборке.
+Картинки отдаёт Docker: `infra/docker-compose.yml` монтирует `site/assets` в `frontend/public/assets`. Локально без Docker скопируйте или сделайте junction `public/assets` → `../site/assets`.
 
 ## Dev
 
@@ -22,14 +22,14 @@ npm run dev
 - Запросы на `/api/v1/*` проксируются на `VITE_API_PROXY_TARGET` (по умолчанию `http://127.0.0.1:8000`).
 - `VITE_API_BASE_URL` оставьте пустым, чтобы cookie и origin совпадали с Vite (как adaptive-tutor).
 
-Пока hex-backend не поднят — MSW по [frontend-integration.md](../ProductSpecification/api-specs/frontend-integration.md) или фикстуры из `api-specs/examples/`.
+API — hex backend на `VITE_API_PROXY_TARGET`. Контракт: `ProductSpecification/api-specs/store_api.yaml`.
 
 ## Структура (по фичам)
 
 ```
 src/features/<feature>/
   *Page.jsx
-  use*Screen.js
+  useCatalogPage.js и другие хуки экрана
   api/          # вызовы store API этой фичи
   logic/        # *View.js — wire → UI, vitest
 src/shared/api/backend/

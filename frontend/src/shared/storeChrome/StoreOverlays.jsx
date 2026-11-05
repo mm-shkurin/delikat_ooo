@@ -148,6 +148,7 @@ function AddressSheet({ chrome }) {
       </button>
       <h2 id="address-title">Куда везти</h2>
       <p className="muted">Без улицы стейк в корзину не кладётся.</p>
+      {chrome.checkoutError ? <p role="alert">{chrome.checkoutError}</p> : null}
       <label className="field" htmlFor="street">
         Улица и дом
       </label>

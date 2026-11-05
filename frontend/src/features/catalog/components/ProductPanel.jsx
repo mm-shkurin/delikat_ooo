@@ -80,7 +80,7 @@ export function ProductPanel({ detail, loading, failed = false, chrome, onClose 
               −
             </button>
             <b>{qty}</b>
-            <button type="button" aria-label="Больше" onClick={() => setQty(qty + 1)}>
+            <button type="button" aria-label="Больше" onClick={() => setQty(Math.min(99, qty + 1))}>
               +
             </button>
           </div>

@@ -27,7 +27,10 @@ export function useCatalogPage() {
   )
   const [productLoading, setProductLoading] = useState(false)
   const [productFailed, setProductFailed] = useState(false)
+  const [loadMoreError, setLoadMoreError] = useState('')
+  const [reloadTick, setReloadTick] = useState(0)
   const loadMoreAbort = useRef(/** @type {AbortController | null} */ (null))
+  const productAbort = useRef(/** @type {AbortController | null} */ (null))
 
   const queryKey = useMemo(
     () =>
@@ -65,7 +68,7 @@ export function useCatalogPage() {
         if (!controller.signal.aborted) setStatus('error')
       })
     return () => controller.abort()
-  }, [queryKey, filters])
+  }, [queryKey, filters, reloadTick])
 
   const loadMore = useCallback(() => {
     if (products.length >= totalCount) return
@@ -74,6 +77,7 @@ export function useCatalogPage() {
     const controller = new AbortController()
     loadMoreAbort.current = controller
     setLoadingMore(true)
+    setLoadMoreError('')
     listProducts(buildCatalogQuery({ ...filters, offset: nextOffset }), controller.signal)
       .then((page) => {
         if (controller.signal.aborted) return
@@ -81,7 +85,7 @@ export function useCatalogPage() {
       })
       .catch((error) => {
         if (controller.signal.aborted || error?.name === 'AbortError') return
-        setStatus('error')
+        setLoadMoreError('Не удалось подгрузить товары.')
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoadingMore(false)
@@ -89,10 +93,12 @@ export function useCatalogPage() {
   }, [filters, products.length, totalCount])
 
   const loadProduct = useCallback((productId) => {
+    productAbort.current?.abort()
     setProductLoading(true)
     setProductFailed(false)
     setProductDetail(null)
     const controller = new AbortController()
+    productAbort.current = controller
     getProduct(productId, controller.signal)
       .then((body) => {
         if (controller.signal.aborted) return
@@ -109,6 +115,8 @@ export function useCatalogPage() {
     return () => controller.abort()
   }, [])
 
+  const retryLoad = useCallback(() => setReloadTick((tick) => tick + 1), [])
+
   const shownLabel = formatShownCount(products.length)
   const canLoadMore = products.length < totalCount
 
@@ -120,6 +128,8 @@ export function useCatalogPage() {
     totalCount,
     status,
     loadingMore,
+    loadMoreError,
+    retryLoad,
     loadMore,
     canLoadMore,
     shownLabel,

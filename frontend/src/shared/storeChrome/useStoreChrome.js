@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getMe } from '../../features/auth/api/authApi'
 import { profileToView } from '../../features/auth/logic/profileView'
 import {
@@ -12,6 +12,7 @@ import { loadCartWithSession } from '../../features/cart/logic/loadCart'
 import { cartToView } from '../../features/cart/logic/cartView'
 import { createOrder } from '../../features/checkout/api/orderApi'
 import { orderCreatedToView } from '../../features/checkout/logic/orderView'
+import { failureText } from '../api/failureText'
 import { httpErrorIn } from '../api/httpResponse'
 import { clearShopSession } from '../session/clearShopSession'
 import { currentSession, endSession } from '../session/authSession'
@@ -79,8 +80,8 @@ export function useStoreChrome() {
       const local = readStoredFulfillment()
       body = await updateFulfillment(buildFulfillmentUpdate(local.mode, local.address))
       applyCartBody(body)
-    } catch {
-      /* offline — keep local fulfillment chip */
+    } catch (error) {
+      setCheckoutError(failureText(error))
     } finally {
       setCartSyncing(false)
     }
@@ -107,16 +108,12 @@ export function useStoreChrome() {
       try {
         const body = await updateFulfillment(buildFulfillmentUpdate(next, address))
         applyCartBody(body)
-      } catch {
-        /* chip already updated locally */
+      } catch (error) {
+        setCheckoutError(failureText(error))
       }
     },
     [address, applyCartBody],
   )
-
-  const setAddress = useCallback((street) => {
-    setAddressState(street)
-  }, [])
 
   useEffect(() => {
     if (!layer) return
@@ -178,7 +175,7 @@ export function useStoreChrome() {
           setLayer(null)
         }
       } catch (error) {
-        setCheckoutError(error instanceof Error ? error.message : 'Не удалось сохранить адрес.')
+        setCheckoutError(failureText(error))
       }
     },
     [applyCartBody, mode, openLayer, pendingAdd],

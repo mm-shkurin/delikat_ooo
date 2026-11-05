@@ -34,19 +34,19 @@ export function CatalogPage() {
     })
   }
 
-  if (page.status === 'error') {
-    return (
-      <main className="page wrap" data-testid="catalog-page">
-        <p>Каталог сейчас недоступен. Обновите страницу через минуту.</p>
-      </main>
-    )
-  }
-
   return (
     <>
       <CatalogNav chrome={chrome} onOpenAuth={openAuth} />
       <main className="page wrap" data-testid="catalog-page">
         <h1 className="page-title">Мясной каталог</h1>
+        {page.status === 'error' ? (
+          <p role="alert">
+            Каталог сейчас недоступен.{' '}
+            <button className="btn" type="button" onClick={page.retryLoad}>
+              Повторить
+            </button>
+          </p>
+        ) : null}
         <div className="layout">
           <aside className="filters" aria-label="Фильтры">
             <h2>Фильтры</h2>
@@ -154,6 +154,7 @@ export function CatalogPage() {
                 >
                   {page.loadingMore ? 'Загрузка…' : 'Показать ещё'}
                 </button>
+                {page.loadMoreError ? <span role="alert"> {page.loadMoreError}</span> : null}
               </p>
             ) : null}
           </section>

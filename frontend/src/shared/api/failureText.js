@@ -5,12 +5,11 @@ const BY_CODE = {
   cart_empty: 'Корзина пуста.',
   address_required: 'Укажите адрес доставки.',
   cannot_checkout: 'Нельзя оформить заказ — проверьте корзину и адрес.',
-  invalid_phone: 'Неверный номер телефона.',
-  invalid_code: 'Неверный код из SMS.',
   rate_limited: 'Слишком много попыток. Подождите и попробуйте снова.',
   product_not_found: 'Товар не найден.',
   line_not_found: 'Строка корзины не найдена.',
-  unauthorized: 'Войдите по номеру телефона.',
+  idempotency_conflict: 'Этот ключ заказа уже использован.',
+  unauthorized: 'Войдите через Яндекс ID.',
 }
 
 const GENERIC = 'Не получилось. Попробуйте ещё раз.'

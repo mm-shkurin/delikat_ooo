@@ -1,0 +1,19 @@
+feature,area,priority,original,clone,notes
+Cuisine catalog with sections and dish cards,catalog,must,yes,yes,
+Delivery or pickup switch,fulfillment,must,yes,yes,
+Address required before a dish can be added,address,must,yes,yes,
+Dish dialog with extras and an exclusion,dish,must,yes,yes,
+Cart with quantity and total,cart,must,yes,yes,
+Sticky bar that asks for an address or shows the total,cart,must,yes,yes,
+Category rail scrolls to a section,catalog,must,yes,yes,
+Search with an empty result,catalog,must,yes,yes,
+Struck-through compare price on a set,catalog,should,yes,yes,
+Short promo carousel,catalog,should,yes,yes,
+Cookie notice that can be dismissed,chrome,should,yes,yes,
+Sign-in control,account,should,yes,partial,phone field only
+Nutrition accordion,dish,could,yes,yes,
+Store badges in the footer,chrome,could,yes,no,not in this mockup
+Original menu photos and wording,content,could,yes,skip,their catalogue
+Original name mark and colours,brand,could,yes,skip,trade dress
+Visitor analytics tag,chrome,could,yes,skip,their counter
+Ordering platform credit,chrome,could,yes,skip,their vendor

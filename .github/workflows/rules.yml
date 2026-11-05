@@ -1,0 +1,35 @@
+# Контракт API: пути фронта ↔ store_api.yaml
+name: rules
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [dev, main, 'features/**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: rules-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: API contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install pyyaml
+
+      - name: Paths (paths.js vs OpenAPI)
+        run: python scripts/check_api_contract.py
+
+      - name: Wire types (optional TS)
+        run: python scripts/check_contract_types.py

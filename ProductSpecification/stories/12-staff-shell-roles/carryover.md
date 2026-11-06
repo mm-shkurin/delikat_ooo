@@ -1,6 +1,7 @@
 # Story 12 — carryover
 
-- **Spec wave (2026-11-06):** interview → story-spec (skeptic accept) → `admin_api.yaml` → test-spec (T1=10, T2=15). Implement not started.
+- **Back (2026-11-06):** implement+refactor done — `/api/v1/staff/*`, migration `0006`, usecase tests green. Contract tests still open.
+- **Front:** not started — `/admin` shell + Employees from `site/admin/`; Tier 1 UI (+ Security UI).
 - **From: 11:** mock ACL/UI in `site/admin/`; no public «Админ» nav (D3); demo password `staff` must not ship in prod UI.
-- **Next sessions:** `/backend-delivery` (staff me + roster) and/or `/frontend-delivery` (`/admin` shell + Employees) — Tier 1 first; parallel OK (path-scoped commits).
+- **Bootstrap:** `STAFF_OWNER_EMAILS` in env (not UI). Fake OAuth: `demo@example.test` when code=`demo`.
 - **Do not regress:** owner never assignable/removable via cabinet; manager → cashier only; role only from backend after Yandex.

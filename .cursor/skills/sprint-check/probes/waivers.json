@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "ARCH-STATE-LIB@front",
+    "reason": "Store UI keeps local React state and feature hooks only (frontend/README.md). No zustand or TanStack Query until a cross-route cache is needed. The probe only matches library names in package.json.",
+    "expires": "2027-02-05",
+    "owner": "mm shkurin"
+  },
+  {
+    "id": "ARCH-STATE-SPREAD@front",
+    "reason": "Catalog, auth, and cart hooks still keep more than three independent useState slots. Folding them into one reducer waits until a cross-route cache exists.",
+    "expires": "2027-02-05",
+    "owner": "mm shkurin"
+  }
+]

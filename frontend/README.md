@@ -38,6 +38,11 @@ src/shared/api/backend/
   bodyGuards.js
 ```
 
+## Состояние
+
+Только локальный React state и хуки фичи (`useState`, `useCatalogPage`, `useStoreChrome`).
+Zustand, Redux и TanStack Query не подключаем, пока не понадобится общий кэш между маршрутами.
+
 ## Checks
 
 ```bash

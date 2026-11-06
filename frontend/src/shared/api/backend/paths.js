@@ -26,4 +26,9 @@ export const BACKEND = {
   orders: {
     create: `${V1}/orders`,
   },
+  staff: {
+    me: `${V1}/staff/me`,
+    members: `${V1}/staff/members`,
+    member: (memberId) => `${V1}/staff/members/${encodeURIComponent(memberId)}`,
+  },
 }

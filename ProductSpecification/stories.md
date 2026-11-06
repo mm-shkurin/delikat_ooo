@@ -28,7 +28,7 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 12 | Staff: вход, роль, каркас вкладок | x | · | ~ | · | back Tier1 green (`/staff/*`); next front delivery |
+| 12 | Staff: вход, роль, каркас вкладок | x | ~ | ~ | · | front `/admin` + ACL; back `/staff/*`; browser smoke / contract open |
 | 13 | Staff: CRUD каталога (NEW/SALE, hide) | · | · | · | · | после 12; write API |
 | 14 | Витрина = тот же каталог (hide/badges) | · | · | · | · | после 13 |
 

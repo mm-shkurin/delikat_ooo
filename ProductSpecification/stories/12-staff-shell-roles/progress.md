@@ -12,9 +12,9 @@
 
 ## Front (frontend/)
 
-- [ ] implement — gate: Tier 1 UI (+ Security UI)
-- [ ] refactor
-- [ ] check
+- [x] implement — gate: Tier 1 UI (+ Security UI); `/admin` shell + Employees ACL
+- [x] refactor — n/a (staff files ≤ ~175; ACL/view extracted)
+- [x] check — `npm test` + `npm run ci`; contract OK
 
 ## Back (backend/)
 
@@ -24,4 +24,5 @@
 
 ## Close
 
-- [ ] progress + stories.md update
+- [x] progress + stories.md update (front band)
+- [ ] full story close — after browser smoke + back contract if needed

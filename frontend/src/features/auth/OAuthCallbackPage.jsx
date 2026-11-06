@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
 import { replaceHistoryPath } from '../../shared/browser/dom'
 import { exchangeOAuthCode } from './api/authApi'
+import { consumeAuthReturn } from './logic/authReturn'
 
 export function OAuthCallbackPage() {
   const chrome = useStoreChromeContext()
@@ -29,7 +30,7 @@ export function OAuthCallbackPage() {
     exchangeOAuthCode(code)
       .then(() => {
         completeAuth.current()
-        navigate('/catalog', { replace: true })
+        navigate(consumeAuthReturn('/catalog'), { replace: true })
       })
       .catch(() => {
         setError('exchange_failed')

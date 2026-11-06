@@ -10,6 +10,10 @@ const BY_CODE = {
   line_not_found: 'Строка корзины не найдена.',
   idempotency_conflict: 'Этот ключ заказа уже использован.',
   unauthorized: 'Войдите через Яндекс ID.',
+  forbidden: 'Недостаточно прав для этого действия.',
+  owner_immutable: 'Роль владельца нельзя менять из кабинета.',
+  staff_not_found: 'Сотрудник не найден.',
+  validation_error: 'Проверьте введённые данные.',
 }
 
 const GENERIC = 'Не получилось. Попробуйте ещё раз.'

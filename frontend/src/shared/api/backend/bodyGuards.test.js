@@ -7,6 +7,8 @@ import {
   isCategoryListBody,
   isOrderCreatedBody,
   isProductListBody,
+  isStaffMeBody,
+  isStaffMemberListBody,
   isUserProfileBody,
 } from './bodyGuards'
 
@@ -36,5 +38,13 @@ describe('bodyGuards vs api-spec examples', () => {
 
   it('me-profile.json', () => {
     expect(isUserProfileBody(load('me-profile.json'))).toBe(true)
+  })
+
+  it('staff-me.json', () => {
+    expect(isStaffMeBody(load('staff-me.json'))).toBe(true)
+  })
+
+  it('staff-members.json', () => {
+    expect(isStaffMemberListBody(load('staff-members.json'))).toBe(true)
   })
 })

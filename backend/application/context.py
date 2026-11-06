@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timedelta
 
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
@@ -23,7 +23,7 @@ from usecase.catalog.service import CatalogService
 
 @dataclass
 class RuntimeConfig:
-    state_ttl: object
+    state_ttl: timedelta
     cors_origins: tuple[str, ...]
 
 
@@ -99,4 +99,4 @@ def _provider(settings: Settings):
 
 class _WallClock:
     def now(self) -> datetime:
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)

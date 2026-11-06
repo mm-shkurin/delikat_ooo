@@ -6,12 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
-from adapters.http.auth_router import me_router, router as auth_router
+from adapters.http.auth_router import me_router
+from adapters.http.auth_router import router as auth_router
 from adapters.http.cart_router import router as cart_router
 from adapters.http.catalog_router import router as catalog_router
+from adapters.http.errors import register_errors
 from adapters.http.orders_router import router as orders_router
 from adapters.http.sessions_router import router as sessions_router
-from adapters.http.errors import register_errors
 from application.context import AppContext, build_context
 from application.guest_session_middleware import GuestSessionMiddleware
 from application.settings import Settings, load_settings
@@ -39,8 +40,8 @@ def create_app(settings: Settings | None = None, context: AppContext | None = No
         CORSMiddleware,
         allow_origins=list(config.cors_origins),
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "Accept"],
     )
     app.add_middleware(GuestSessionMiddleware, max_age_sec=config.session_cookie_max_age_sec)
     register_errors(app)

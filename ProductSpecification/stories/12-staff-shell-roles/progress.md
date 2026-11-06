@@ -18,8 +18,8 @@
 
 ## Back (backend/)
 
-- [ ] implement — gate: Tier 1 API (+ Security API)
-- [ ] refactor
+- [x] implement — gate: Tier 1 API (+ Security API); usecase staff + HTTP `/api/v1/staff/*`
+- [x] refactor — n/a (touched files ≤ ~200)
 - [ ] contract tests
 
 ## Close

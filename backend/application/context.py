@@ -10,6 +10,7 @@ from adapters.db.account_store import PostgresAccountStore
 from adapters.db.cart_store import PostgresCartStore
 from adapters.db.catalog_store import PostgresCatalogStore
 from adapters.db.session import create_db_engine, create_session_factory
+from adapters.db.staff_store import PostgresStaffStore
 from adapters.oauth.fake import FakeOAuthProvider
 from adapters.oauth.yandex import YandexOAuthProvider
 from adapters.security.jwt import JwtConfig, JwtTokenIssuer
@@ -19,6 +20,7 @@ from usecase.account.session import SessionService
 from usecase.account.sign_in import SignIn
 from usecase.cart.service import CartService
 from usecase.catalog.service import CatalogService
+from usecase.staff.service import StaffService
 
 
 @dataclass
@@ -38,6 +40,7 @@ class AppContext:
     profile: ProfileService
     catalog: CatalogService
     cart: CartService
+    staff: StaffService
     redis: Redis
 
 
@@ -45,6 +48,11 @@ def build_context(settings: Settings) -> AppContext:
     engine = create_db_engine(settings.database_url)
     session_factory = create_session_factory(engine)
     accounts = PostgresAccountStore(session_factory)
+    staff = StaffService(
+        PostgresStaffStore(session_factory),
+        accounts,
+        settings.staff_owner_emails,
+    )
     redis = Redis.from_url(settings.redis_url)
     tokens = JwtTokenIssuer(
         JwtConfig(
@@ -65,6 +73,7 @@ def build_context(settings: Settings) -> AppContext:
         settings.state_ttl,
         settings.handoff_ttl,
         settings.frontend_callback_url,
+        staff_login=staff,
     )
     session = SessionService(accounts, tokens, RedisRevocations(redis))
     catalog_store = PostgresCatalogStore(session_factory)
@@ -80,6 +89,7 @@ def build_context(settings: Settings) -> AppContext:
         profile=ProfileService(accounts),
         catalog=catalog,
         cart=cart,
+        staff=staff,
         redis=redis,
     )
 

@@ -3,8 +3,15 @@ from datetime import timedelta
 from secrets import token_urlsafe
 from urllib.parse import urlencode
 
+from typing import Protocol
+
+from domain.account.account import Account
 from usecase.account.errors import OAuthFailed, Unauthorized
 from usecase.account.ports import AccountStore, OAuthCodes, OAuthProvider, TokenIssuer
+
+
+class StaffLoginHook(Protocol):
+    async def on_account_login(self, account: Account) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -25,6 +32,7 @@ class SignIn:
         state_ttl: timedelta,
         handoff_ttl: timedelta,
         frontend_callback_url: str,
+        staff_login: StaffLoginHook | None = None,
     ):
         self.provider = provider
         self.codes = codes
@@ -34,6 +42,7 @@ class SignIn:
         self.state_ttl = state_ttl
         self.handoff_ttl = handoff_ttl
         self.frontend_callback_url = frontend_callback_url
+        self.staff_login = staff_login
 
     async def start(self) -> tuple[str, str]:
         browser = token_urlsafe(32)
@@ -55,6 +64,8 @@ class SignIn:
         except OAuthFailed:
             return self._location(error="provider_failed")
         account = await self.accounts.get_or_create(identity, self.clock.now())
+        if self.staff_login is not None:
+            await self.staff_login.on_account_login(account)
         handoff = token_urlsafe(32)
         expires_at = self.clock.now() + self.handoff_ttl
         await self.codes.mint_handoff(handoff, account.id, browser, expires_at)

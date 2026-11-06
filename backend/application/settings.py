@@ -53,6 +53,7 @@ class Settings:
     yandex_token_url: str
     yandex_info_url: str
     session_cookie_max_age_sec: int
+    staff_owner_emails: frozenset[str]
 
 
 def load_settings(env: Mapping[str, str] | None = None) -> Settings:
@@ -101,6 +102,7 @@ def load_settings(env: Mapping[str, str] | None = None) -> Settings:
         yandex_token_url=_text(source, "YANDEX_TOKEN_URL", "https://oauth.yandex.ru/token"),
         yandex_info_url=_text(source, "YANDEX_INFO_URL", "https://login.yandex.ru/info"),
         session_cookie_max_age_sec=_int(source, "SESSION_COOKIE_MAX_AGE_SEC", 60 * 60 * 24 * 30),
+        staff_owner_emails=_emails(source, "STAFF_OWNER_EMAILS"),
     )
 
 
@@ -131,3 +133,10 @@ def _text(env: Mapping[str, str], name: str, default: str = "") -> str:
     if value is None:
         return default
     return str(value).strip()
+
+
+def _emails(env: Mapping[str, str], name: str) -> frozenset[str]:
+    raw = _text(env, name)
+    if not raw:
+        return frozenset()
+    return frozenset(part.strip().lower() for part in raw.split(",") if part.strip())

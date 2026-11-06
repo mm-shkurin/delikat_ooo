@@ -5,6 +5,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from usecase.account.errors import InvalidDisplayName, StoreUnavailable, Unauthorized
+from usecase.staff.errors import Forbidden as StaffForbidden
+from usecase.staff.errors import OwnerImmutable, StaffNotFound, StaffValidation
 from usecase.cart.errors import (
     AddressRequired,
     CannotCheckout,
@@ -27,7 +29,11 @@ _CART_EMPTY = {"code": "cart_empty", "message": "Корзина пуста"}
 _CANNOT_CHECKOUT = {"code": "cannot_checkout", "message": "Нельзя оформить заказ"}
 _INVALID_REQUEST = {"code": "invalid_request", "message": "The request is not valid"}
 _VALIDATION = {"code": "validation_error", "message": "Query parameters are not valid"}
+_STAFF_VALIDATION = {"code": "validation_error", "message": "Staff request is not valid"}
 _PRODUCT_NOT_FOUND = {"code": "product_not_found", "message": "Product was not found"}
+_STAFF_NOT_FOUND = {"code": "staff_not_found", "message": "Staff member was not found"}
+_FORBIDDEN = {"code": "forbidden", "message": "Access is forbidden"}
+_OWNER_IMMUTABLE = {"code": "owner_immutable", "message": "Owner role cannot be changed"}
 _INVALID_DISPLAY_NAME = {"code": "invalid_display_name", "message": "Display name is not valid"}
 _UNAVAILABLE = {"code": "unavailable", "message": "The service is temporarily unavailable"}
 _FINISHED = {"code": "internal_error", "message": "The request could not be finished"}
@@ -39,6 +45,7 @@ def register_errors(app: FastAPI) -> None:
     app.add_exception_handler(Unauthorized, _status(401, _UNAUTHORIZED))
     app.add_exception_handler(ShopSessionRequired, _status(401, _SESSION_REQUIRED))
     app.add_exception_handler(ProductNotFound, _status(404, _PRODUCT_NOT_FOUND))
+    app.add_exception_handler(StaffNotFound, _status(404, _STAFF_NOT_FOUND))
     app.add_exception_handler(LineNotFound, _status(404, _LINE_NOT_FOUND))
     app.add_exception_handler(AddressRequired, _status(409, _ADDRESS_REQUIRED))
     app.add_exception_handler(CartEmpty, _status(409, _CART_EMPTY))
@@ -49,6 +56,9 @@ def register_errors(app: FastAPI) -> None:
     app.add_exception_handler(InvalidFulfillment, _status(400, _INVALID_REQUEST))
     app.add_exception_handler(InvalidQuantity, _status(400, _INVALID_REQUEST))
     app.add_exception_handler(InvalidCatalogQuery, _status(400, _VALIDATION))
+    app.add_exception_handler(StaffValidation, _status(400, _STAFF_VALIDATION))
+    app.add_exception_handler(StaffForbidden, _status(403, _FORBIDDEN))
+    app.add_exception_handler(OwnerImmutable, _status(403, _OWNER_IMMUTABLE))
     app.add_exception_handler(InvalidDisplayName, _status(422, _INVALID_DISPLAY_NAME))
     app.add_exception_handler(StoreUnavailable, _status(503, _UNAVAILABLE))
     app.add_exception_handler(RequestValidationError, _status(400, _INVALID_REQUEST))

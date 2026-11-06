@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import DBAPIError, IntegrityError, InterfaceError, OperationalError
 
 from adapters.db.models import AccountRow
@@ -16,6 +16,9 @@ class PostgresAccountStore:
     async def get(self, user_id: UUID):
         return await self._run(lambda session: self._get(session, user_id))
 
+    async def find_by_email(self, email: str):
+        return await self._run(lambda session: self._find_by_email(session, email))
+
     async def get_or_create(self, identity: ProviderIdentity, created_at: datetime):
         try:
             return await self._run(lambda session: self._claim(session, identity, created_at))
@@ -27,6 +30,13 @@ class PostgresAccountStore:
 
     async def _get(self, session, user_id: UUID):
         row = await session.get(AccountRow, user_id)
+        return None if row is None else row.to_domain()
+
+    async def _find_by_email(self, session, email: str):
+        target = email.strip().lower()
+        row = await session.scalar(
+            select(AccountRow).where(func.lower(AccountRow.email) == target).limit(1)
+        )
         return None if row is None else row.to_domain()
 
     async def _claim(self, session, identity: ProviderIdentity, created_at: datetime):

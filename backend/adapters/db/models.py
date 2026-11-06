@@ -9,6 +9,8 @@ from domain.account.account import Account
 from domain.cart.models import Cart, CartLine, DeliveryAddress, Fulfillment
 from domain.catalog.category import Category
 from domain.catalog.product import Product
+from domain.staff.member import StaffMember
+from domain.staff.role import StaffRole, StaffStatus
 
 
 class AccountRow(Base):
@@ -38,6 +40,32 @@ class AccountRow(Base):
         self.provider_name = account.provider_name
         self.profile_name = account.profile_name
         self.avatar_url = account.avatar_url
+
+
+class StaffMemberRow(Base):
+    __tablename__ = "staff_members"
+
+    member_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
+    email: Mapped[str] = mapped_column(String(320), unique=True, nullable=False)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    user_id: Mapped[UUID | None] = mapped_column(Uuid(as_uuid=True), ForeignKey("accounts.id"), nullable=True)
+
+    def to_domain(self) -> StaffMember:
+        return StaffMember(
+            member_id=self.member_id,
+            email=self.email,
+            role=StaffRole(self.role),
+            status=StaffStatus(self.status),
+            user_id=self.user_id,
+            display_name=None,
+        )
+
+    def apply(self, member) -> None:
+        self.email = member.email
+        self.role = member.role.value
+        self.status = member.status.value
+        self.user_id = member.user_id
 
 
 class CategoryRow(Base):

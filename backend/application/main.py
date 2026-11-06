@@ -13,6 +13,7 @@ from adapters.http.catalog_router import router as catalog_router
 from adapters.http.errors import register_errors
 from adapters.http.orders_router import router as orders_router
 from adapters.http.sessions_router import router as sessions_router
+from adapters.http.staff_router import router as staff_router
 from application.context import AppContext, build_context
 from application.guest_session_middleware import GuestSessionMiddleware
 from application.settings import Settings, load_settings
@@ -67,6 +68,7 @@ def create_app(settings: Settings | None = None, context: AppContext | None = No
     app.include_router(catalog_router, prefix="/api/v1")
     app.include_router(cart_router, prefix="/api/v1")
     app.include_router(orders_router, prefix="/api/v1")
+    app.include_router(staff_router, prefix="/api/v1")
     return app
 
 

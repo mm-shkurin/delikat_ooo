@@ -4,7 +4,7 @@ import pytest
 
 from domain.catalog.product import Product
 from usecase.cart.errors import AddressRequired, CartEmpty, IdempotencyConflict, LineNotFound
-from usecase.cart.service import CartService, serialize_cart
+from usecase.cart.service import CartService
 from usecase.tests.cart.fakes import FakeCartRepository, FakeCatalogForCart
 
 _PRODUCT = Product(
@@ -41,13 +41,13 @@ async def test_checkout_flow(service: CartService):
     await service.update_fulfillment(session, mode="delivery", city="Омск", street_line="Ленина 10")
     await service.add_item(session, product_id="rib", quantity=2, weight_label=None)
     cart = await service.get_cart(session)
-    assert serialize_cart(cart)["items_count"] == 2
+    assert sum(line.quantity for line in cart.lines) == 2
     key = uuid4()
     order = await service.create_order(session, idempotency_key=key, customer_note=None)
     assert order.total_rub == 2900
     assert len(order.lines) == 1
     empty = await service.get_cart(session)
-    assert serialize_cart(empty)["items_count"] == 0
+    assert empty.lines == []
     again = await service.create_order(session, idempotency_key=key, customer_note=None)
     assert again.order_id == order.order_id
 
@@ -73,6 +73,16 @@ async def test_checkout_empty(service: CartService):
     await service.update_fulfillment(session, mode="pickup", city="Омск", street_line=None)
     with pytest.raises(CartEmpty):
         await service.create_order(session, idempotency_key=uuid4(), customer_note=None)
+
+
+@pytest.mark.asyncio
+async def test_second_add_merges_same_weight(service: CartService):
+    session = str(uuid4())
+    await service.update_fulfillment(session, mode="pickup", city="Омск", street_line=None)
+    await service.add_item(session, product_id="rib", quantity=1, weight_label=None)
+    cart = await service.add_item(session, product_id="rib", quantity=2, weight_label=None)
+    assert len(cart.lines) == 1
+    assert cart.lines[0].quantity == 3
 
 
 @pytest.mark.asyncio

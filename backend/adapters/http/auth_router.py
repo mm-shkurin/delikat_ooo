@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, ConfigDict
 
 from adapters.http.deps import bearer_token
+from usecase.account.profile import UserProfileView
 
 BROWSER_COOKIE = "signin_browser"
 
@@ -45,6 +46,16 @@ class UserProfileResponse(BaseModel):
 class UserProfileUpdateBody(BaseModel):
     model_config = ConfigDict(extra="ignore")
     display_name: str
+
+
+def _profile_response(view: UserProfileView) -> UserProfileResponse:
+    return UserProfileResponse(
+        user_id=view.user_id,
+        email=view.email,
+        display_name=view.display_name,
+        provider_display_name=view.provider_display_name,
+        avatar_url=view.avatar_url,
+    )
 
 
 @router.get("/oauth/yandex/start")
@@ -112,8 +123,7 @@ async def get_me_route(
 ) -> UserProfileResponse:
     ctx = request.app.state.ctx
     account = await ctx.session.caller(access_token)
-    profile = ctx.profile.view(account)
-    return UserProfileResponse(**profile)
+    return _profile_response(ctx.profile.view(account))
 
 
 @me_router.patch("/me", response_model=UserProfileResponse)
@@ -125,4 +135,4 @@ async def patch_me_route(
     ctx = request.app.state.ctx
     account = await ctx.session.caller(access_token)
     updated = await ctx.profile.rename(account, body.display_name)
-    return UserProfileResponse(**ctx.profile.view(updated))
+    return _profile_response(ctx.profile.view(updated))

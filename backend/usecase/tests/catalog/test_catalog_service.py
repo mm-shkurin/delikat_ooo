@@ -3,7 +3,7 @@ import pytest
 from domain.catalog.category import Category
 from domain.catalog.product import Product
 from usecase.catalog.errors import InvalidCatalogQuery, ProductNotFound
-from usecase.catalog.queries import ProductListQuery
+from usecase.catalog.queries import ProductListQuery, ProductListResult
 from usecase.catalog.service import CatalogService
 from usecase.tests.catalog.fakes import FakeCatalogRepository
 
@@ -136,6 +136,29 @@ async def test_sort_sale_first(service: CatalogService):
 async def test_max_price_out_of_range(service: CatalogService):
     with pytest.raises(InvalidCatalogQuery):
         await service.list_products(ProductListQuery(None, 499, (), "pop", 16, 0))
+
+
+@pytest.mark.asyncio
+async def test_list_products_delegates_the_validated_query():
+    seen: dict[str, ProductListQuery] = {}
+
+    class _RecordingCatalog:
+        async def list_categories(self):
+            return []
+
+        async def list_products(self, query: ProductListQuery) -> ProductListResult:
+            seen["query"] = query
+            return ProductListResult(items=(), total_count=0, limit=query.limit, offset=query.offset)
+
+        async def get_product(self, product_id: str):
+            return None
+
+    query = ProductListQuery("beef", 1300, ("chilled",), "pop", 16, 2)
+    result = await CatalogService(_RecordingCatalog()).list_products(query)
+    assert seen["query"] == query
+    assert result.total_count == 0
+    assert result.limit == 16
+    assert result.offset == 2
 
 
 @pytest.mark.asyncio

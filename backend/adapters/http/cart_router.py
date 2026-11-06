@@ -4,9 +4,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
+from adapters.http.cart_presenters import serialize_cart
 from adapters.http.shop_session import ensure_shop_session, require_shop_session
 from domain.cart.defaults import DEFAULT_CITY
-from usecase.cart.service import CartService, serialize_cart
+from usecase.cart.service import CartService
 
 router = APIRouter(tags=["cart"])
 

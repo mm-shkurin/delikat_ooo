@@ -1,18 +1,25 @@
+from collections.abc import Callable
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.exc import DBAPIError, IntegrityError, InterfaceError, OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
-from adapters.db.models import CartLineRow, OrderLineRow, OrderRow, ShopCartRow
+from adapters.db.models import CartLineRow, ShopCartRow
+from adapters.db.order_persist import (
+    accepted_order,
+    load_order_row,
+    order_row_for,
+    order_to_domain,
+    replay_or_reject_empty,
+)
 from domain.cart.defaults import DEFAULT_CITY
-from domain.cart.models import Cart, DeliveryAddress, Fulfillment, OrderCreated, OrderLineSnapshot
+from domain.cart.models import Cart, DeliveryAddress, Fulfillment, OrderCreated
 from domain.cart.rules import can_checkout, street_ok
 from usecase.account.errors import StoreUnavailable
-from usecase.cart.errors import AddressRequired, CannotCheckout, CartEmpty, IdempotencyConflict
+from usecase.cart.errors import AddressRequired, CannotCheckout, IdempotencyConflict
 
 
 class PostgresCartStore:
@@ -38,47 +45,42 @@ class PostgresCartStore:
 
     async def load(self, session_id: str) -> Cart:
         async with self._open() as session:
-            row = await session.scalar(
-                select(ShopCartRow).where(ShopCartRow.session_id == session_id).options(selectinload(ShopCartRow.lines))
-            )
+            row = await _load_cart_row(session, session_id)
             if row is None:
                 return _default_cart(session_id)
             return row.to_domain()
 
     async def save(self, cart: Cart) -> None:
         async with self._open() as session:
-            row = await session.scalar(
-                select(ShopCartRow)
-                .where(ShopCartRow.session_id == cart.session_id)
-                .options(selectinload(ShopCartRow.lines))
-            )
+            row = await _load_cart_row(session, cart.session_id)
             if row is None:
                 row = _default_cart_row(cart.session_id)
                 session.add(row)
-            row.apply(cart)
-            row.lines.clear()
-            for line in cart.lines:
-                row.lines.append(
-                    CartLineRow(
-                        line_id=line.line_id,
-                        session_id=cart.session_id,
-                        product_id=line.product_id,
-                        product_name=line.product_name,
-                        weight_label=line.weight_label,
-                        quantity=line.quantity,
-                        unit_price_rub=line.unit_price_rub,
-                    )
-                )
+            _write_cart(row, cart)
             await session.commit()
+
+    async def mutate(self, session_id: str, mutator: Callable[[Cart], None]) -> Cart:
+        async with self._open() as session:
+            row = await _load_cart_row(session, session_id, lock=True)
+            if row is None:
+                row = _default_cart_row(session_id)
+                session.add(row)
+                cart = _default_cart(session_id)
+            else:
+                cart = row.to_domain()
+            mutator(cart)
+            _write_cart(row, cart)
+            await session.commit()
+            return cart
 
     async def find_order_by_idempotency(self, session_id: str, idempotency_key: UUID) -> OrderCreated | None:
         async with self._open() as session:
-            row = await _order_row(session, idempotency_key)
+            row = await load_order_row(session, idempotency_key)
             if row is None:
                 return None
             if row.session_id != session_id:
                 raise IdempotencyConflict()
-            return _order_to_domain(row)
+            return order_to_domain(row)
 
     async def save_order(
         self,
@@ -90,68 +92,23 @@ class PostgresCartStore:
     ) -> OrderCreated:
         try:
             async with self._open() as session:
-                cart_row = await session.scalar(
-                    select(ShopCartRow)
-                    .where(ShopCartRow.session_id == session_id)
-                    .options(selectinload(ShopCartRow.lines))
-                    .with_for_update()
-                )
+                cart_row = await _load_cart_row(session, session_id, lock=True)
                 if cart_row is None or not cart_row.lines:
-                    existing = await _order_row(session, idempotency_key)
-                    if existing is not None and existing.session_id == session_id:
-                        return _order_to_domain(existing)
-                    if existing is not None:
-                        raise IdempotencyConflict()
-                    raise CartEmpty()
+                    return await replay_or_reject_empty(session, session_id, idempotency_key)
                 cart = cart_row.to_domain()
                 if not street_ok(cart.fulfillment):
                     raise AddressRequired()
                 if not can_checkout(cart):
                     raise CannotCheckout()
-                order = OrderCreated(
-                    order_id=uuid4(),
-                    status="accepted",
-                    total_rub=sum(line.line_total_rub for line in cart.lines),
-                    message=order_message,
-                    fulfillment=cart.fulfillment,
-                    lines=tuple(
-                        OrderLineSnapshot(
-                            product_id=line.product_id,
-                            product_name=line.product_name,
-                            weight_label=line.weight_label,
-                            quantity=line.quantity,
-                            unit_price_rub=line.unit_price_rub,
-                            line_total_rub=line.line_total_rub,
-                        )
-                        for line in cart.lines
-                    ),
-                )
-                row = OrderRow(
-                    order_id=order.order_id,
-                    idempotency_key=idempotency_key,
-                    session_id=session_id,
-                    status=order.status,
-                    total_rub=order.total_rub,
-                    message=order.message,
-                    customer_note=customer_note,
-                    fulfillment_mode=order.fulfillment.mode,
-                    city=order.fulfillment.address.city,
-                    street_line=order.fulfillment.address.street_line,
-                    created_at=datetime.now(UTC),
-                )
-                for line in order.lines:
-                    row.lines.append(
-                        OrderLineRow(
-                            order_id=order.order_id,
-                            product_id=line.product_id,
-                            product_name=line.product_name,
-                            weight_label=line.weight_label,
-                            quantity=line.quantity,
-                            unit_price_rub=line.unit_price_rub,
-                            line_total_rub=line.line_total_rub,
-                        )
+                order = accepted_order(cart, order_message)
+                session.add(
+                    order_row_for(
+                        order,
+                        idempotency_key=idempotency_key,
+                        session_id=session_id,
+                        customer_note=customer_note,
                     )
-                session.add(row)
+                )
                 cart_row.lines.clear()
                 await session.commit()
                 return order
@@ -162,10 +119,28 @@ class PostgresCartStore:
             return existing
 
 
-async def _order_row(session: AsyncSession, idempotency_key: UUID) -> OrderRow | None:
-    return await session.scalar(
-        select(OrderRow).where(OrderRow.idempotency_key == idempotency_key).options(selectinload(OrderRow.lines))
-    )
+async def _load_cart_row(session: AsyncSession, session_id: str, *, lock: bool = False) -> ShopCartRow | None:
+    stmt = select(ShopCartRow).where(ShopCartRow.session_id == session_id).options(selectinload(ShopCartRow.lines))
+    if lock:
+        stmt = stmt.with_for_update()
+    return await session.scalar(stmt)
+
+
+def _write_cart(row: ShopCartRow, cart: Cart) -> None:
+    row.apply(cart)
+    row.lines.clear()
+    for line in cart.lines:
+        row.lines.append(
+            CartLineRow(
+                line_id=line.line_id,
+                session_id=cart.session_id,
+                product_id=line.product_id,
+                product_name=line.product_name,
+                weight_label=line.weight_label,
+                quantity=line.quantity,
+                unit_price_rub=line.unit_price_rub,
+            )
+        )
 
 
 def _default_cart_row(session_id: str) -> ShopCartRow:
@@ -182,30 +157,4 @@ def _default_cart(session_id: str) -> Cart:
         session_id=session_id,
         fulfillment=Fulfillment(mode="delivery", address=DeliveryAddress(city=DEFAULT_CITY, street_line=None)),
         lines=[],
-    )
-
-
-def _order_to_domain(row: OrderRow) -> OrderCreated:
-    fulfillment = Fulfillment(
-        mode=row.fulfillment_mode,
-        address=DeliveryAddress(city=row.city, street_line=row.street_line),
-    )
-    lines = tuple(
-        OrderLineSnapshot(
-            product_id=line.product_id,
-            product_name=line.product_name,
-            weight_label=line.weight_label,
-            quantity=line.quantity,
-            unit_price_rub=line.unit_price_rub,
-            line_total_rub=line.line_total_rub,
-        )
-        for line in row.lines
-    )
-    return OrderCreated(
-        order_id=row.order_id,
-        status=row.status,
-        total_rub=row.total_rub,
-        message=row.message,
-        fulfillment=fulfillment,
-        lines=lines,
     )

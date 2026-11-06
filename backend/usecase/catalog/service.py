@@ -23,23 +23,7 @@ class CatalogService:
 
     async def list_products(self, query: ProductListQuery) -> ProductListResult:
         self._validate_query(query)
-        filtered = await self._catalog.list_products()
-        if query.category_id:
-            filtered = [row for row in filtered if row.category_id == query.category_id]
-        if query.max_price_rub is not None:
-            filtered = [row for row in filtered if row.price_rub <= query.max_price_rub]
-        if query.properties:
-            wanted = set(query.properties)
-            filtered = [row for row in filtered if wanted.intersection(row.properties)]
-        filtered = self._sort(filtered, query.sort)
-        total = len(filtered)
-        page = filtered[query.offset : query.offset + query.limit] if query.limit > 0 else filtered[query.offset :]
-        return ProductListResult(
-            items=tuple(page),
-            total_count=total,
-            limit=query.limit,
-            offset=query.offset,
-        )
+        return await self._catalog.list_products(query)
 
     async def get_product(self, product_id: str) -> Product:
         row = await self._catalog.get_product(product_id)
@@ -70,13 +54,3 @@ class CatalogService:
         unknown = [prop for prop in query.properties if prop not in VALID_PROPERTIES]
         if unknown:
             raise InvalidCatalogQuery("property")
-
-    def _sort(self, items: list[Product], sort: str) -> list[Product]:
-        if sort == "price_asc":
-            return sorted(items, key=lambda row: row.price_rub)
-        if sort == "sale_first":
-            return sorted(
-                items,
-                key=lambda row: (0 if row.compare_at_price_rub else 1, row.price_rub),
-            )
-        return sorted(items, key=lambda row: row.popularity_score, reverse=True)

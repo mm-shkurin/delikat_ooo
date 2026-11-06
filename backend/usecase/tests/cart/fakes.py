@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from copy import deepcopy
 from uuid import UUID
 
@@ -5,6 +6,8 @@ from domain.cart.defaults import DEFAULT_CITY
 from domain.cart.models import Cart, DeliveryAddress, Fulfillment, OrderCreated
 from domain.catalog.product import Product
 from usecase.cart.errors import IdempotencyConflict
+from usecase.catalog.queries import ProductListQuery, ProductListResult
+from usecase.tests.catalog.fakes import apply_product_list
 
 
 class FakeCartRepository:
@@ -26,6 +29,20 @@ class FakeCartRepository:
 
     async def save(self, cart: Cart) -> None:
         self._carts[cart.session_id] = deepcopy(cart)
+
+    async def mutate(self, session_id: str, mutator: Callable[[Cart], None]) -> Cart:
+        if session_id in self._carts:
+            cart = deepcopy(self._carts[session_id])
+        else:
+            cart = Cart(
+                session_id=session_id,
+                fulfillment=Fulfillment(mode="delivery", address=DeliveryAddress(city=DEFAULT_CITY, street_line=None)),
+                lines=[],
+            )
+        mutator(cart)
+        stored = deepcopy(cart)
+        self._carts[session_id] = stored
+        return deepcopy(stored)
 
     async def find_order_by_idempotency(self, session_id: str, idempotency_key: UUID) -> OrderCreated | None:
         own = self._orders.get((session_id, idempotency_key))
@@ -88,8 +105,8 @@ class FakeCatalogForCart:
     async def list_categories(self):
         return []
 
-    async def list_products(self):
-        return list(self._products.values())
+    async def list_products(self, query: ProductListQuery) -> ProductListResult:
+        return apply_product_list(list(self._products.values()), query)
 
     async def get_product(self, product_id: str) -> Product | None:
         return self._products.get(product_id)

@@ -42,14 +42,16 @@ class CartService:
         if mode not in {"delivery", "pickup"}:
             raise InvalidFulfillment(mode)
         await self._carts.ensure(session_id)
-        cart = await self._carts.load(session_id)
         address_city = (city or DEFAULT_CITY).strip() or DEFAULT_CITY
         street = street_line.strip() if street_line and street_line.strip() else None
         if mode == "pickup":
             street = None
-        cart.fulfillment = Fulfillment(mode=mode, address=DeliveryAddress(city=address_city, street_line=street))
-        await self._carts.save(cart)
-        return cart
+        fulfillment = Fulfillment(mode=mode, address=DeliveryAddress(city=address_city, street_line=street))
+
+        def apply(cart: Cart) -> None:
+            cart.fulfillment = fulfillment
+
+        return await self._carts.mutate(session_id, apply)
 
     async def add_item(
         self,
@@ -65,50 +67,52 @@ class CartService:
         if product is None:
             raise ProductNotFound(product_id)
         await self._carts.ensure(session_id)
-        cart = await self._carts.load(session_id)
-        if cart.fulfillment.mode == "delivery" and not street_ok(cart.fulfillment):
-            raise AddressRequired()
         weight = weight_label or product.default_weight_label
         unit_price = product.price_rub
-        for line in cart.lines:
-            if line.product_id == product_id and line.weight_label == weight:
-                if line.quantity + quantity > 99:
-                    raise InvalidQuantity()
-                line.quantity += quantity
-                await self._carts.save(cart)
-                return cart
-        cart.lines.append(
-            CartLine(
-                line_id=uuid4(),
-                product_id=product.id,
-                product_name=product.name,
-                weight_label=weight,
-                quantity=quantity,
-                unit_price_rub=unit_price,
+
+        def apply(cart: Cart) -> None:
+            if cart.fulfillment.mode == "delivery" and not street_ok(cart.fulfillment):
+                raise AddressRequired()
+            for line in cart.lines:
+                if line.product_id == product_id and line.weight_label == weight:
+                    if line.quantity + quantity > 99:
+                        raise InvalidQuantity()
+                    line.quantity += quantity
+                    return
+            cart.lines.append(
+                CartLine(
+                    line_id=uuid4(),
+                    product_id=product.id,
+                    product_name=product.name,
+                    weight_label=weight,
+                    quantity=quantity,
+                    unit_price_rub=unit_price,
+                )
             )
-        )
-        await self._carts.save(cart)
-        return cart
+
+        return await self._carts.mutate(session_id, apply)
 
     async def patch_line(self, session_id: str, line_id: UUID, quantity: int) -> Cart:
         if quantity < 1 or quantity > 99:
             raise InvalidQuantity()
-        cart = await self._carts.load(session_id)
-        for line in cart.lines:
-            if line.line_id == line_id:
-                line.quantity = quantity
-                await self._carts.save(cart)
-                return cart
-        raise LineNotFound(str(line_id))
+
+        def apply(cart: Cart) -> None:
+            for line in cart.lines:
+                if line.line_id == line_id:
+                    line.quantity = quantity
+                    return
+            raise LineNotFound(str(line_id))
+
+        return await self._carts.mutate(session_id, apply)
 
     async def delete_line(self, session_id: str, line_id: UUID) -> Cart:
-        cart = await self._carts.load(session_id)
-        before = len(cart.lines)
-        cart.lines = [line for line in cart.lines if line.line_id != line_id]
-        if len(cart.lines) == before:
-            raise LineNotFound(str(line_id))
-        await self._carts.save(cart)
-        return cart
+        def apply(cart: Cart) -> None:
+            before = len(cart.lines)
+            cart.lines = [line for line in cart.lines if line.line_id != line_id]
+            if len(cart.lines) == before:
+                raise LineNotFound(str(line_id))
+
+        return await self._carts.mutate(session_id, apply)
 
     async def create_order(
         self,

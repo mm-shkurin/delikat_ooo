@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Protocol
 from uuid import UUID
 
@@ -10,6 +11,10 @@ class CartRepository(Protocol):
     async def load(self, session_id: str) -> Cart: ...
 
     async def save(self, cart: Cart) -> None: ...
+
+    async def mutate(self, session_id: str, mutator: Callable[[Cart], None]) -> Cart:
+        """Lock the cart row, apply mutator to the loaded cart, and commit."""
+        ...
 
     async def find_order_by_idempotency(self, session_id: str, idempotency_key: UUID) -> OrderCreated | None: ...
 

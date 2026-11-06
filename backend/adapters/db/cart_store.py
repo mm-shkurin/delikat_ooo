@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from contextlib import asynccontextmanager
 from uuid import UUID
 
@@ -57,6 +58,20 @@ class PostgresCartStore:
                 session.add(row)
             _write_cart(row, cart)
             await session.commit()
+
+    async def mutate(self, session_id: str, mutator: Callable[[Cart], None]) -> Cart:
+        async with self._open() as session:
+            row = await _load_cart_row(session, session_id, lock=True)
+            if row is None:
+                row = _default_cart_row(session_id)
+                session.add(row)
+                cart = _default_cart(session_id)
+            else:
+                cart = row.to_domain()
+            mutator(cart)
+            _write_cart(row, cart)
+            await session.commit()
+            return cart
 
     async def find_order_by_idempotency(self, session_id: str, idempotency_key: UUID) -> OrderCreated | None:
         async with self._open() as session:

@@ -76,6 +76,16 @@ async def test_checkout_empty(service: CartService):
 
 
 @pytest.mark.asyncio
+async def test_second_add_merges_same_weight(service: CartService):
+    session = str(uuid4())
+    await service.update_fulfillment(session, mode="pickup", city="Омск", street_line=None)
+    await service.add_item(session, product_id="rib", quantity=1, weight_label=None)
+    cart = await service.add_item(session, product_id="rib", quantity=2, weight_label=None)
+    assert len(cart.lines) == 1
+    assert cart.lines[0].quantity == 3
+
+
+@pytest.mark.asyncio
 async def test_patch_unknown_line(service: CartService):
     session = str(uuid4())
     with pytest.raises(LineNotFound):

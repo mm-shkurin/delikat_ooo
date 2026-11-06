@@ -3,31 +3,29 @@ from uuid import uuid4
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
 
-from adapters.http.shop_session import _is_uuid
-from application.guest_session_middleware import SESSION_COOKIE_NAME, cookie_secure, minted_session_id
+from adapters.http.session_cookie import (
+    SESSION_COOKIE_NAME,
+    clear_session_cookie,
+    is_uuid,
+    minted_session_id,
+    set_session_cookie,
+)
 
 router = APIRouter(tags=["sessions"])
-
-
-def _attach_session_cookie(response: Response, request: Request, session_id: str) -> None:
-    response.set_cookie(
-        key=SESSION_COOKIE_NAME,
-        value=session_id,
-        httponly=True,
-        samesite="lax",
-        secure=cookie_secure(request),
-        path="/",
-        max_age=request.app.state.settings.session_cookie_max_age_sec,
-    )
 
 
 @router.post("/sessions", status_code=201)
 async def create_session(request: Request) -> JSONResponse:
     existing = request.cookies.get(SESSION_COOKIE_NAME)
-    session_id = existing if _is_uuid(existing) else minted_session_id(request)
+    session_id = existing if is_uuid(existing) else minted_session_id(request)
     await request.app.state.ctx.cart.ensure_session(session_id)
     response = JSONResponse({"session_id": session_id}, status_code=201)
-    _attach_session_cookie(response, request, session_id)
+    set_session_cookie(
+        response,
+        request,
+        session_id,
+        max_age=request.app.state.settings.session_cookie_max_age_sec,
+    )
     return response
 
 
@@ -36,6 +34,11 @@ async def reset_session(request: Request) -> Response:
     session_id = str(uuid4())
     await request.app.state.ctx.cart.ensure_session(session_id)
     response = Response(status_code=204)
-    response.delete_cookie(key=SESSION_COOKIE_NAME, path="/")
-    _attach_session_cookie(response, request, session_id)
+    clear_session_cookie(response)
+    set_session_cookie(
+        response,
+        request,
+        session_id,
+        max_age=request.app.state.settings.session_cookie_max_age_sec,
+    )
     return response

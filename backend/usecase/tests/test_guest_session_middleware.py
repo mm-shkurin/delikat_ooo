@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 
-from application.guest_session_middleware import SESSION_COOKIE_NAME, GuestSessionMiddleware, minted_session_id
+from adapters.http.session_cookie import SESSION_COOKIE_NAME, minted_session_id
+from application.guest_session_middleware import GuestSessionMiddleware
 
 
 def _mini_app() -> FastAPI:

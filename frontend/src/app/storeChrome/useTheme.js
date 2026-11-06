@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { readLocalStorage, setDocumentAttribute, writeLocalStorage } from '../../shared/browser/dom'
 
 export const THEME_STORAGE_KEY = 'delikat-theme'
 
@@ -9,18 +10,16 @@ export function normalizeTheme(saved) {
 
 /** Theme preference for store chrome (wine / charcoal). */
 export function useTheme() {
-  const [theme, setThemeState] = useState(() =>
-    normalizeTheme(typeof localStorage !== 'undefined' ? localStorage.getItem(THEME_STORAGE_KEY) : null),
-  )
+  const [theme, setThemeState] = useState(() => normalizeTheme(readLocalStorage(THEME_STORAGE_KEY)))
 
   const setTheme = useCallback((next) => {
     setThemeState(next)
-    document.documentElement.setAttribute('data-theme', next)
-    localStorage.setItem(THEME_STORAGE_KEY, next)
+    setDocumentAttribute('data-theme', next)
+    writeLocalStorage(THEME_STORAGE_KEY, next)
   }, [])
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    setDocumentAttribute('data-theme', theme)
   }, [theme])
 
   return { theme, setTheme }

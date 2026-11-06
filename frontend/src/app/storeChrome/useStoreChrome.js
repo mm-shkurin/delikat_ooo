@@ -9,6 +9,7 @@ import { buildFulfillmentUpdate } from '../../features/cart/logic/fulfillmentPay
 import { cartToView } from '../../features/cart/logic/cartView'
 import { failureText } from '../../shared/api/failureText'
 import { httpErrorIn } from '../../shared/api/httpResponse'
+import { elementById, onDocument } from '../../shared/browser/dom'
 import { clearShopSession } from './clearShopSession'
 import { addressChipLabel, readStoredFulfillment, writeStoredFulfillment } from './logic/fulfillmentView'
 import { useAuthChrome } from './useAuthChrome'
@@ -113,12 +114,10 @@ export function useStoreChrome() {
   )
 
   useEffect(() => {
-    if (!layer) return
-    const onKey = (event) => {
+    if (!layer) return undefined
+    return onDocument('keydown', (event) => {
       if (event.key === 'Escape') setLayer(null)
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    })
   }, [layer])
 
   const closeLayers = useCallback(() => {
@@ -241,7 +240,7 @@ export function useStoreChrome() {
   )
 
   const scrollToId = useCallback((id) => {
-    const target = document.getElementById(id)
+    const target = elementById(id)
     if (target) target.scrollIntoView({ behavior: 'smooth' })
     setMenuOpen(false)
   }, [])

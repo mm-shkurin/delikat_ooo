@@ -6,6 +6,8 @@ from domain.cart.defaults import DEFAULT_CITY
 from domain.cart.models import Cart, DeliveryAddress, Fulfillment, OrderCreated
 from domain.catalog.product import Product
 from usecase.cart.errors import IdempotencyConflict
+from usecase.catalog.queries import ProductListQuery, ProductListResult
+from usecase.tests.catalog.fakes import apply_product_list
 
 
 class FakeCartRepository:
@@ -103,8 +105,8 @@ class FakeCatalogForCart:
     async def list_categories(self):
         return []
 
-    async def list_products(self):
-        return list(self._products.values())
+    async def list_products(self, query: ProductListQuery) -> ProductListResult:
+        return apply_product_list(list(self._products.values()), query)
 
     async def get_product(self, product_id: str) -> Product | None:
         return self._products.get(product_id)

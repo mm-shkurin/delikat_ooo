@@ -40,7 +40,7 @@ def create_app(settings: Settings | None = None, context: AppContext | None = No
         CORSMiddleware,
         allow_origins=list(config.cors_origins),
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "Accept"],
     )
     app.add_middleware(GuestSessionMiddleware, max_age_sec=config.session_cookie_max_age_sec)

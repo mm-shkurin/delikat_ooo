@@ -11,7 +11,19 @@ const DEFAULT_FILTERS = {
   properties: ['chilled', 'fresh'],
 }
 
-export function useCatalogPage() {
+/**
+ * @param {{
+ *   onOpenProduct?: (id: string) => void,
+ *   requestAddToCart?: (item: {
+ *     productId: string,
+ *     name: string,
+ *     price: number,
+ *     weightLabel: string,
+ *     qty: number,
+ *   }) => void,
+ * }} [actions]
+ */
+export function useCatalogPage({ onOpenProduct, requestAddToCart } = {}) {
   const location = useLocation()
   const [filters, setFilters] = useState(() => ({
     ...DEFAULT_FILTERS,
@@ -117,6 +129,27 @@ export function useCatalogPage() {
 
   const retryLoad = useCallback(() => setReloadTick((tick) => tick + 1), [])
 
+  const openProduct = useCallback(
+    (id) => {
+      onOpenProduct?.(id)
+      loadProduct(id)
+    },
+    [loadProduct, onOpenProduct],
+  )
+
+  const quickAdd = useCallback(
+    (product) => {
+      requestAddToCart?.({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        weightLabel: product.weightLabel,
+        qty: 1,
+      })
+    },
+    [requestAddToCart],
+  )
+
   const shownLabel = formatShownCount(products.length)
   const canLoadMore = products.length < totalCount
 
@@ -131,6 +164,8 @@ export function useCatalogPage() {
     loadMoreError,
     retryLoad,
     loadMore,
+    openProduct,
+    quickAdd,
     canLoadMore,
     shownLabel,
     loadProduct,

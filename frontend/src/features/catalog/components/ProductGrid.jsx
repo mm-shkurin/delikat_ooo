@@ -1,16 +1,62 @@
+import { memo } from 'react'
 import { safeImageUrl } from '../../../shared/ui/safeImageUrl'
 
 /**
  * @param {{
- *   products: Array<import('../logic/productView').productSummaryToView extends (...args: any) => infer R ? R : never>,
+ *   product: {
+ *     id: string,
+ *     name: string,
+ *     imageUrl?: string | null,
+ *     badge?: string | null,
+ *     marbleGrade?: string | null,
+ *     weightLabel: string,
+ *     was?: number | null,
+ *     price: number,
+ *   },
+ *   onOpen: (id: string) => void,
+ *   onQuickAdd: (product: { id: string, name: string, price: number, weightLabel: string }) => void,
+ *   rub: (n: number) => string,
+ * }} props
+ */
+const ProductCard = memo(function ProductCard({ product, onOpen, onQuickAdd, rub }) {
+  const imageSrc = safeImageUrl(product.imageUrl)
+  return (
+    <article className="card">
+      <button type="button" className="card-open" onClick={() => onOpen(product.id)}>
+        <div className="plate">
+          {imageSrc ? <img src={imageSrc} alt="" loading="lazy" /> : null}
+          {product.badge ? <span className={`badge${product.badge === 'TOP' ? ' top' : ''}`}>{product.badge}</span> : null}
+          {product.marbleGrade ? <span className="marble">{product.marbleGrade}</span> : null}
+        </div>
+        <div className="card-body">
+          <h3>{product.name}</h3>
+          <div className="meta-row">
+            <span className="weight">{product.weightLabel}</span>
+            <div className="price">
+              {product.was ? <s>{rub(product.was)}</s> : null}
+              {rub(product.price)}
+            </div>
+          </div>
+        </div>
+      </button>
+      <button type="button" className="add" onClick={() => onQuickAdd(product)}>
+        + В корзину
+      </button>
+    </article>
+  )
+})
+
+/**
+ * @param {{
+ *   products: Array<{ id: string, name: string, price: number, weightLabel: string }>,
  *   busy: boolean,
  *   failed?: boolean,
  *   onOpen: (id: string) => void,
  *   onQuickAdd: (product: { id: string, name: string, price: number, weightLabel: string }) => void,
- *   chrome: { rub: (n: number) => string },
+ *   rub: (n: number) => string,
  * }} props
  */
-export function ProductGrid({ products, busy, failed = false, onOpen, onQuickAdd, chrome }) {
+export const ProductGrid = memo(function ProductGrid({ products, busy, failed = false, onOpen, onQuickAdd, rub }) {
   if (!busy && products.length === 0) {
     return (
       <div className="grid" id="grid" data-testid="product-grid" aria-busy="false">
@@ -23,33 +69,9 @@ export function ProductGrid({ products, busy, failed = false, onOpen, onQuickAdd
 
   return (
     <div className="grid" id="grid" data-testid="product-grid" aria-busy={busy ? 'true' : 'false'}>
-      {products.map((p) => {
-        const imageSrc = safeImageUrl(p.imageUrl)
-        return (
-          <article key={p.id} className="card">
-            <button type="button" className="card-open" onClick={() => onOpen(p.id)}>
-              <div className="plate">
-                {imageSrc ? <img src={imageSrc} alt="" loading="lazy" /> : null}
-                {p.badge ? <span className={`badge${p.badge === 'TOP' ? ' top' : ''}`}>{p.badge}</span> : null}
-                {p.marbleGrade ? <span className="marble">{p.marbleGrade}</span> : null}
-              </div>
-              <div className="card-body">
-                <h3>{p.name}</h3>
-                <div className="meta-row">
-                  <span className="weight">{p.weightLabel}</span>
-                  <div className="price">
-                    {p.was ? <s>{chrome.rub(p.was)}</s> : null}
-                    {chrome.rub(p.price)}
-                  </div>
-                </div>
-              </div>
-            </button>
-            <button type="button" className="add" onClick={() => onQuickAdd(p)}>
-              + В корзину
-            </button>
-          </article>
-        )
-      })}
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} onOpen={onOpen} onQuickAdd={onQuickAdd} rub={rub} />
+      ))}
     </div>
   )
-}
+})

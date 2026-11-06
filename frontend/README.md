@@ -27,6 +27,7 @@ API — hex backend на `VITE_API_PROXY_TARGET`. Контракт: `ProductSpec
 ## Структура (по фичам)
 
 ```
+src/app/           # App shell, ErrorBoundary, storeChrome
 src/features/<feature>/
   *Page.jsx
   useCatalogPage.js и другие хуки экрана
@@ -41,8 +42,11 @@ src/shared/api/backend/
 
 ```bash
 npm test
+npm run lint
 npm run ci
 python ../scripts/check_api_contract.py
 ```
+
+`npm run ci` runs lint, vitest, and `vite build`.
 
 Selenium (каталог, фон): `cd ../acceptance && pip install -r requirements.txt && pytest -m frontend`

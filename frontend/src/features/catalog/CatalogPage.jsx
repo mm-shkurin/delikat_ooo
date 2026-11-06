@@ -17,13 +17,11 @@ const PROPERTY_OPTIONS = [
 export function CatalogPage() {
   useRouteBodyClass('route-catalog')
   const chrome = useStoreChromeContext()
-  const page = useCatalogPage()
+  const page = useCatalogPage({
+    onOpenProduct: chrome.openProduct,
+    requestAddToCart: chrome.requestAddToCart,
+  })
   const openAuth = () => chrome.openLayer('auth')
-
-  const openProduct = (id) => {
-    chrome.openProduct(id)
-    page.loadProduct(id)
-  }
 
   const toggleProperty = (value) => {
     page.setFilters((prev) => {
@@ -133,17 +131,9 @@ export function CatalogPage() {
               products={page.products}
               busy={page.status === 'loading'}
               failed={page.status === 'error'}
-              chrome={chrome}
-              onOpen={openProduct}
-              onQuickAdd={(p) =>
-                chrome.requestAddToCart({
-                  productId: p.id,
-                  name: p.name,
-                  price: p.price,
-                  weightLabel: p.weightLabel,
-                  qty: 1,
-                })
-              }
+              rub={chrome.rub}
+              onOpen={page.openProduct}
+              onQuickAdd={page.quickAdd}
             />
             {page.canLoadMore ? (
               <p style={{ marginTop: 16 }}>

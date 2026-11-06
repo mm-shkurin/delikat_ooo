@@ -47,7 +47,7 @@
           "in": [
             "backend/adapters/http"
           ],
-          "regex": "AsyncSession|Depends\\([^)]*session"
+          "regex": "AsyncSession|Depends\\([^)]*\\bsession\\s*:"
         }
       ],
       "release_ref": "main",

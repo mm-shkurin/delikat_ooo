@@ -15,7 +15,7 @@ docker compose up -d --build
 | URL | Что |
 |-----|-----|
 | http://127.0.0.1:5173/ | Prod frontend (Vite) |
-| http://127.0.0.1:8000/health | Mock Store API |
+| http://127.0.0.1:8000/health | Hex Store API |
 | http://127.0.0.1:8767/ | Референс `site/` |
 | http://127.0.0.1:8080/ | Gateway (frontend + API + `/ref/` → site) |
 
@@ -25,36 +25,24 @@ docker compose up -d --build
 
 **Референс-мокап:** `cd site && python -m http.server 8767` → http://127.0.0.1:8767/
 
-**Prod frontend:** `cd frontend`, `cp .env.example .env`, `npm install`, `npm run dev` (нужен API на :8000 или mock из Docker).
+**Prod frontend:** `cd frontend`, `cp .env.example .env`, `npm install`, `npm run dev` (hex API на :8000).
 
 Контракт: `python scripts/check_api_contract.py` (paths.js ↔ `ProductSpecification/api-specs/store_api.yaml`).
 
-- `index.html` — лендинг (hero + умная упаковка)
-- `catalog.html` — мясной каталог с карточкой товара
+Env: копируй `infra/.env.example` → `infra/.env` (фейковые локальные значения, `OAUTH_PROVIDER=fake`). Реальные Yandex/JWT — только в gitignored `.env`.
 
 ## Структура
 
 ```
-site/                 # референс-мокап (не prod)
-frontend/             # prod React app (Wave 1+)
-backend/              # hex backend (Wave 1+)
-  index.html
-  catalog.html
-  css/                # стили
-  js/                 # скрипты
-  assets/
-    logo/             # логотип
-    hero/             # hero-фото
-    packaging/        # блок упаковки
-    products/         # фото товаров
-source/               # исходники и черновики
-  originals/          # исходные фото/лого из корня
-  unused-hero/        # неиспользуемые варианты hero
-design/               # токены и заметки по дизайну
-ProductSpecification/ # истории, спеки, progress (процесс доставки)
-.cursor/skills/       # delivery / interview / spec скиллы проекта
-skills/               # вспомогательные скиллы (не часть сайта)
-llm/                  # черновик LLM-слоя (не часть сайта)
+site/                 # референс-мокап (не prod) + assets
+frontend/             # prod React (Vite)
+backend/              # hex API (auth, catalog, cart, orders)
+infra/                # docker compose, mock-api profile
+acceptance/           # black-box tests
+source/originals/     # исходные фото/лого
+design/               # токены и заметки
+ProductSpecification/ # истории, спеки, progress
+.cursor/skills/       # delivery / interview / spec
 ```
 
 ## Доставка историй

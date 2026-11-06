@@ -10,7 +10,7 @@
 | **frontend** | Vite + React, proxy `/api` → backend | http://127.0.0.1:5173 |
 | **site** | Референс-мокап | http://127.0.0.1:8767 |
 | **gateway** | Nginx: `/`, `/api/`, `/ref/` | http://127.0.0.1:8080 |
-| **mock-api** | Полный mock (cart/order) | profile `mock-api`, порт 8001 |
+| **mock-api** | Опциональный legacy mock | profile `mock-api`, порт `MOCK_API_HOST_PORT` (default 8002) |
 
 ## Быстрый старт
 
@@ -21,6 +21,8 @@ copy docker-compose.override.yml.example docker-compose.override.yml
 docker compose up -d --build
 ```
 
+`.env.example` — только фейковые локальные значения (`OAUTH_PROVIDER=fake`). Реальные секреты Yandex не коммитить.
+
 Проверка:
 
 ```powershell
@@ -30,13 +32,13 @@ curl http://127.0.0.1:8000/api/v1/catalog/categories
 
 Каталог и корзина в UI: http://127.0.0.1:5173 — hex API (catalog, auth, cart, orders).
 
-## Корзина / заказы (Wave 2)
+## Опциональный mock-api
 
-Hex backend пока без cart (**story 10**). Для полного mock API:
+Hex уже закрывает cart/orders. Mock нужен только для изоляции:
 
 ```powershell
 docker compose --profile mock-api up -d --build mock-api
-# временно: VITE_API_PROXY_TARGET=http://127.0.0.1:8001 в frontend или env override
+# временно: VITE_API_PROXY_TARGET=http://127.0.0.1:8002
 ```
 
 ## Makefile
@@ -50,7 +52,7 @@ make psql
 
 ## Локальный uvicorn (без Docker backend)
 
-Postgres/Redis с override → `backend/.env` с `127.0.0.1:5434` и `6379`; `alembic upgrade head`; `uvicorn application.main:app`.
+Postgres/Redis с override → `backend/.env` с `127.0.0.1:5434` и `6380` (`REDIS_HOST_PORT`); `alembic upgrade head`; `uvicorn application.main:app`.
 
 ## Пересборка
 

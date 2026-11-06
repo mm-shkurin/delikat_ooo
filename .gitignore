@@ -1,14 +1,28 @@
-frontend/node_modules/
-frontend/dist/
+# Secrets / local env
+.env
 frontend/.env
-backend/.venv/
 backend/.env
 infra/.env
 infra/docker-compose.override.yml
-.env
+
+# Deps / build
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+backend/.venv/
+.venv/
+dist/
+htmlcov/
+coverage/
+
+# Caches
 *.pyc
 __pycache__/
 .pytest_cache/
 .coverage
 .ruff_cache/
+.mypy_cache/
+.screenshots-temp/
+
+# Sprint-check scratch (keep reports under _project_audit/*.md)
 _project_audit/_scratch-*.json

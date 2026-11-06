@@ -17,6 +17,9 @@ _PLACEHOLDER_SECRETS = frozenset(
     {
         "change-me-access-secret-change-me",
         "change-me-refresh-secret-change-me",
+        "changeme",
+        "secret",
+        "password",
     }
 )
 

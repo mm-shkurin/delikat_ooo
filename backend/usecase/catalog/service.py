@@ -10,7 +10,6 @@ from usecase.catalog.queries import (
     ProductListResult,
 )
 
-_DEFAULT_DESCRIPTION = "Мраморная говядина. Режем под заказ."
 _WEIGHT_PRESETS = ("~250 г", "~350 г", "~500 г", "1 кг")
 
 
@@ -31,9 +30,7 @@ class CatalogService:
             filtered = [row for row in filtered if row.price_rub <= query.max_price_rub]
         if query.properties:
             wanted = set(query.properties)
-            filtered = [
-                row for row in filtered if wanted.intersection(row.properties)
-            ]
+            filtered = [row for row in filtered if wanted.intersection(row.properties)]
         filtered = self._sort(filtered, query.sort)
         total = len(filtered)
         page = filtered[query.offset : query.offset + query.limit] if query.limit > 0 else filtered[query.offset :]
@@ -55,7 +52,9 @@ class CatalogService:
         return tuple(dict.fromkeys((default, *_WEIGHT_PRESETS)))
 
     def description_for(self, product: Product) -> str:
-        return product.description or _DEFAULT_DESCRIPTION
+        if product.description and product.description.strip():
+            return product.description.strip()
+        return f"{product.name}. Режем под заказ."
 
     def _validate_query(self, query: ProductListQuery) -> None:
         if query.category_id and query.category_id not in VALID_CATEGORIES:

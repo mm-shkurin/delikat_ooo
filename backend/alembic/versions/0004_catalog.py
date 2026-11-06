@@ -1,9 +1,9 @@
 """Catalog categories and products seed (16 SKU)."""
 
-from alembic import op
 import sqlalchemy as sa
 
 from adapters.db.catalog_seed import load_category_rows, load_product_rows
+from alembic import op
 
 revision = "0004_catalog"
 down_revision = "0003_account_avatar"

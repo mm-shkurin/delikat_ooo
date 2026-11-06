@@ -7,11 +7,11 @@ _backend_root = Path(__file__).resolve().parents[1]
 if str(_backend_root) not in sys.path:
     sys.path.insert(0, str(_backend_root))
 
-from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from adapters.db.base import Base
 import adapters.db.models  # noqa: F401 — register metadata
+from adapters.db.base import Base
+from alembic import context
 from application.settings import load_settings
 
 config = context.config

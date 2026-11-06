@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from redis.exceptions import RedisError
@@ -26,7 +26,7 @@ class RedisOAuthStore:
         return UUID(raw)
 
     async def _mint(self, key: str, value: str, expires_at: datetime) -> None:
-        ttl = max(_millis(expires_at) - _millis(datetime.now(timezone.utc)), 1)
+        ttl = max(_millis(expires_at) - _millis(datetime.now(UTC)), 1)
         try:
             await self.redis.set(key, value, px=ttl)
         except RedisError as exc:

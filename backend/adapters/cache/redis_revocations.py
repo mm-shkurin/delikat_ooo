@@ -1,5 +1,5 @@
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from redis.exceptions import RedisError
 
@@ -11,7 +11,7 @@ class RedisRevocations:
         self.redis = redis
 
     async def revoke(self, token: str, expires_at: datetime) -> None:
-        ttl = max(int((expires_at - datetime.now(timezone.utc)).total_seconds()), 1)
+        ttl = max(int((expires_at - datetime.now(UTC)).total_seconds()), 1)
         try:
             await self.redis.set(_key(token), "1", ex=ttl)
         except RedisError as exc:

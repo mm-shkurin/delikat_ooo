@@ -100,17 +100,13 @@ async def test_property_or_filter(service: CatalogService):
 
 @pytest.mark.asyncio
 async def test_sort_price_asc(service: CatalogService):
-    result = await service.list_products(
-        ProductListQuery(None, None, (), "price_asc", 16, 0)
-    )
+    result = await service.list_products(ProductListQuery(None, None, (), "price_asc", 16, 0))
     assert [row.id for row in result.items] == ["sauce1", "beef", "rib"]
 
 
 @pytest.mark.asyncio
 async def test_pagination(service: CatalogService):
-    result = await service.list_products(
-        ProductListQuery(None, None, (), "price_asc", 1, 1)
-    )
+    result = await service.list_products(ProductListQuery(None, None, (), "price_asc", 1, 1))
     assert len(result.items) == 1
     assert result.items[0].id == "beef"
     assert result.total_count == 3
@@ -119,25 +115,19 @@ async def test_pagination(service: CatalogService):
 @pytest.mark.asyncio
 async def test_invalid_category(service: CatalogService):
     with pytest.raises(InvalidCatalogQuery):
-        await service.list_products(
-            ProductListQuery("unknown", None, (), "pop", 16, 0)
-        )
+        await service.list_products(ProductListQuery("unknown", None, (), "pop", 16, 0))
 
 
 @pytest.mark.asyncio
 async def test_beef_and_chilled_filter(service: CatalogService):
-    result = await service.list_products(
-        ProductListQuery("beef", None, ("chilled",), "pop", 16, 0)
-    )
+    result = await service.list_products(ProductListQuery("beef", None, ("chilled",), "pop", 16, 0))
     assert [row.id for row in result.items] == ["beef"]
     assert result.total_count == 1
 
 
 @pytest.mark.asyncio
 async def test_sort_sale_first(service: CatalogService):
-    result = await service.list_products(
-        ProductListQuery(None, None, (), "sale_first", 16, 0)
-    )
+    result = await service.list_products(ProductListQuery(None, None, (), "sale_first", 16, 0))
     assert result.items[0].id == "beef"
     assert result.items[0].compare_at_price_rub is not None
 
@@ -145,9 +135,7 @@ async def test_sort_sale_first(service: CatalogService):
 @pytest.mark.asyncio
 async def test_max_price_out_of_range(service: CatalogService):
     with pytest.raises(InvalidCatalogQuery):
-        await service.list_products(
-            ProductListQuery(None, 499, (), "pop", 16, 0)
-        )
+        await service.list_products(ProductListQuery(None, 499, (), "pop", 16, 0))
 
 
 @pytest.mark.asyncio

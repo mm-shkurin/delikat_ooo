@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import jwt
@@ -46,11 +46,11 @@ class JwtTokenIssuer:
             user_id = UUID(payload["sub"])
         except ValueError:
             return None
-        expires_at = datetime.fromtimestamp(payload["exp"], timezone.utc)
+        expires_at = datetime.fromtimestamp(payload["exp"], UTC)
         return TokenClaims(user_id=user_id, expires_at=expires_at, kind=kind)
 
     def _encode(self, user_id: UUID, kind: str) -> str:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         ttl = self._config.access_ttl if kind == "access" else self._config.refresh_ttl
         secret = self._config.access_secret if kind == "access" else self._config.refresh_secret
         payload = {

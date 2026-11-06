@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, Text, Uuid
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from adapters.db.base import Base
@@ -56,9 +56,7 @@ class ProductRow(Base):
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    category_id: Mapped[str] = mapped_column(
-        String(32), ForeignKey("catalog_categories.id"), nullable=False
-    )
+    category_id: Mapped[str] = mapped_column(String(32), ForeignKey("catalog_categories.id"), nullable=False)
     default_weight_label: Mapped[str] = mapped_column(String(32), nullable=False)
     price_rub: Mapped[int] = mapped_column(Integer, nullable=False)
     compare_at_price_rub: Mapped[int | None] = mapped_column(Integer, nullable=True)

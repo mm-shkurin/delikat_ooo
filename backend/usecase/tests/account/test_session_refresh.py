@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -39,7 +39,7 @@ async def test_refresh_rotates_token_and_revokes_the_presented_one():
         yandex_subject="subject",
         email="a@b.test",
         provider_name="Ada",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     tokens = JwtTokenIssuer(JwtConfig("access-secret-value", "refresh-secret-value", access_ttl=timedelta(minutes=5)))
     issued = tokens.issue(user_id)

@@ -1,17 +1,18 @@
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from uuid import UUID
+from datetime import UTC, datetime
+from uuid import UUID, uuid4
 
 from sqlalchemy import select
 from sqlalchemy.exc import DBAPIError, IntegrityError, InterfaceError, OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
-from domain.cart.defaults import DEFAULT_CITY
-from domain.cart.models import Cart, Fulfillment, OrderCreated, OrderLineSnapshot, DeliveryAddress
 from adapters.db.models import CartLineRow, OrderLineRow, OrderRow, ShopCartRow
+from domain.cart.defaults import DEFAULT_CITY
+from domain.cart.models import Cart, DeliveryAddress, Fulfillment, OrderCreated, OrderLineSnapshot
+from domain.cart.rules import can_checkout, street_ok
 from usecase.account.errors import StoreUnavailable
-from usecase.cart.errors import CartEmpty, IdempotencyConflict
+from usecase.cart.errors import AddressRequired, CannotCheckout, CartEmpty, IdempotencyConflict
 
 
 class PostgresCartStore:
@@ -38,9 +39,7 @@ class PostgresCartStore:
     async def load(self, session_id: str) -> Cart:
         async with self._open() as session:
             row = await session.scalar(
-                select(ShopCartRow)
-                .where(ShopCartRow.session_id == session_id)
-                .options(selectinload(ShopCartRow.lines))
+                select(ShopCartRow).where(ShopCartRow.session_id == session_id).options(selectinload(ShopCartRow.lines))
             )
             if row is None:
                 return _default_cart(session_id)
@@ -86,36 +85,11 @@ class PostgresCartStore:
         *,
         idempotency_key: UUID,
         session_id: str,
-        order: OrderCreated,
+        order_message: str,
         customer_note: str | None,
     ) -> OrderCreated:
         try:
             async with self._open() as session:
-                row = OrderRow(
-                    order_id=order.order_id,
-                    idempotency_key=idempotency_key,
-                    session_id=session_id,
-                    status=order.status,
-                    total_rub=order.total_rub,
-                    message=order.message,
-                    customer_note=customer_note,
-                    fulfillment_mode=order.fulfillment.mode,
-                    city=order.fulfillment.address.city,
-                    street_line=order.fulfillment.address.street_line,
-                    created_at=datetime.now(timezone.utc),
-                )
-                for line in order.lines:
-                    row.lines.append(
-                        OrderLineRow(
-                            order_id=order.order_id,
-                            product_id=line.product_id,
-                            product_name=line.product_name,
-                            weight_label=line.weight_label,
-                            quantity=line.quantity,
-                            unit_price_rub=line.unit_price_rub,
-                            line_total_rub=line.line_total_rub,
-                        )
-                    )
                 cart_row = await session.scalar(
                     select(ShopCartRow)
                     .where(ShopCartRow.session_id == session_id)
@@ -129,6 +103,54 @@ class PostgresCartStore:
                     if existing is not None:
                         raise IdempotencyConflict()
                     raise CartEmpty()
+                cart = cart_row.to_domain()
+                if not street_ok(cart.fulfillment):
+                    raise AddressRequired()
+                if not can_checkout(cart):
+                    raise CannotCheckout()
+                order = OrderCreated(
+                    order_id=uuid4(),
+                    status="accepted",
+                    total_rub=sum(line.line_total_rub for line in cart.lines),
+                    message=order_message,
+                    fulfillment=cart.fulfillment,
+                    lines=tuple(
+                        OrderLineSnapshot(
+                            product_id=line.product_id,
+                            product_name=line.product_name,
+                            weight_label=line.weight_label,
+                            quantity=line.quantity,
+                            unit_price_rub=line.unit_price_rub,
+                            line_total_rub=line.line_total_rub,
+                        )
+                        for line in cart.lines
+                    ),
+                )
+                row = OrderRow(
+                    order_id=order.order_id,
+                    idempotency_key=idempotency_key,
+                    session_id=session_id,
+                    status=order.status,
+                    total_rub=order.total_rub,
+                    message=order.message,
+                    customer_note=customer_note,
+                    fulfillment_mode=order.fulfillment.mode,
+                    city=order.fulfillment.address.city,
+                    street_line=order.fulfillment.address.street_line,
+                    created_at=datetime.now(UTC),
+                )
+                for line in order.lines:
+                    row.lines.append(
+                        OrderLineRow(
+                            order_id=order.order_id,
+                            product_id=line.product_id,
+                            product_name=line.product_name,
+                            weight_label=line.weight_label,
+                            quantity=line.quantity,
+                            unit_price_rub=line.unit_price_rub,
+                            line_total_rub=line.line_total_rub,
+                        )
+                    )
                 session.add(row)
                 cart_row.lines.clear()
                 await session.commit()

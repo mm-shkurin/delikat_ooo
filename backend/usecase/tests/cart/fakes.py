@@ -2,7 +2,7 @@ from copy import deepcopy
 from uuid import UUID
 
 from domain.cart.defaults import DEFAULT_CITY
-from domain.cart.models import Cart, Fulfillment, DeliveryAddress, OrderCreated
+from domain.cart.models import Cart, DeliveryAddress, Fulfillment, OrderCreated
 from domain.catalog.product import Product
 from usecase.cart.errors import IdempotencyConflict
 
@@ -41,14 +41,43 @@ class FakeCartRepository:
         *,
         idempotency_key: UUID,
         session_id: str,
-        order: OrderCreated,
+        order_message: str,
         customer_note: str | None,
     ) -> OrderCreated:
+        from uuid import uuid4
+
+        from domain.cart.models import OrderCreated, OrderLineSnapshot
+        from domain.cart.rules import can_checkout, street_ok
+        from usecase.cart.errors import AddressRequired, CannotCheckout, CartEmpty
+
         del customer_note
-        self._orders[(session_id, idempotency_key)] = order
         cart = self._carts.get(session_id)
-        if cart is not None:
-            cart.lines = []
+        if cart is None or not cart.lines:
+            raise CartEmpty()
+        if not street_ok(cart.fulfillment):
+            raise AddressRequired()
+        if not can_checkout(cart):
+            raise CannotCheckout()
+        order = OrderCreated(
+            order_id=uuid4(),
+            status="accepted",
+            total_rub=sum(line.line_total_rub for line in cart.lines),
+            message=order_message,
+            fulfillment=cart.fulfillment,
+            lines=tuple(
+                OrderLineSnapshot(
+                    product_id=line.product_id,
+                    product_name=line.product_name,
+                    weight_label=line.weight_label,
+                    quantity=line.quantity,
+                    unit_price_rub=line.unit_price_rub,
+                    line_total_rub=line.line_total_rub,
+                )
+                for line in cart.lines
+            ),
+        )
+        self._orders[(session_id, idempotency_key)] = order
+        cart.lines = []
         return order
 
 

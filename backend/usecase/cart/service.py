@@ -1,12 +1,14 @@
 from uuid import UUID, uuid4
 
 from domain.cart.defaults import DEFAULT_CITY
-from domain.cart.models import Cart, CartLine, DeliveryAddress, Fulfillment, OrderCreated, OrderLineSnapshot
+from domain.cart.models import Cart, CartLine, DeliveryAddress, Fulfillment, OrderCreated
+from domain.cart.rules import can_checkout, street_ok
 from usecase.cart.errors import (
     AddressRequired,
     CannotCheckout,
     CartEmpty,
     InvalidFulfillment,
+    InvalidQuantity,
     LineNotFound,
     MissingIdempotencyKey,
 )
@@ -58,20 +60,20 @@ class CartService:
         weight_label: str | None,
     ) -> Cart:
         if quantity < 1 or quantity > 99:
-            raise InvalidFulfillment("quantity")
+            raise InvalidQuantity()
         product = await self._catalog.get_product(product_id)
         if product is None:
             raise ProductNotFound(product_id)
         await self._carts.ensure(session_id)
         cart = await self._carts.load(session_id)
-        if cart.fulfillment.mode == "delivery" and not _street_ok(cart.fulfillment):
+        if cart.fulfillment.mode == "delivery" and not street_ok(cart.fulfillment):
             raise AddressRequired()
         weight = weight_label or product.default_weight_label
         unit_price = product.price_rub
         for line in cart.lines:
             if line.product_id == product_id and line.weight_label == weight:
                 if line.quantity + quantity > 99:
-                    raise InvalidFulfillment("quantity")
+                    raise InvalidQuantity()
                 line.quantity += quantity
                 await self._carts.save(cart)
                 return cart
@@ -90,7 +92,7 @@ class CartService:
 
     async def patch_line(self, session_id: str, line_id: UUID, quantity: int) -> Cart:
         if quantity < 1 or quantity > 99:
-            raise InvalidFulfillment("quantity")
+            raise InvalidQuantity()
         cart = await self._carts.load(session_id)
         for line in cart.lines:
             if line.line_id == line_id:
@@ -123,48 +125,16 @@ class CartService:
         cart = await self._carts.load(session_id)
         if not cart.lines:
             raise CartEmpty()
-        if not _street_ok(cart.fulfillment):
+        if not street_ok(cart.fulfillment):
             raise AddressRequired()
         if not can_checkout(cart):
             raise CannotCheckout()
-        total = sum(line.line_total_rub for line in cart.lines)
-        lines = tuple(
-            OrderLineSnapshot(
-                product_id=line.product_id,
-                product_name=line.product_name,
-                weight_label=line.weight_label,
-                quantity=line.quantity,
-                unit_price_rub=line.unit_price_rub,
-                line_total_rub=line.line_total_rub,
-            )
-            for line in cart.lines
-        )
-        order = OrderCreated(
-            order_id=uuid4(),
-            status="accepted",
-            total_rub=total,
-            message=_ORDER_MESSAGE,
-            fulfillment=cart.fulfillment,
-            lines=lines,
-        )
         return await self._carts.save_order(
             idempotency_key=idempotency_key,
             session_id=session_id,
-            order=order,
+            order_message=_ORDER_MESSAGE,
             customer_note=customer_note,
         )
-
-
-def _street_ok(fulfillment: Fulfillment) -> bool:
-    if fulfillment.mode == "pickup":
-        return True
-    street = fulfillment.address.street_line
-    return bool(street and str(street).strip())
-
-
-def can_checkout(cart: Cart) -> bool:
-    items_count = sum(line.quantity for line in cart.lines)
-    return items_count > 0 and _street_ok(cart.fulfillment)
 
 
 def serialize_cart(cart: Cart) -> dict:

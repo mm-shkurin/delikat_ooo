@@ -2,10 +2,11 @@
 
 | File | Назначение |
 |------|------------|
-| [store_api.yaml](./store_api.yaml) | OpenAPI 3 — **источник истины** для бэка и фронта |
+| [store_api.yaml](./store_api.yaml) | OpenAPI 3 — витрина (buyer/guest) |
+| [admin_api.yaml](./admin_api.yaml) | OpenAPI 3 — staff-кабинет (Bearer + roster); story **12+** |
 | [json-contracts.md](./json-contracts.md) | **Примеры JSON** по каждой ручке (читать фронту первым) |
 | [frontend-integration.md](./frontend-integration.md) | Base URL, MSW, структура `frontend/src/shared/api` |
-| [endpoints.md](./endpoints.md) | Таблица ручек |
+| [endpoints.md](./endpoints.md) | Таблица ручек витрины |
 | [examples/](./examples/) | Готовые тела для mock |
 
 ## Как фронту разрабатывать
@@ -28,6 +29,7 @@
 | `p.was` | `compare_at_price_rub` |
 | корзина local | `GET/POST/PATCH/DELETE /cart/*` |
 | checkout | `POST /orders` → `OrderCreated` (+ `lines` для чека) |
+| кабинет `/admin` (12) | `GET /staff/me`, `GET/POST/PATCH/DELETE /staff/members` — см. `admin_api.yaml` |
 
 ## Seed product ids
 

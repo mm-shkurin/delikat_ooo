@@ -8,7 +8,7 @@
 | 09 | hex catalog GET — closed; write → **13** |
 | 10 | cart/orders — closed; staff orders → **15** |
 | 11 | **mock done** — референс для 12–16; prod story-spec не на 11 |
-| 12 | **старт Wave 3:** `/story 12` → `/interview` (shell + roles) |
+| 12 | test-spec ok → `/backend-delivery` + `/frontend-delivery` |
 | 13–16 | после 12; см. `WAVE-3-ADMIN.md` |
 
 **Архитектура:** `CLAUDE.md`, `technology.md`, `PARALLEL-WAVE-1.md`, **`WAVE-3-ADMIN.md`**.

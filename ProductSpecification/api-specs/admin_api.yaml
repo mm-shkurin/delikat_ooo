@@ -1,0 +1,315 @@
+openapi: 3.0.3
+info:
+  title: Delikat Admin API
+  version: 1.0.0
+  description: |
+    Staff-кабинет v1 (Wave 3+). Отдельный контракт от store_api.yaml.
+    Auth: тот же Yandex OAuth + Bearer JWT, что у витрины (`store_api` auth).
+    Доступ к ручкам — только аккаунты с staff-ролью `owner` | `manager` | `cashier`.
+    Роль `owner` через эти ручки не назначается и не снимается (bootstrap/ops).
+    Суммы integer RUB (позже). Поля JSON — snake_case.
+    Story 12: session/me + roster assign. Catalog write / orders / stats — later stories.
+
+servers:
+  - url: http://127.0.0.1:8000
+    description: Local backend (dev)
+  - url: https://api.example.delikat.local
+    description: Production placeholder
+
+tags:
+  - name: staff
+    description: Staff me + roster
+
+paths:
+  /api/v1/staff/me:
+    get:
+      summary: Текущий staff-профиль
+      description: |
+        200 только если у Bearer-аккаунта роль `owner` | `manager` | `cashier`.
+        Иначе 403 `forbidden` (не staff) или 401 `unauthorized`.
+      operationId: getStaffMe
+      tags: [staff]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Staff me
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffMe'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden — не staff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/staff/members:
+    get:
+      summary: Список сотрудников
+      description: |
+        Доступ: `owner` | `manager`. Cashier → 403.
+        Строки: active (привязанный user) и pending (invite по email до OAuth).
+      operationId: listStaffMembers
+      tags: [staff]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Roster
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffMemberList'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Назначить сотрудника по email
+      description: |
+        Body: `email` + `role` (`manager` | `cashier` only; никогда `owner`).
+        - Если аккаунт с таким email уже есть → bind role, status `active`.
+        - Иначе → создать pending; role активируется при первом OAuth с этим email.
+        ACL: owner → manager|cashier; manager → cashier only.
+      operationId: assignStaffMember
+      tags: [staff]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffAssignRequest'
+      responses:
+        '201':
+          description: Создан / обновлён member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffMember'
+        '400':
+          description: validation_error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden — ACL / не staff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/staff/members/{member_id}:
+    parameters:
+      - $ref: '#/components/parameters/MemberId'
+    patch:
+      summary: Сменить роль сотрудника
+      description: |
+        Новая роль только `manager` | `cashier`. Target с ролью `owner` → 403 `owner_immutable`.
+        ACL как у assign.
+      operationId: updateStaffMemberRole
+      tags: [staff]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffRoleUpdate'
+      responses:
+        '200':
+          description: Обновлённый member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffMember'
+        '400':
+          description: validation_error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden | owner_immutable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: staff_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Убрать из staff
+      description: |
+        Target перестаёт быть staff (роль `none`). Target `owner` → 403 `owner_immutable`.
+        ACL: owner → manager|cashier; manager → cashier only.
+      operationId: removeStaffMember
+      tags: [staff]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Удалён из roster / роль снята
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden | owner_immutable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: staff_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    MemberId:
+      name: member_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - validation_error
+            - unauthorized
+            - forbidden
+            - staff_not_found
+            - owner_immutable
+        message:
+          type: string
+
+    StaffRole:
+      type: string
+      enum: [owner, manager, cashier]
+      description: Роль активного staff; `none` не возвращается в me/list (нет доступа).
+
+    AssignableStaffRole:
+      type: string
+      enum: [manager, cashier]
+      description: Роли, которые можно выдать/сменить через API кабинета (не owner).
+
+    StaffMemberStatus:
+      type: string
+      enum: [active, pending]
+
+    StaffMe:
+      type: object
+      required: [user_id, email, display_name, role]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        role:
+          $ref: '#/components/schemas/StaffRole'
+
+    StaffMember:
+      type: object
+      required: [member_id, email, role, status]
+      properties:
+        member_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: null пока status=pending и аккаунт ещё не входил
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          nullable: true
+          description: null для pending без профиля
+        role:
+          $ref: '#/components/schemas/StaffRole'
+        status:
+          $ref: '#/components/schemas/StaffMemberStatus'
+
+    StaffMemberList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMember'
+
+    StaffAssignRequest:
+      type: object
+      required: [email, role]
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/AssignableStaffRole'
+
+    StaffRoleUpdate:
+      type: object
+      required: [role]
+      properties:
+        role:
+          $ref: '#/components/schemas/AssignableStaffRole'

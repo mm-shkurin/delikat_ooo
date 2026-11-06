@@ -11,3 +11,7 @@
 ### 2026-11-06 — wire DTOs stay in adapters
 - Type: decision
 - Note: `serialize_cart` lives in `adapters/http/cart_presenters.py`. `ProfileService.view` returns `UserProfileView`; HTTP maps to `UserProfileResponse`. Usecase no longer owns JSON dict shapes for those.
+
+### 2026-11-06 — Docker redis host-port clash
+- Type: quirk
+- Note: Delikat redis publish on `127.0.0.1:6380` can collide with `adaptive-tutor-redis`. After a failed bind, redis may come up outside `delikat_default` → backend DNS `redis` fails until `docker compose up -d --force-recreate redis backend frontend`.

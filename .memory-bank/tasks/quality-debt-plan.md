@@ -65,6 +65,8 @@ Do **D** after A–C if timeboxed; admin panel must not start while JWT still in
 
 If calendar is tight: ship **Must**, park D as first admin-adjacent hardening story.
 
+**Status 2026-11-06:** Must **done** (incl. C5). Nice still open → carryover / next hardening. Delta: `_project_audit/sprint-check-2026-11-06-quality-debt-delta.md`. Admin catalog may start.
+
 ---
 
 ## Order of work (suggested)

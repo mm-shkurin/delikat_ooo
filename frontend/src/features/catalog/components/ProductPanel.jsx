@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
  *   detail: import('../logic/productView').productDetailToView extends (...args: any) => infer R ? R | null : null,
  *   loading: boolean,
  *   failed: boolean,
- *   chrome: ReturnType<import('../../../shared/storeChrome/useStoreChrome').useStoreChrome>,
+ *   chrome: ReturnType<import('../../../app/storeChrome/useStoreChrome').useStoreChrome>,
  *   onClose: () => void,
  * }} props
  */

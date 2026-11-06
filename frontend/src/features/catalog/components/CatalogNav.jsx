@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 /**
  * @param {{
- *   chrome: ReturnType<import('../../../shared/storeChrome/useStoreChrome').useStoreChrome>,
+ *   chrome: ReturnType<import('../../../app/storeChrome/useStoreChrome').useStoreChrome>,
  *   onOpenAuth: () => void,
  * }} props
  */
@@ -54,7 +54,7 @@ export function CatalogNav({ chrome, onOpenAuth }) {
             +7 (3812) 30-00-00
           </a>
           <button className="icon-circle" type="button" aria-label="Профиль" onClick={onOpenAuth}>
-            {chrome.authMocked ? (
+            {chrome.signedIn ? (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
                 <path d="M5 12l5 5L20 7" />
               </svg>

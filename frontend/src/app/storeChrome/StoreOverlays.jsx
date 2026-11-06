@@ -170,13 +170,13 @@ function AddressSheet({ chrome }) {
 
 /** @param {{ chrome: ReturnType<import('./useStoreChrome').useStoreChrome> }} props */
 function AuthSheet({ chrome }) {
-  const signedIn = chrome.authMocked && chrome.userProfile
+  const signedIn = chrome.signedIn && chrome.userProfile
   const [nameDraft, setNameDraft] = useState(chrome.userProfile?.displayName ?? '')
   const [saveBusy, setSaveBusy] = useState(false)
   const [saveError, setSaveError] = useState('')
 
   useEffect(() => {
-    if (chrome.layer === 'auth' && chrome.authMocked && !chrome.userProfile && !chrome.profileBusy) {
+    if (chrome.layer === 'auth' && chrome.signedIn && !chrome.userProfile && !chrome.profileBusy) {
       chrome.refreshUserProfile()
     }
   }, [chrome])

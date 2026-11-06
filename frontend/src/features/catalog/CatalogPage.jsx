@@ -1,6 +1,6 @@
 import { useRouteBodyClass } from '../../shared/ui/useRouteBodyClass'
-import { StoreOverlays } from '../../shared/storeChrome/StoreOverlays'
-import { useStoreChromeContext } from '../../shared/storeChrome/StoreChromeProvider'
+import { StoreOverlays } from '../../app/storeChrome/StoreOverlays'
+import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
 import '../../styles/catalog.css'
 import { CatalogNav } from './components/CatalogNav'
 import { ProductGrid } from './components/ProductGrid'
@@ -132,6 +132,7 @@ export function CatalogPage() {
             <ProductGrid
               products={page.products}
               busy={page.status === 'loading'}
+              failed={page.status === 'error'}
               chrome={chrome}
               onOpen={openProduct}
               onQuickAdd={(p) =>

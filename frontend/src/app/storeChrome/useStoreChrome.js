@@ -12,17 +12,14 @@ import { loadCartWithSession } from '../../features/cart/logic/loadCart'
 import { cartToView } from '../../features/cart/logic/cartView'
 import { createOrder } from '../../features/checkout/api/orderApi'
 import { orderCreatedToView } from '../../features/checkout/logic/orderView'
-import { failureText } from '../api/failureText'
-import { httpErrorIn } from '../api/httpResponse'
-import { clearShopSession } from '../session/clearShopSession'
-import { currentSession, endSession } from '../session/authSession'
-import {
-  THEME_STORAGE_KEY,
-  addressChipLabel,
-  normalizeTheme,
-  readStoredFulfillment,
-  writeStoredFulfillment,
-} from './logic/fulfillmentView'
+import { failureText } from '../../shared/api/failureText'
+import { httpErrorIn } from '../../shared/api/httpResponse'
+import { currentSession, endSession } from '../../shared/session/authSession'
+import { clearShopSession } from './clearShopSession'
+import { addressChipLabel, readStoredFulfillment, writeStoredFulfillment } from './logic/fulfillmentView'
+import { useCartBootstrap } from './useCartBootstrap'
+import { useDialogFocus } from './useDialogFocus'
+import { useTheme } from './useTheme'
 
 const rub = (n) => new Intl.NumberFormat('ru-RU').format(n) + ' ₽'
 
@@ -30,9 +27,7 @@ const rub = (n) => new Intl.NumberFormat('ru-RU').format(n) + ' ₽'
  * Store chrome: theme, fulfillment, server cart, auth overlays, checkout.
  */
 export function useStoreChrome() {
-  const [theme, setThemeState] = useState(() =>
-    normalizeTheme(typeof localStorage !== 'undefined' ? localStorage.getItem(THEME_STORAGE_KEY) : null),
-  )
+  const { theme, setTheme } = useTheme()
   const [mode, setModeState] = useState(() => readStoredFulfillment().mode)
   const [address, setAddressState] = useState(() => readStoredFulfillment().address)
   const [cartView, setCartView] = useState(() => ({
@@ -44,12 +39,11 @@ export function useStoreChrome() {
     total: 0,
     canCheckout: false,
   }))
-  const [cartSyncing, setCartSyncing] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [layer, setLayer] = useState(
     /** @type {null | 'cart' | 'address' | 'auth' | 'product' | 'receipt'} */ (null),
   )
-  const [authMocked, setAuthMocked] = useState(() => !!currentSession())
+  const [signedIn, setSignedIn] = useState(() => !!currentSession())
   const [userProfile, setUserProfile] = useState(
     /** @type {ReturnType<typeof profileToView> | null} */ (null),
   )
@@ -73,38 +67,8 @@ export function useStoreChrome() {
     writeStoredFulfillment({ mode: view.mode, address: view.streetLine })
   }, [])
 
-  const bootstrapCart = useCallback(async () => {
-    setCartSyncing(true)
-    try {
-      const loaded = await loadCartWithSession()
-      applyCartBody(loaded)
-      try {
-        const local = readStoredFulfillment()
-        const updated = await updateFulfillment(buildFulfillmentUpdate(local.mode, local.address))
-        applyCartBody(updated)
-      } catch (error) {
-        setCheckoutError(failureText(error))
-      }
-    } catch (error) {
-      setCheckoutError(failureText(error))
-    } finally {
-      setCartSyncing(false)
-    }
-  }, [applyCartBody])
-
-  useEffect(() => {
-    bootstrapCart()
-  }, [bootstrapCart])
-
-  const setTheme = useCallback((next) => {
-    setThemeState(next)
-    document.documentElement.setAttribute('data-theme', next)
-    localStorage.setItem(THEME_STORAGE_KEY, next)
-  }, [])
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-  }, [theme])
+  const { cartSyncing, bootstrapCart } = useCartBootstrap({ applyCartBody, setCheckoutError })
+  useDialogFocus(layer)
 
   const setMode = useCallback(
     async (next) => {
@@ -225,7 +189,7 @@ export function useStoreChrome() {
   const refreshUserProfile = useCallback(async () => {
     if (!currentSession()) {
       setUserProfile(null)
-      setAuthMocked(false)
+      setSignedIn(false)
       return null
     }
     setProfileBusy(true)
@@ -233,12 +197,12 @@ export function useStoreChrome() {
       const body = await getMe()
       const view = profileToView(body)
       setUserProfile(view)
-      setAuthMocked(true)
+      setSignedIn(true)
       return view
     } catch {
       endSession()
       setUserProfile(null)
-      setAuthMocked(false)
+      setSignedIn(false)
       return null
     } finally {
       setProfileBusy(false)
@@ -250,14 +214,14 @@ export function useStoreChrome() {
   }, [refreshUserProfile])
 
   const completeAuthMock = useCallback(() => {
-    setAuthMocked(true)
+    setSignedIn(true)
     setLayer(null)
     refreshUserProfile()
   }, [refreshUserProfile])
 
   const applyUserProfile = useCallback((view) => {
     setUserProfile(view)
-    setAuthMocked(true)
+    setSignedIn(true)
   }, [])
 
   const resetShopSession = useCallback(async () => {
@@ -267,7 +231,7 @@ export function useStoreChrome() {
         setLastOrder(null)
         setPendingAdd(null)
         setUserProfile(null)
-        setAuthMocked(false)
+        setSignedIn(false)
         setLayer(null)
         setModeState('delivery')
         setAddressState('')
@@ -305,9 +269,11 @@ export function useStoreChrome() {
   )
 
   const checkoutKey = useRef(/** @type {string | null} */ (null))
+  const checkoutInFlight = useRef(false)
 
   const submitCheckout = useCallback(async () => {
-    if (checkoutBusy || !cartView.canCheckout) return
+    if (checkoutInFlight.current || !cartView.canCheckout) return
+    checkoutInFlight.current = true
     setCheckoutBusy(true)
     setCheckoutError('')
     if (!checkoutKey.current) checkoutKey.current = crypto.randomUUID()
@@ -326,9 +292,10 @@ export function useStoreChrome() {
       }
       setCheckoutError(error instanceof Error ? error.message : 'Не удалось оформить заказ.')
     } finally {
+      checkoutInFlight.current = false
       setCheckoutBusy(false)
     }
-  }, [applyCartBody, cartView.canCheckout, checkoutBusy, openLayer])
+  }, [applyCartBody, cartView.canCheckout, openLayer])
 
   const scrollToId = useCallback((id) => {
     const target = document.getElementById(id)
@@ -357,7 +324,7 @@ export function useStoreChrome() {
     resetShopSession,
     userProfile,
     profileBusy,
-    authMocked,
+    signedIn,
     privacyNoteVisible,
     setPrivacyNoteVisible,
     cart: cartLines,

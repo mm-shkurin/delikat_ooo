@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useStoreChromeContext } from '../../shared/storeChrome/StoreChromeProvider'
+import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
 import { exchangeOAuthCode } from './api/authApi'
 
 export function OAuthCallbackPage() {

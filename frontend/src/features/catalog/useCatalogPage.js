@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getProduct, listCategories, listProducts } from './api/catalogApi'
-import { buildCatalogQuery, formatShownCount, PAGE_SIZE } from './logic/catalogQuery'
+import { buildCatalogQuery, formatShownCount } from './logic/catalogQuery'
 import { productDetailToView, productSummaryToView } from './logic/productView'
 
 const DEFAULT_FILTERS = {

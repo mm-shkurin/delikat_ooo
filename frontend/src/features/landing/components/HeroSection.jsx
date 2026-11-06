@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 /**
  * @param {{
- *   chrome: ReturnType<import('../../../shared/storeChrome/useStoreChrome').useStoreChrome>,
+ *   chrome: ReturnType<import('../../../app/storeChrome/useStoreChrome').useStoreChrome>,
  *   onOpenAuth: () => void,
  * }} props
  */
@@ -42,7 +42,7 @@ export function HeroSection({ chrome, onOpenAuth }) {
               Самовывоз
             </button>
             <button className="btn-glass" id="login-cta" type="button" onClick={onOpenAuth}>
-              {chrome.authMocked ? 'Кабинет' : 'Войти'}
+              {chrome.signedIn ? 'Кабинет' : 'Войти'}
             </button>
           </div>
         </div>

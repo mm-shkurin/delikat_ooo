@@ -1,10 +1,11 @@
 import { logout } from '../../features/auth/api/authApi'
 import { resetGuestSession } from '../../features/cart/api/sessionApi'
-import { FULFILLMENT_STORAGE_KEY } from '../storeChrome/logic/fulfillmentView'
-import { currentSession, endSession } from './authSession'
+import { currentSession, endSession } from '../../shared/session/authSession'
+import { FULFILLMENT_STORAGE_KEY } from './logic/fulfillmentView'
 
 /**
- * Full client reset before Wave 2 server cart: JWT, guest cookie, local fulfillment.
+ * Full client reset: JWT (localStorage), guest cookie, local fulfillment.
+ * Server httpOnly JWT cookies are out of scope until the backend ships them.
  * @param {{ onLocalReset?: () => void }} [options]
  */
 export async function clearShopSession(options = {}) {

@@ -22,6 +22,10 @@ class InvalidFulfillment(Exception):
     pass
 
 
+class InvalidQuantity(Exception):
+    pass
+
+
 class MissingIdempotencyKey(Exception):
     pass
 
@@ -32,4 +36,5 @@ class InvalidIdempotencyKey(Exception):
 
 class IdempotencyConflict(Exception):
     """Key already belongs to a different shopper. Do not return that order."""
+
     pass

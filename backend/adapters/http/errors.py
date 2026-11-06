@@ -12,6 +12,7 @@ from usecase.cart.errors import (
     IdempotencyConflict,
     InvalidFulfillment,
     InvalidIdempotencyKey,
+    InvalidQuantity,
     LineNotFound,
     MissingIdempotencyKey,
     ShopSessionRequired,
@@ -46,6 +47,7 @@ def register_errors(app: FastAPI) -> None:
     app.add_exception_handler(InvalidIdempotencyKey, _status(400, _INVALID_REQUEST))
     app.add_exception_handler(IdempotencyConflict, _status(409, _IDEMPOTENCY_CONFLICT))
     app.add_exception_handler(InvalidFulfillment, _status(400, _INVALID_REQUEST))
+    app.add_exception_handler(InvalidQuantity, _status(400, _INVALID_REQUEST))
     app.add_exception_handler(InvalidCatalogQuery, _status(400, _VALIDATION))
     app.add_exception_handler(InvalidDisplayName, _status(422, _INVALID_DISPLAY_NAME))
     app.add_exception_handler(StoreUnavailable, _status(503, _UNAVAILABLE))

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { startYandexLogin, updateMe } from '../../features/auth/api/authApi'
 import { profileToView } from '../../features/auth/logic/profileView'
 import { isAbortError } from '../../shared/api/abortError'
+import { failureText } from '../../shared/api/failureText'
 import { safeImageUrl } from '../../shared/ui/safeImageUrl'
 import { useUnmountSignal } from './useUnmountSignal'
 
@@ -37,7 +38,7 @@ export function AuthSheet({ chrome }) {
       applyUserProfile(profileToView(body))
     } catch (error) {
       if (signal.aborted || isAbortError(error)) return
-      setSaveError('Не удалось сохранить имя.')
+      setSaveError(failureText(error))
     } finally {
       if (!signal.aborted) setSaveBusy(false)
     }

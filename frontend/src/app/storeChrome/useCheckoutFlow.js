@@ -3,6 +3,7 @@ import { loadCartWithSession } from '../../features/cart/logic/loadCart'
 import { createOrder } from '../../features/checkout/api/orderApi'
 import { orderCreatedToView } from '../../features/checkout/logic/orderView'
 import { isAbortError } from '../../shared/api/abortError'
+import { failureText } from '../../shared/api/failureText'
 import { httpErrorIn } from '../../shared/api/httpResponse'
 import { useUnmountSignal } from './useUnmountSignal'
 
@@ -48,7 +49,7 @@ export function useCheckoutFlow({ applyCartBody, canCheckout, openLayer, setLaye
       if (failure?.errorCode === 'address_required') {
         openLayer('address')
       }
-      setCheckoutError(error instanceof Error ? error.message : 'Не удалось оформить заказ.')
+      setCheckoutError(failureText(error))
     } finally {
       checkoutInFlight.current = false
       if (!signal.aborted) setCheckoutBusy(false)

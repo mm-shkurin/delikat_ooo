@@ -142,7 +142,7 @@ export function useCartMutations({ openLayer, setLayer, reportCartError }) {
           openLayer('address')
           return
         }
-        reportCartError(error instanceof Error ? error.message : 'Не удалось добавить в корзину.')
+        reportCartError(failureText(error))
         openLayer('cart')
       }
     },
@@ -162,7 +162,7 @@ export function useCartMutations({ openLayer, setLayer, reportCartError }) {
         applyCartBody(body)
       } catch (error) {
         if (dropped(error, signal)) return
-        reportCartError(error instanceof Error ? error.message : 'Не удалось изменить количество.')
+        reportCartError(failureText(error))
       }
     },
     [applyCartBody, cartView.items, reportCartError, signal],

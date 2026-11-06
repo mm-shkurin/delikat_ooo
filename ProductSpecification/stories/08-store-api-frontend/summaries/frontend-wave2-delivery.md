@@ -19,3 +19,11 @@
 ### 2026-11-02 — Delivery-loop tail closed
 - Type: decision
 - Note: 401→refresh+retry; OAuth/gateway docs; catalog HTTP 400 tests; progress 04–06 + story-spec 10 done; skeptic 08 notes resolved; carryovers 07–10 updated. Acceptance against Docker hex `:5173`→`:8000`.
+
+### 2026-11-05 — Checkout idempotency + OAuth callback race
+- Type: mistake
+- Note: `submitCheckout` must keep one `Idempotency-Key` until receipt path finishes; guard with a ref (`checkoutInFlight`), not only React `checkoutBusy`. `OAuthCallbackPage` must not list `chrome` in effect deps (re-runs exchange); strip failed code via `history.replaceState`, not navigate that clears error into `missing_code`.
+
+### 2026-11-05 — Sprint-check Stage A plateau
+- Type: decision
+- Note: Zero-bias auditor held both layers at 2.0/3.0 (iters 2–5; target ≥2.5). Structural leftovers: `useStoreChrome` god-hook + `shared→features`, JWTs in `localStorage`, mapper-only tests, catalog filter-in-Python. Stage B not started. Gate FAIL without GitVerse remotes — scores provisional.

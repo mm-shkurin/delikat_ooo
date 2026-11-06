@@ -45,3 +45,33 @@
 ### Outstanding Blockers:
 - `saveAddress` wrote the street before the server accepted it. The OAuth error screen replaced itself with `missing_code`. Cart quantity could go past 99.
 - Same structural blockers as iteration 3.
+
+## Iteration 1 — Score: 2.0 / 3.0 — 2026-11-06 — 3454b4b
+### Fixed Issues:
+- (none — first audit)
+### Outstanding Blockers:
+- useStoreChrome god hook (~380 LOC)
+- shared→features imports (storeChrome, clearShopSession)
+- JWT in localStorage
+- eslint without react plugin; lint not in ci
+- ProductGrid nested interactive
+- dialogs without focus trap; authMocked naming
+- no ErrorBoundary; unused PAGE_SIZE
+
+## Iteration 3 — Score: 2.0 / 3.0 — 2026-11-06 — after first fix wave
+### Fixed Issues:
+- storeChrome moved to app/; signedIn; ProductGrid; eslint react; ErrorBoundary
+### Outstanding Blockers:
+- god hook residual; JWT localStorage; focus trap incomplete
+
+## Iteration 4 — Score: 2.5 / 3.0 — 2026-11-06 — 94c3ac6
+### Fixed Issues:
+- hook split; focus trap; nav dedupe; URL sanitize; fav removed; auth naming
+### Outstanding Blockers:
+- JWT localStorage (accepted interim); CSS file size
+
+## Iteration 5 (confirmation) — Score: 2.5 / 3.0 — 2026-11-06 — f2ee778
+### Fixed Issues:
+- (none this iteration)
+### Outstanding Blockers:
+- score held; JWT interim; storeChrome still composes features

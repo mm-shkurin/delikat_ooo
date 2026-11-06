@@ -12,4 +12,5 @@ From: 2026-11-01 Yandex OAuth pivot (post SMS delivery phases).
 - **Open:** нет для backend loop 07/09/10 (spec-skeptic accept; pytest + catalog HTTP 400; smoke auth/cart/orders :8000).
 - **Infra (2026-11-02):** `infra/` по образцу adaptive-tutor — hex `backend` на `:8000`, `mock-api` только profile `:8002`. Redis на хосте часто `REDIS_HOST_PORT=6391` (6379/6380 заняты). Документация: `infra/.env.example` + `backend/README.md` (OAUTH_PROVIDER / gateway :8080 / PUBLIC_BASE_URL).
 - **Resume:** Wave 3 вне OpenAPI или visual parity — не backend 07.
+- **From: sprint-check 2026-11-05:** Fake OAuth only on local `PUBLIC_BASE_URL` host; refresh token rotation; Redis fail-closed; JWT placeholders refused (breaks Docker if `infra/.env` still has `change-me-*-secret-change-me`).
 

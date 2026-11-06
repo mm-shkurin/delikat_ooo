@@ -50,3 +50,36 @@
 - Seeded product descriptions are empty, so every card gets the same fallback text.
 - CI ignores the live HTTP tests. No Ruff config.
 - Git history is still a bulk import on `main` by `trape3977@g,ail.com`.
+
+## Iteration 1 — Score: 2.5 / 3.0 — 2026-11-06 — 3454b4b
+### Fixed Issues:
+- (none — first audit)
+### Outstanding Blockers:
+- adapters import application (shop_session, sessions_router)
+- catalog filter/sort in Python
+- InvalidFulfillment for bad qty
+- duplicate street checks
+- ruff not reproducible / check fails
+- catalog StoreUnavailable mapping
+- CORS wildcards; OAuth rate limit / callback validation
+
+## Iteration 2 (confirmation) — Score: 2.0 / 3.0 — 2026-11-06 — 3454b4b
+### Fixed Issues:
+- (none)
+### Outstanding Blockers:
+- Confirmation did not hold; continue from lower score findings
+- adapters→application imports; cart_store imports can_checkout from usecase
+- catalog SQL filtering; ruff F401/format; catalog DB→503
+
+## Iteration 3 — Score: 2.5 / 3.0 — 2026-11-06 — after Stage A fixes
+### Fixed Issues:
+- session cookie helpers in adapters; can_checkout/street in domain
+- InvalidQuantity; catalog StoreUnavailable; CORS + state_ttl; ruff clean
+### Outstanding Blockers:
+- catalog SQL pushdown; cart lock races; OAuth rate limit (deferred)
+
+## Iteration 4 (confirmation) — Score: 2.5 / 3.0 — 2026-11-06 — f2ee778
+### Fixed Issues:
+- CORS PUT added
+### Outstanding Blockers:
+- same deferred items; score held

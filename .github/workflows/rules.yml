@@ -64,4 +64,4 @@ jobs:
           node-version: '22'
       - name: Test
         working-directory: frontend
-        run: npm ci && npm test
+        run: npm ci && npm test && npm run lint

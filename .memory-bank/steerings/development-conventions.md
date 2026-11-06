@@ -68,3 +68,8 @@ Remove when done: `git worktree remove <path>`.
 - **200 lines per file** (code, tests, styles, configs, scripts) — split by meaning.
 - Do not delete tests or add blanket skips/ignores to go green.
 - No mock/dummy logic pretending to be a finished feature.
+
+## /clear-session
+
+Every `/clear-session` **must** end with `git push` to `origin` after handoff (and a
+commit when the working tree has session work). Do not clear without syncing the remote.

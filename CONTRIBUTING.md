@@ -48,3 +48,8 @@ Pull request'ов как поверхности ревью нет. Работа 
 
 Две сессии на одной истории — через `git worktree`, не в одной рабочей папке.
 См. development-conventions.
+
+## /clear-session
+
+Каждый `/clear-session`: handoff → commit (если есть изменения) → **`git push` в
+`origin`**. Без пуша сессию не закрываем.

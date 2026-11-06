@@ -19,3 +19,7 @@
 ### 2026-11-02 — Profile fields + guest session reset HTTP
 - Type: decision
 - Note: `accounts.avatar_url`; Yandex `default_avatar_id` → avatars.yandex.net URL; `profile_name` override for `display_name`. `ProfileService.rename`, `POST /api/v1/sessions/reset` in hex app. Docker compose `backend` service = mock-api (catalog only) until hex wired into compose — profile/PATCH need local uvicorn hex or future compose service.
+
+### 2026-11-05 — Fake OAuth + refresh hardening
+- Type: invariant
+- Note: `OAUTH_PROVIDER=fake` only when `PUBLIC_BASE_URL` hostname ∈ {127.0.0.1, localhost} (`urlsplit`). Refresh revokes the presented refresh and issues a new pair. Redis OAuth/revocations → `StoreUnavailable` 503. Yandex token POST must send `redirect_uri`. Placeholder JWT strings `change-me-*-secret-change-me` are refused at startup.

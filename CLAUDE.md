@@ -31,9 +31,12 @@ application → adapters → usecase → domain
 
 ## Delivery
 
-- `/delivery-loop` — две полосы
-- `/backend-delivery` — hex + test-spec/usecase tests
-- `/frontend-delivery` — mockup → React screen + API client
+- `/delivery-loop` — две полосы + quality gates
+- `/test-spec` — BDD Tier 1–3 в `stories/NN/tests/` **до** implement
+- `/backend-delivery` — hex + usecase fakes под Tier 1
+- `/frontend-delivery` — mockup → React + API client под Tier 1
+- `/refactor` — обязательный отдельный коммит после green
+- Guidelines: `.cursor/guidelines/coding-rules.md`, `coding-detail.md`, `frontend-rules.md`
 
 Контракт: `ProductSpecification/api-specs/store_api.yaml`.
 

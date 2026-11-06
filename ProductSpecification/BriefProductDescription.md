@@ -23,4 +23,4 @@
 
 ## Процесс
 
-`/delivery-loop` → `/frontend-delivery` | `/backend-delivery`
+`/delivery-loop` → `/test-spec` → `/frontend-delivery` | `/backend-delivery` → `/refactor`

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Кабинет — Деликат</title>
+  <link rel="icon" href="../assets/logo/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/logo/favicon.ico" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <section class="gate" id="gate">
+    <form class="gate-card" id="gate-form">
+      <img class="gate-logo" src="../assets/logo/logo.svg" alt="Деликат +">
+      <p class="kicker">Кабинет</p>
+      <h1>Деликат</h1>
+      <p class="lede">Демо-пароль <strong>staff</strong>. Выберите роль — от неё зависят вкладки.</p>
+      <fieldset class="role-pick">
+        <legend>Роль</legend>
+        <label class="role-opt"><input type="radio" name="role" value="owner" checked> Владелец — все вкладки</label>
+        <label class="role-opt"><input type="radio" name="role" value="manager"> Менеджер — заказы и каталог</label>
+        <label class="role-opt"><input type="radio" name="role" value="cashier"> Кассир / мясник — только заказы</label>
+      </fieldset>
+      <label for="password">Пароль</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <p class="error" id="gate-error" hidden>Неверный пароль</p>
+      <button class="btn solid" type="submit">Войти</button>
+    </form>
+  </section>
+
+  <div class="app" id="app" hidden>
+    <header class="top">
+      <a class="brand" href="../catalog.html">
+        <img src="../assets/logo/logo.svg" alt="">
+        <span>
+          <small>Деликат</small>
+          Кабинет
+        </span>
+      </a>
+      <div class="top-actions">
+        <span class="role-chip" id="role-chip" hidden></span>
+        <a class="text-link" href="../catalog.html">На витрину</a>
+        <button class="btn ghost" id="logout" type="button">Выйти</button>
+      </div>
+    </header>
+
+    <nav class="tabs wrap-tabs" role="tablist" aria-label="Разделы кабинета">
+      <button type="button" role="tab" id="tab-catalog" aria-controls="panel-catalog" aria-selected="true" data-tab="catalog">Каталог</button>
+      <button type="button" role="tab" id="tab-orders" aria-controls="panel-orders" aria-selected="false" data-tab="orders">Заказы</button>
+      <button type="button" role="tab" id="tab-stats" aria-controls="panel-stats" aria-selected="false" data-tab="stats">Статистика</button>
+      <button type="button" role="tab" id="tab-money" aria-controls="panel-money" aria-selected="false" data-tab="money">Деньги</button>
+    </nav>
+
+    <main class="wrap">
+      <section id="panel-catalog" role="tabpanel" aria-labelledby="tab-catalog">
+        <div class="toolbar">
+          <label class="field grow">
+            <span>Поиск</span>
+            <input id="q" type="search" placeholder="Имя или код" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Категория</span>
+            <select id="cat"></select>
+          </label>
+          <label class="field">
+            <span>Показ</span>
+            <select id="visibility">
+              <option value="all">Все</option>
+              <option value="live">На витрине</option>
+              <option value="hidden">Скрытые</option>
+            </select>
+          </label>
+          <button class="btn ghost" id="reset" type="button">Сбросить к витрине</button>
+          <button class="btn solid" id="create" type="button">Новый товар</button>
+        </div>
+        <p class="count" id="count"></p>
+        <p class="empty" id="empty" hidden>Ничего не найдено</p>
+        <ul class="sku-list" id="list"></ul>
+      </section>
+
+      <section id="panel-orders" role="tabpanel" aria-labelledby="tab-orders" hidden>
+        <div class="toolbar">
+          <label class="field grow">
+            <span>Поиск</span>
+            <input id="oq" type="search" placeholder="Номер, имя, телефон" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Статус</span>
+            <select id="ostatus">
+              <option value="all">Все</option>
+              <option value="accepted">Принят</option>
+              <option value="packing">Собираем</option>
+              <option value="ready">Готов</option>
+              <option value="done">Выдан</option>
+              <option value="cancelled">Отменён</option>
+            </select>
+          </label>
+          <button class="btn ghost" id="orders-reset" type="button">Сбросить демо-заказы</button>
+        </div>
+        <p class="count" id="orders-count"></p>
+        <p class="empty" id="orders-empty" hidden>Заказов нет</p>
+        <ul class="order-list" id="orders-list"></ul>
+      </section>
+
+      <section id="panel-stats" role="tabpanel" aria-labelledby="tab-stats" hidden>
+        <div class="kpi-row" id="kpi-stats"></div>
+        <div class="stats-grid">
+          <article class="chart-card">
+            <h2>Кто заказывает</h2>
+            <p class="chart-lead">Доля выручки по покупателям</p>
+            <div class="donut-wrap" id="donut-buyers"></div>
+          </article>
+          <article class="chart-card">
+            <h2>Что берут</h2>
+            <p class="chart-lead">Доля выручки по товарам</p>
+            <div class="donut-wrap" id="donut-products"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="panel-money" role="tabpanel" aria-labelledby="tab-money" hidden>
+        <div class="kpi-row" id="kpi-money"></div>
+        <div class="stats-grid">
+          <article class="chart-card chart-wide">
+            <h2>Выручка по дням</h2>
+            <p class="chart-lead">Сумма принятых заказов (без отменённых)</p>
+            <div class="bars" id="bars-days" role="img" aria-label="Столбчатый график выручки"></div>
+          </article>
+          <article class="chart-card chart-wide">
+            <h2>Топ позиций</h2>
+            <p class="chart-lead">Сколько штук заказали</p>
+            <div class="bars bars-h" id="bars-qty" role="img" aria-label="Количество по товарам"></div>
+          </article>
+        </div>
+        <section class="pay-block" aria-label="Приходы">
+          <header class="pay-head">
+            <div>
+              <p class="pay-kicker">Счёт магазина</p>
+              <h2>Приходы</h2>
+            </div>
+            <div class="pay-balance" id="pay-balance"></div>
+          </header>
+          <div id="pay-feed"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="editor" id="editor">
+    <form id="editor-form">
+      <header class="editor-head">
+        <h2 id="editor-title">Новый товар</h2>
+        <button class="icon-x" id="close-editor" type="button" aria-label="Закрыть">×</button>
+      </header>
+      <div class="form-grid">
+        <label class="field">
+          <span>Код</span>
+          <input id="f-id" required maxlength="32" autocapitalize="off" spellcheck="false" placeholder="rib">
+        </label>
+        <label class="field">
+          <span>Название</span>
+          <input id="f-name" required maxlength="80">
+        </label>
+        <label class="field">
+          <span>Категория</span>
+          <select id="f-category" required></select>
+        </label>
+        <label class="field">
+          <span>Вес</span>
+          <input id="f-weight" required maxlength="40" placeholder="~350 г">
+        </label>
+        <label class="field">
+          <span>Цена, ₽</span>
+          <input id="f-price" required inputmode="numeric" maxlength="5">
+        </label>
+        <label class="field">
+          <span>Было, ₽</span>
+          <input id="f-compare" inputmode="numeric" maxlength="5" placeholder="необязательно">
+        </label>
+        <label class="field">
+          <span>Популярность, 0–100</span>
+          <input id="f-pop" required inputmode="numeric" maxlength="3" value="50">
+        </label>
+        <fieldset class="badge-field">
+          <legend>Плашки витрины</legend>
+          <label class="badge-opt"><input type="radio" name="badge" value="" checked> Нет</label>
+          <label class="badge-opt"><input type="radio" name="badge" value="NEW"> NEW</label>
+          <label class="badge-opt"><input type="radio" name="badge" value="SALE"> SALE</label>
+        </fieldset>
+        <label class="field span-2">
+          <span>Мраморность</span>
+          <input id="f-marble" maxlength="40" placeholder="необязательно">
+        </label>
+        <label class="field span-2">
+          <span>Фото</span>
+          <select id="f-image" required></select>
+        </label>
+        <fieldset class="props span-2">
+          <legend>Свойства</legend>
+          <label><input type="checkbox" name="prop" value="chilled"> Охлаждённое</label>
+          <label><input type="checkbox" name="prop" value="frozen"> Замороженное</label>
+          <label><input type="checkbox" name="prop" value="fresh"> Свежее</label>
+          <label><input type="checkbox" name="prop" value="premium"> Премиум</label>
+        </fieldset>
+        <label class="field span-2">
+          <span>Описание</span>
+          <textarea id="f-description" rows="3" maxlength="400"></textarea>
+        </label>
+        <label class="check span-2">
+          <input id="f-hidden" type="checkbox">
+          Скрыть с витрины
+        </label>
+      </div>
+      <p class="error" id="form-error" hidden></p>
+      <footer class="editor-actions">
+        <button class="btn ghost" id="cancel" type="button">Отмена</button>
+        <button class="btn solid" type="submit">Сохранить</button>
+      </footer>
+    </form>
+  </dialog>
+  <script src="../js/admin-catalog.js"></script>
+</body>
+</html>

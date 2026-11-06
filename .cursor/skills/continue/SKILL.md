@@ -26,11 +26,13 @@ disable-model-invocation: true
 | `story-spec` | `/story-spec` |
 | `api-spec` | `/api-spec` |
 | `spec-skeptic` | `/spec-skeptic` (mode `spec`) |
-| `implement` (front) | `/frontend-delivery` → `frontend/` |
-| `implement` (back) | `/backend-delivery` (story 07 → этап 07.N из progress) |
+| `test-spec` | `/test-spec` — до implement |
+| `implement` (front) | `/frontend-delivery` → `frontend/` (gate: Tier 1 UI) |
+| `implement` (back) | `/backend-delivery` (gate: Tier 1 API; 07 → этап 07.N) |
 | `07.1` … `07.5` | `/backend-delivery 07.N` — один чекбокс в progress |
-| `check` | browser / pytest по AC |
-| `contract tests` | `python scripts/check_api_contract.py` + pytest (см. backend-delivery runbook этапа) |
+| `refactor` | `/refactor` — отдельный коммит после green |
+| `check` | browser / pytest по AC / Tier 1 |
+| `contract tests` | `python scripts/check_api_contract.py` + pytest |
 | `progress + stories.md update` | закрыть историю |
 
 ## Report

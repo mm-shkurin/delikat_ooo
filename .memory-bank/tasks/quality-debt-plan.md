@@ -55,7 +55,7 @@ Do **D** after A–C if timeboxed; admin panel must not start while JWT still in
 2. Smoke: `/health`, catalog, add-to-cart, checkout, OAuth fake.
 3. `/sprint-check --stage b` (consistency + smells); append delta to `_project_audit/`.
 4. `/clear-session` (commit + **push**).
-5. Next chat: **admin catalog** (new story) — only after this plan’s must-phases done.
+5. Next: **admin catalog** = story **11** — mock `site/admin/` started 2026-11-06 (`feature/11-admin-catalog-mock`); next `/story-spec 11`.
 
 ### Must vs nice
 
@@ -65,7 +65,7 @@ Do **D** after A–C if timeboxed; admin panel must not start while JWT still in
 
 If calendar is tight: ship **Must**, park D as first admin-adjacent hardening story.
 
-**Status 2026-11-06:** Must **done** (incl. C5). Nice still open → carryover / next hardening. Delta: `_project_audit/sprint-check-2026-11-06-quality-debt-delta.md`. Admin catalog may start.
+**Status 2026-11-06:** Must **done** (incl. C5). Nice still open → carryover / next hardening. Delta: `_project_audit/sprint-check-2026-11-06-quality-debt-delta.md`. Admin catalog mock started (story 11).
 
 ---
 

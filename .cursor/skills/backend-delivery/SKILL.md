@@ -1,7 +1,7 @@
 ---
 name: backend-delivery
 description: >-
-  Hexagonal backend Delikat — domain/usecase/adapters/application как adaptive-tutor.
+  Hexagonal backend Delikat — test-spec Tier1, usecase fakes, refactor commit.
   Use for /backend-delivery [story] [phase], e.g. /backend-delivery 07.2 or /backend-delivery 09.
 disable-model-invocation: true
 ---
@@ -24,10 +24,10 @@ application → adapters → usecase → domain
 /backend-delivery 10           # story 10 cart + orders (hex)
 ```
 
-**Один вызов = один этап** (07.N) или одна story без подэтапов. После — обновить `progress.md`, коммит, стоп.  
+**Один вызов = один этап** (07.N) или одна story без подэтапов. После — Verify → `/refactor` → коммиты, стоп.  
 Между этапами: `/clear-session` → New Chat → `/backend-delivery 07.3`.
 
-Альтернатива тем же шагам: `/continue 07` (смотрит те же чекбоксы в `progress.md`).
+Альтернатива: `/continue 07` (те же чекбоксы в `progress.md`).
 
 ## Карта backend-историй
 
@@ -44,31 +44,45 @@ Wave 1: `ProductSpecification/PARALLEL-WAVE-1.md`.
 ## Общий режим (любая story)
 
 ```
-interview → story-spec → [api-spec] → usecase (+ports) → adapters → application wiring → pytest
+interview → story-spec → [api-spec] → /spec-skeptic → /test-spec (01_API + tiers)
+      → usecase (+ports) + fakes → adapters → application wiring → pytest
+      → /refactor (отдельный коммит)
 ```
 
-- Тесты **сначала** usecase с fakes (`backend/usecase/tests/`).
+### Перед кодом (gate)
+
+1. Прочитать `.cursor/guidelines/coding-rules.md` + `coding-detail.md`.
+2. `stories/NN/tests/01_API_Tests.md` (и Security при auth) — Tier 1 разрешён; `Tier: ?` = стоп → `/test-spec`.
+3. Кодить только Tier 1, затем Tier 2; Tier 3 не реализовывать.
+
+### Правила слоя
+
+- Тесты **сначала** usecase с fakes (`backend/usecase/tests/`) под сценарии Tier 1.
 - FastAPI / SQLAlchemy **только** `backend/adapters/`.
-- Контракт: `ProductSpecification/api-specs/store_api.yaml`; drift = YAML + adapter в одном коммите.
-- `python scripts/check_api_contract.py` — когда появятся HTTP paths в коде / paths registry.
+- Контракт: `store_api.yaml`; drift = YAML + adapter в одном коммите.
+- `python scripts/check_api_contract.py` при HTTP paths / paths registry.
+- Файлы ≲ ~200 строк; не раздувать usecase «на всякий случай».
 
 ## Алгоритм сессии
 
 1. **Resolve** — номер story и этап из аргумента или первый `[ ]` / `[~]` в `stories/NN-*/progress.md` (секция Back).
-2. **Gate** — для **07.N** (N>1): этап **07.(N−1)** должен быть `[x]` в progress; иначе сообщить и предложить `/backend-delivery 07.(N−1)`.
-3. **Read** — `NN_*.md` (DoD этапа), `interview.md`, `*_Notes.md`, `endpoints.md`, нужные секции YAML.
-4. **Implement** — только scope этапа (см. runbooks ниже); **не** монолитом всю story 07.
-5. **Verify** — команды из runbook этапа; sanity fail once где указано.
-6. **Docker** — если менялись `backend/`, `infra/`, mock/fixtures: `cd infra && docker compose up -d --build backend` (правило `docker-rebuild-after-dev`).
-7. **Update** — `[x]` на этап в `progress.md`; колонки Back в `stories.md` (`~` пока не все этапы закрыты).
-8. **Commit** — `git commit -m "..." -- backend ProductSpecification` (acceptance — когда появится).
+2. **Gate** — (a) для **07.N** (N>1): этап **07.(N−1)** `[x]`; (b) test-spec Tier 1 для полосы готов.
+3. **Read** — guidelines, `NN_*.md`, `interview.md`, `tests/01_API_Tests.md`, `endpoints.md`, YAML.
+4. **Implement** — только scope этапа; **не** монолитом всю story 07.
+5. **Verify** — команды из runbook; sanity fail once где указано.
+6. **Refactor** — `/refactor` на touched files; **отдельный** коммит.
+7. **Docker** — `cd infra && docker compose up -d --build backend` при Docker-dev.
+8. **Update** — `[x]` в progress; колонки Back в `stories.md`.
+9. **Commit** feature: `git commit -m "feat(NN): ..." -- backend ProductSpecification`  
+   затем refactor: `git commit -m "refactor(NN): ..." -- backend`.
 
 ## Запрещено
 
 - Монолит `backend/app/routes+models+seed` одним PR.
 - Import adapter / FastAPI / SQLAlchemy из `usecase/` или `domain/`.
+- Implement без `/test-spec` (кроме чистого каркаса 07.1 — там test-spec минимальный smoke).
+- Feature+refactor в одном коммите.
 - JWT/HTTP в рамках этапа **07.2**; cart/catalog в **07**.
-
 ---
 
 ## Story 07 — runbooks по этапам

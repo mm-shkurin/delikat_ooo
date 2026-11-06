@@ -1,0 +1,15 @@
+---
+description: Coding quality gates for Delikat delivery (size, layers, test-spec, refactor)
+alwaysApply: true
+---
+
+# Coding quality (Деликат)
+
+Перед написанием или рефакторингом prod-кода (`backend/`, `frontend/`):
+
+1. Прочитать `.cursor/guidelines/coding-rules.md` и либо `coding-detail.md` (back), либо `frontend-rules.md` (front).
+2. Не начинать implement без `/test-spec` с разрешёнными Tier для полосы (mock-only `site/` — исключение до переноса в React/hex).
+3. Держать файлы ≲ ~200 строк; не класть бизнес-правила в HTTP/React fetch-слой.
+4. После green — `/refactor` отдельным коммитом (или явный `refactor: n/a` в отчёте).
+
+Полный цикл: `.cursor/skills/delivery-loop/SKILL.md`.

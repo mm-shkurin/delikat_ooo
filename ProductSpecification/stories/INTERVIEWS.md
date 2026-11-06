@@ -3,11 +3,14 @@
 | # | Следующий шаг |
 |---|----------------|
 | 01–06 | story-spec (reference `site/`) |
-| 07 | hex auth — этапы 07.1→07.5 ([spec](./stories/07-store-backend-api/07_BackendAuthSms.md#этапы)) |
-| 08 | **bootstrap `frontend/`** + catalogApi |
-| 09 | hex catalog |
-| 10 | Wave 2 |
+| 07 | hex auth — закрыт (OAuth pivot) |
+| 08 | React storefront — Wave 1/2 closed |
+| 09 | hex catalog GET — closed; write → **13** |
+| 10 | cart/orders — closed; staff orders → **15** |
+| 11 | **mock done** — референс для 12–16; prod story-spec не на 11 |
+| 12 | **старт Wave 3:** `/story 12` → `/interview` (shell + roles) |
+| 13–16 | после 12; см. `WAVE-3-ADMIN.md` |
 
-**Архитектура:** `CLAUDE.md`, `technology.md`, `PARALLEL-WAVE-1.md`.
+**Архитектура:** `CLAUDE.md`, `technology.md`, `PARALLEL-WAVE-1.md`, **`WAVE-3-ADMIN.md`**.
 
-**Откат:** монолитный `backend/app` удалён; `site/` снова чистый мокап.
+**Mock 11:** `stories/11-admin-catalog/` — `interview.md`, `decisions.md`, `progress.md`, `carryover.md`.

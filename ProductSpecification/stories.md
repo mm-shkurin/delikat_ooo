@@ -10,20 +10,48 @@
 
 Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` поднимает hex **backend** на `:8000` (как adaptive-tutor). Полный mock cart — profile `mock-api` (:8002).
 
-## Backlog — UI reference (site/)
-
-| # | Story | Notes |
-|---|-------|-------|
-| 01–06 | Мокап-slices | AC = `site/`; закрываются при переносе в `frontend/` |
-
 ## Done — Wave 2 (backend)
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
 | 10 | Cart/order API + React | x | x | x | x | smoke cart+orders :8000; story-spec done |
 
+## Done — mock (Wave 3 reference)
+
+| # | Story | Spec | Front | Back | Check | Notes |
+|---|-------|------|-------|------|-------|-------|
+| 11 | Мокап кабинета staff | mock | `site/` | · | x | `site/admin/` roles+tabs; prod → **12–16** |
+
+План дробления: [`WAVE-3-ADMIN.md`](./WAVE-3-ADMIN.md).
+
+## Backlog — Wave 3 (catalog staff)
+
+| # | Story | Spec | Front | Back | Check | Notes |
+|---|-------|------|-------|------|-------|-------|
+| 12 | Staff: вход, роль, каркас вкладок | · | · | · | · | shell + ACL; auth decision in interview |
+| 13 | Staff: CRUD каталога (NEW/SALE, hide) | · | · | · | · | после 12; write API |
+| 14 | Витрина = тот же каталог (hide/badges) | · | · | · | · | после 13 |
+
+## Backlog — Wave 4 (orders staff)
+
+| # | Story | Spec | Front | Back | Check | Notes |
+|---|-------|------|-------|------|-------|-------|
+| 15 | Staff: заказы — список и статусы | · | · | · | · | после 12; статусы packing…cancelled |
+
+## Backlog — Wave 5 (owner analytics)
+
+| # | Story | Spec | Front | Back | Check | Notes |
+|---|-------|------|-------|------|-------|-------|
+| 16 | Владелец: Статистика и Деньги | · | · | · | · | после 15; без эквайринга |
+
+## Backlog — UI reference (site/)
+
+| # | Story | Notes |
+|---|-------|-------|
+| 01–06 | Мокап-slices | AC = `site/`; закрываются при переносе в `frontend/` |
+
 ## Legend
 
 - **Front** = `frontend/`
 - **Back** = hex `backend/`
-- `site/` не маркируется как Front done
+- `site/` не маркируется как Front done (исключение: **11** = mock-done)

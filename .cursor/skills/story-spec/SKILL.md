@@ -59,7 +59,7 @@ disable-model-invocation: true
 
 ### Phase 5: Report
 
-Пути файлов, ключевые AC, следующий шаг: `/frontend-delivery`, `/backend-delivery` или `/continue`.
+Пути файлов, ключевые AC, следующий шаг: `/test-spec` → затем `/frontend-delivery` / `/backend-delivery`.
 
 ## Rules
 

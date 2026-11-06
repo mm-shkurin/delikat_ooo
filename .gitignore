@@ -9,3 +9,6 @@ infra/docker-compose.override.yml
 *.pyc
 __pycache__/
 .pytest_cache/
+.coverage
+.ruff_cache/
+_project_audit/_scratch-*.json

@@ -50,3 +50,8 @@ python ../scripts/check_api_contract.py
 `npm run ci` runs lint, vitest, and `vite build`.
 
 Selenium (каталог, фон): `cd ../acceptance && pip install -r requirements.txt && pytest -m frontend`
+
+## Ветки и коммиты
+
+Как в корневом [CONTRIBUTING.md](../CONTRIBUTING.md): префиксные ветки, Conventional
+Commits, слияние в `main`. PR не используются — ревью = сообщение коммита + CI.

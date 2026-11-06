@@ -67,3 +67,8 @@ POST /api/v1/orders  (+ Idempotency-Key)
 Cookie `delikat_session` обязателен для `GET /cart` (middleware выдаёт cookie на других GET).
 
 Спека API: `ProductSpecification/api-specs/store_api.yaml`.
+
+## Ветки и коммиты
+
+Как в корневом [CONTRIBUTING.md](../CONTRIBUTING.md): префиксные ветки, Conventional
+Commits, слияние в `main`. PR не используются — ревью = сообщение коммита + CI.

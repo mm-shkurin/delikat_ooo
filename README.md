@@ -60,3 +60,13 @@ llm/                  # черновик LLM-слоя (не часть сайт�
 ## Доставка историй
 
 См. `ProductSpecification/README.md`. Коротко: `/interview` → `/story-spec` → `/frontend-delivery` или `/backend-delivery` → `/continue`.
+
+## Ветки и коммиты
+
+Правила ведения — как в textery (см. [CONTRIBUTING.md](CONTRIBUTING.md) и
+`.memory-bank/steerings/development-conventions.md`):
+
+- работа в `feat/…`, `fix/…`, `chore/…`, `task/…` или `features/story-NN-…`;
+- в `main` — слиянием ветки (не россыпью прямых коммитов);
+- Conventional Commits, тема по-английски; один коммит — одно изменение;
+- PR как поверхность ревью не используются — «почему» в сообщении коммита, гейты в CI.

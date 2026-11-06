@@ -9,10 +9,10 @@ import { readStoredFulfillment } from './logic/fulfillmentView'
  * Loads guest/server cart once and syncs local fulfillment onto it.
  * @param {{
  *   applyCartBody: (body: unknown) => void,
- *   setCheckoutError: (message: string) => void,
+ *   setFulfillmentError: (message: string) => void,
  * }} options
  */
-export function useCartBootstrap({ applyCartBody, setCheckoutError }) {
+export function useCartBootstrap({ applyCartBody, setFulfillmentError }) {
   const [cartSyncing, setCartSyncing] = useState(true)
 
   const bootstrapCart = useCallback(async () => {
@@ -25,14 +25,14 @@ export function useCartBootstrap({ applyCartBody, setCheckoutError }) {
         const updated = await updateFulfillment(buildFulfillmentUpdate(local.mode, local.address))
         applyCartBody(updated)
       } catch (error) {
-        setCheckoutError(failureText(error))
+        setFulfillmentError(failureText(error))
       }
     } catch (error) {
-      setCheckoutError(failureText(error))
+      setFulfillmentError(failureText(error))
     } finally {
       setCartSyncing(false)
     }
-  }, [applyCartBody, setCheckoutError])
+  }, [applyCartBody, setFulfillmentError])
 
   useEffect(() => {
     bootstrapCart()

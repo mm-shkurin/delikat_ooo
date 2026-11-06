@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { updateMe } from '../../features/auth/api/authApi'
+import { startYandexLogin, updateMe } from '../../features/auth/api/authApi'
 import { profileToView } from '../../features/auth/logic/profileView'
+import { safeImageUrl } from '../../shared/ui/safeImageUrl'
 
 /**
  * @param {{
@@ -148,7 +149,7 @@ function AddressSheet({ chrome }) {
       </button>
       <h2 id="address-title">Куда везти</h2>
       <p className="muted">Без улицы стейк в корзину не кладётся.</p>
-      {chrome.checkoutError ? <p role="alert">{chrome.checkoutError}</p> : null}
+      {chrome.fulfillmentError ? <p role="alert">{chrome.fulfillmentError}</p> : null}
       <label className="field" htmlFor="street">
         Улица и дом
       </label>
@@ -174,16 +175,18 @@ function AuthSheet({ chrome }) {
   const [nameDraft, setNameDraft] = useState(chrome.userProfile?.displayName ?? '')
   const [saveBusy, setSaveBusy] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const { layer, signedIn: isSignedIn, userProfile, profileBusy, refreshUserProfile, applyUserProfile, resetShopSession } =
+    chrome
 
   useEffect(() => {
-    if (chrome.layer === 'auth' && chrome.signedIn && !chrome.userProfile && !chrome.profileBusy) {
-      chrome.refreshUserProfile()
+    if (layer === 'auth' && isSignedIn && !userProfile && !profileBusy) {
+      refreshUserProfile()
     }
-  }, [chrome])
+  }, [layer, isSignedIn, userProfile, profileBusy, refreshUserProfile])
 
   useEffect(() => {
-    setNameDraft(chrome.userProfile?.displayName ?? '')
-  }, [chrome.userProfile?.displayName])
+    setNameDraft(userProfile?.displayName ?? '')
+  }, [userProfile?.displayName])
 
   const saveName = async (event) => {
     event.preventDefault()
@@ -191,7 +194,7 @@ function AuthSheet({ chrome }) {
     setSaveBusy(true)
     try {
       const body = await updateMe(nameDraft)
-      chrome.applyUserProfile(profileToView(body))
+      applyUserProfile(profileToView(body))
     } catch {
       setSaveError('Не удалось сохранить имя.')
     } finally {
@@ -199,9 +202,7 @@ function AuthSheet({ chrome }) {
     }
   }
 
-  const signOut = () => {
-    void chrome.resetShopSession()
-  }
+  const avatarSrc = safeImageUrl(userProfile?.avatarUrl)
 
   return (
     <div className="panel sheet" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title">
@@ -209,21 +210,15 @@ function AuthSheet({ chrome }) {
         ×
       </button>
       <h2 id="auth-title">{signedIn ? 'Профиль' : 'Вход'}</h2>
-      {chrome.profileBusy ? <p className="muted">Загрузка…</p> : null}
+      {profileBusy ? <p className="muted">Загрузка…</p> : null}
       {signedIn ? (
         <>
-          {chrome.userProfile.avatarUrl ? (
-            <img
-              src={chrome.userProfile.avatarUrl}
-              alt=""
-              width={64}
-              height={64}
-              style={{ borderRadius: '50%', marginBottom: 12 }}
-            />
+          {avatarSrc ? (
+            <img src={avatarSrc} alt="" width={64} height={64} style={{ borderRadius: '50%', marginBottom: 12 }} />
           ) : null}
-          <p className="muted">{chrome.userProfile.email}</p>
+          <p className="muted">{userProfile.email}</p>
           <p className="muted" style={{ fontSize: 13 }}>
-            В Yandex: {chrome.userProfile.providerDisplayName}
+            В Yandex: {userProfile.providerDisplayName}
           </p>
           <form onSubmit={saveName}>
             <label className="field" htmlFor="display-name">
@@ -243,20 +238,14 @@ function AuthSheet({ chrome }) {
               {saveBusy ? 'Сохранение…' : 'Сохранить имя'}
             </button>
           </form>
-          <button className="btn" type="button" style={{ marginTop: 12 }} onClick={signOut}>
+          <button className="btn" type="button" style={{ marginTop: 12 }} onClick={() => void resetShopSession()}>
             Выйти
           </button>
         </>
       ) : (
         <>
           <p className="muted">Yandex ID — аватар и имя подтягиваются при входе.</p>
-          <button
-            className="btn btn-accent"
-            type="button"
-            onClick={() => {
-              import('../../features/auth/api/authApi').then(({ startYandexLogin }) => startYandexLogin())
-            }}
-          >
+          <button className="btn btn-accent" type="button" onClick={startYandexLogin}>
             Войти через Yandex
           </button>
         </>

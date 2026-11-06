@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getMe } from '../../features/auth/api/authApi'
-import { profileToView } from '../../features/auth/logic/profileView'
 import {
   addCartItem,
   deleteCartItem,
@@ -8,26 +6,36 @@ import {
   updateFulfillment,
 } from '../../features/cart/api/cartApi'
 import { buildFulfillmentUpdate } from '../../features/cart/logic/fulfillmentPayload'
-import { loadCartWithSession } from '../../features/cart/logic/loadCart'
 import { cartToView } from '../../features/cart/logic/cartView'
-import { createOrder } from '../../features/checkout/api/orderApi'
-import { orderCreatedToView } from '../../features/checkout/logic/orderView'
 import { failureText } from '../../shared/api/failureText'
 import { httpErrorIn } from '../../shared/api/httpResponse'
-import { currentSession, endSession } from '../../shared/session/authSession'
 import { clearShopSession } from './clearShopSession'
 import { addressChipLabel, readStoredFulfillment, writeStoredFulfillment } from './logic/fulfillmentView'
+import { useAuthChrome } from './useAuthChrome'
 import { useCartBootstrap } from './useCartBootstrap'
+import { useCheckoutFlow } from './useCheckoutFlow'
 import { useDialogFocus } from './useDialogFocus'
 import { useTheme } from './useTheme'
 
 const rub = (n) => new Intl.NumberFormat('ru-RU').format(n) + ' ₽'
 
 /**
- * Store chrome: theme, fulfillment, server cart, auth overlays, checkout.
+ * Store chrome composer: theme, fulfillment, cart, auth overlays, checkout.
  */
 export function useStoreChrome() {
   const { theme, setTheme } = useTheme()
+  const {
+    signedIn,
+    userProfile,
+    profileBusy,
+    privacyNoteVisible,
+    setPrivacyNoteVisible,
+    refreshUserProfile,
+    completeAuth: markSignedIn,
+    applyUserProfile,
+    clearAuthState,
+  } = useAuthChrome()
+
   const [mode, setModeState] = useState(() => readStoredFulfillment().mode)
   const [address, setAddressState] = useState(() => readStoredFulfillment().address)
   const [cartView, setCartView] = useState(() => ({
@@ -43,21 +51,12 @@ export function useStoreChrome() {
   const [layer, setLayer] = useState(
     /** @type {null | 'cart' | 'address' | 'auth' | 'product' | 'receipt'} */ (null),
   )
-  const [signedIn, setSignedIn] = useState(() => !!currentSession())
-  const [userProfile, setUserProfile] = useState(
-    /** @type {ReturnType<typeof profileToView> | null} */ (null),
-  )
-  const [profileBusy, setProfileBusy] = useState(false)
-  const [privacyNoteVisible, setPrivacyNoteVisible] = useState(false)
-  const [checkoutBusy, setCheckoutBusy] = useState(false)
-  const [checkoutError, setCheckoutError] = useState('')
-  const [lastOrder, setLastOrder] = useState(
-    /** @type {ReturnType<typeof orderCreatedToView> | null} */ (null),
-  )
+  const [fulfillmentError, setFulfillmentError] = useState('')
   const [pendingAdd, setPendingAdd] = useState(
     /** @type {null | { name: string, note: string, price: number, qty: number, productId: string }} */ (null),
   )
-  const [activeProductId, setActiveProductId] = useState(/** @type {string | null} */ (null))
+
+  const clearCheckoutErrorRef = useRef(/** @type {(message: string) => void} */ (() => {}))
 
   const applyCartBody = useCallback((body) => {
     const view = cartToView(body)
@@ -67,21 +66,47 @@ export function useStoreChrome() {
     writeStoredFulfillment({ mode: view.mode, address: view.streetLine })
   }, [])
 
-  const { cartSyncing, bootstrapCart } = useCartBootstrap({ applyCartBody, setCheckoutError })
+  const { cartSyncing, bootstrapCart } = useCartBootstrap({
+    applyCartBody,
+    setFulfillmentError,
+  })
   useDialogFocus(layer)
+
+  const openLayer = useCallback((id) => {
+    setLayer(id)
+    setMenuOpen(false)
+    if (id === 'cart') clearCheckoutErrorRef.current('')
+    if (id === 'address') setFulfillmentError('')
+  }, [])
+
+  const {
+    checkoutBusy,
+    checkoutError,
+    setCheckoutError,
+    lastOrder,
+    submitCheckout,
+    clearCheckoutState,
+  } = useCheckoutFlow({
+    applyCartBody,
+    canCheckout: cartView.canCheckout,
+    openLayer,
+    setLayer,
+  })
+  clearCheckoutErrorRef.current = setCheckoutError
 
   const setMode = useCallback(
     async (next) => {
       const previous = mode
       setModeState(next)
       writeStoredFulfillment({ mode: next, address })
+      setFulfillmentError('')
       try {
         const body = await updateFulfillment(buildFulfillmentUpdate(next, address))
         applyCartBody(body)
       } catch (error) {
         setModeState(previous)
         writeStoredFulfillment({ mode: previous, address })
-        setCheckoutError(failureText(error))
+        setFulfillmentError(failureText(error))
       }
     },
     [address, applyCartBody, mode],
@@ -90,39 +115,21 @@ export function useStoreChrome() {
   useEffect(() => {
     if (!layer) return
     const onKey = (event) => {
-      if (event.key === 'Escape') {
-        setLayer(null)
-        setActiveProductId(null)
-      }
+      if (event.key === 'Escape') setLayer(null)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [layer])
 
-  const cartLines = cartView.items
-  const cartCount = cartView.itemsCount
-  const cartTotal = cartView.total
-  const addressLabel = addressChipLabel({ mode, address })
-
   const closeLayers = useCallback(() => {
     setLayer(null)
-    setActiveProductId(null)
     setCheckoutError('')
-  }, [])
+    setFulfillmentError('')
+  }, [setCheckoutError])
 
-  const openLayer = useCallback((id) => {
-    setLayer(id)
-    setMenuOpen(false)
-    if (id === 'cart') setCheckoutError('')
-  }, [])
-
-  const openProduct = useCallback(
-    (productId) => {
-      setActiveProductId(productId)
-      openLayer('product')
-    },
-    [openLayer],
-  )
+  const openProduct = useCallback(() => {
+    openLayer('product')
+  }, [openLayer])
 
   const saveAddress = useCallback(
     async (street) => {
@@ -131,6 +138,7 @@ export function useStoreChrome() {
       const previous = address
       setAddressState(trimmed)
       writeStoredFulfillment({ mode, address: trimmed })
+      setFulfillmentError('')
       const queuedAdd = pendingAdd
       try {
         const body = await updateFulfillment(buildFulfillmentUpdate(mode, trimmed))
@@ -150,7 +158,7 @@ export function useStoreChrome() {
       } catch (error) {
         setAddressState(previous)
         writeStoredFulfillment({ mode, address: previous })
-        setCheckoutError(failureText(error))
+        setFulfillmentError(failureText(error))
       }
     },
     [address, applyCartBody, mode, openLayer, pendingAdd],
@@ -183,55 +191,21 @@ export function useStoreChrome() {
         openLayer('cart')
       }
     },
-    [address, applyCartBody, mode, openLayer],
+    [address, applyCartBody, mode, openLayer, setCheckoutError],
   )
 
-  const refreshUserProfile = useCallback(async () => {
-    if (!currentSession()) {
-      setUserProfile(null)
-      setSignedIn(false)
-      return null
-    }
-    setProfileBusy(true)
-    try {
-      const body = await getMe()
-      const view = profileToView(body)
-      setUserProfile(view)
-      setSignedIn(true)
-      return view
-    } catch {
-      endSession()
-      setUserProfile(null)
-      setSignedIn(false)
-      return null
-    } finally {
-      setProfileBusy(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    refreshUserProfile()
-  }, [refreshUserProfile])
-
-  const completeAuthMock = useCallback(() => {
-    setSignedIn(true)
+  const completeAuth = useCallback(() => {
+    markSignedIn()
     setLayer(null)
-    refreshUserProfile()
-  }, [refreshUserProfile])
-
-  const applyUserProfile = useCallback((view) => {
-    setUserProfile(view)
-    setSignedIn(true)
-  }, [])
+  }, [markSignedIn])
 
   const resetShopSession = useCallback(async () => {
     await clearShopSession({
       onLocalReset: () => {
-        setCheckoutError('')
-        setLastOrder(null)
+        clearCheckoutState()
+        setFulfillmentError('')
         setPendingAdd(null)
-        setUserProfile(null)
-        setSignedIn(false)
+        clearAuthState()
         setLayer(null)
         setModeState('delivery')
         setAddressState('')
@@ -247,7 +221,7 @@ export function useStoreChrome() {
       },
     })
     await bootstrapCart()
-  }, [bootstrapCart])
+  }, [bootstrapCart, clearAuthState, clearCheckoutState])
 
   const adjustLineQty = useCallback(
     async (lineId, delta) => {
@@ -257,45 +231,14 @@ export function useStoreChrome() {
       if (nextQty > 99) return
       try {
         const body =
-          nextQty <= 0
-            ? await deleteCartItem(lineId)
-            : await patchCartItem(lineId, nextQty)
+          nextQty <= 0 ? await deleteCartItem(lineId) : await patchCartItem(lineId, nextQty)
         applyCartBody(body)
       } catch (error) {
         setCheckoutError(error instanceof Error ? error.message : 'Не удалось изменить количество.')
       }
     },
-    [applyCartBody, cartView.items],
+    [applyCartBody, cartView.items, setCheckoutError],
   )
-
-  const checkoutKey = useRef(/** @type {string | null} */ (null))
-  const checkoutInFlight = useRef(false)
-
-  const submitCheckout = useCallback(async () => {
-    if (checkoutInFlight.current || !cartView.canCheckout) return
-    checkoutInFlight.current = true
-    setCheckoutBusy(true)
-    setCheckoutError('')
-    if (!checkoutKey.current) checkoutKey.current = crypto.randomUUID()
-    try {
-      const body = await createOrder({ idempotencyKey: checkoutKey.current })
-      const view = orderCreatedToView(body)
-      setLastOrder(view)
-      const cartBody = await loadCartWithSession()
-      applyCartBody(cartBody)
-      setLayer('receipt')
-      checkoutKey.current = null
-    } catch (error) {
-      const failure = httpErrorIn(error)
-      if (failure?.errorCode === 'address_required') {
-        openLayer('address')
-      }
-      setCheckoutError(error instanceof Error ? error.message : 'Не удалось оформить заказ.')
-    } finally {
-      checkoutInFlight.current = false
-      setCheckoutBusy(false)
-    }
-  }, [applyCartBody, cartView.canCheckout, openLayer])
 
   const scrollToId = useCallback((id) => {
     const target = document.getElementById(id)
@@ -309,16 +252,15 @@ export function useStoreChrome() {
     mode,
     setMode,
     address,
-    addressLabel,
+    addressLabel: addressChipLabel({ mode, address }),
     menuOpen,
     setMenuOpen,
     layer,
     openLayer,
     closeLayers,
     openProduct,
-    activeProductId,
     saveAddress,
-    completeAuthMock,
+    completeAuth,
     refreshUserProfile,
     applyUserProfile,
     resetShopSession,
@@ -327,10 +269,10 @@ export function useStoreChrome() {
     signedIn,
     privacyNoteVisible,
     setPrivacyNoteVisible,
-    cart: cartLines,
-    cartCount,
-    cartTotal,
-    cartTotalLabel: rub(cartTotal),
+    cart: cartView.items,
+    cartCount: cartView.itemsCount,
+    cartTotal: cartView.total,
+    cartTotalLabel: rub(cartView.total),
     cartSyncing,
     canCheckout: cartView.canCheckout,
     adjustLineQty,
@@ -338,6 +280,7 @@ export function useStoreChrome() {
     submitCheckout,
     checkoutBusy,
     checkoutError,
+    fulfillmentError,
     lastOrder,
     scrollToId,
     rub,

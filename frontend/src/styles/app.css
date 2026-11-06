@@ -8,3 +8,12 @@
   gap: 1rem;
   margin-bottom: 1rem;
 }
+
+.error-boundary {
+  padding: 24px;
+  text-align: center;
+}
+
+.error-boundary .btn {
+  margin-top: 12px;
+}

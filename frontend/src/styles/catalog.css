@@ -410,16 +410,13 @@
       object-fit: cover;
       position: absolute; inset: 0;
     }
-    .dish-visual .close,
-    .dish-visual .fav {
-      position: absolute; top: 16px; z-index: 2;
+    .dish-visual .close {
+      position: absolute; top: 16px; left: 16px; z-index: 2;
       width: 40px; height: 40px; border: 0; border-radius: 50%;
       background: rgba(255,255,255,.14); color: #fff;
       backdrop-filter: blur(10px);
       font-size: 16px;
     }
-    .dish-visual .close { left: 16px; }
-    .dish-visual .fav { right: 16px; }
     .dish-sheet {
       background: rgba(20,20,20,.96);
       border-radius: 28px 28px 0 0;

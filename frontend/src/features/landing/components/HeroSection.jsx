@@ -45,6 +45,11 @@ export function HeroSection({ chrome, onOpenAuth }) {
               {chrome.signedIn ? 'Кабинет' : 'Войти'}
             </button>
           </div>
+          {chrome.fulfillmentError ? (
+            <p className="muted" role="alert">
+              {chrome.fulfillmentError}
+            </p>
+          ) : null}
         </div>
         <div className="hero-art" aria-hidden="true">
           <img src="/assets/hero/hero-meat.png" alt="" width="2400" height="1792" />

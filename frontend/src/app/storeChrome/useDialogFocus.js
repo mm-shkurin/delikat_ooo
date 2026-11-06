@@ -4,8 +4,7 @@ const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 /**
- * Focus first control when a dialog layer opens; restore previous focus on close.
- * Escape close is handled elsewhere — this is a minimal trap entry/exit.
+ * Focus trap while a dialog layer is open; restore previous focus on close.
  * @param {string | null} layer
  */
 export function useDialogFocus(layer) {
@@ -20,11 +19,43 @@ export function useDialogFocus(layer) {
     }
 
     previousFocus.current = document.activeElement
+
     const frame = window.requestAnimationFrame(() => {
       const dialog = document.querySelector('[role="dialog"]')
-      const target = dialog?.querySelector(FOCUSABLE)
+      if (!(dialog instanceof HTMLElement)) return
+      const target = dialog.querySelector(FOCUSABLE)
       if (target instanceof HTMLElement) target.focus()
     })
-    return () => window.cancelAnimationFrame(frame)
+
+    const onKeyDown = (event) => {
+      if (event.key !== 'Tab') return
+      const dialog = document.querySelector('[role="dialog"]')
+      if (!(dialog instanceof HTMLElement)) return
+      const focusables = [...dialog.querySelectorAll(FOCUSABLE)].filter(
+        (node) => node instanceof HTMLElement,
+      )
+      if (focusables.length === 0) {
+        event.preventDefault()
+        return
+      }
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      const active = document.activeElement
+      if (event.shiftKey) {
+        if (active === first || !dialog.contains(active)) {
+          event.preventDefault()
+          last.focus()
+        }
+      } else if (active === last || !dialog.contains(active)) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      document.removeEventListener('keydown', onKeyDown)
+    }
   }, [layer])
 }

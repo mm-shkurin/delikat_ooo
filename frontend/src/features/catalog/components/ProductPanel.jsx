@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { safeImageUrl } from '../../../shared/ui/safeImageUrl'
 
 /**
  * @param {{
@@ -12,13 +13,11 @@ import { useEffect, useState } from 'react'
 export function ProductPanel({ detail, loading, failed = false, chrome, onClose }) {
   const [weight, setWeight] = useState('')
   const [qty, setQty] = useState(1)
-  const [fav, setFav] = useState(false)
 
   useEffect(() => {
     if (!detail) return
     setWeight(detail.weightOptions[0] ?? detail.weightLabel)
     setQty(1)
-    setFav(false)
   }, [detail?.id, detail])
 
   if (loading || !detail) {
@@ -35,6 +34,7 @@ export function ProductPanel({ detail, loading, failed = false, chrome, onClose 
   }
 
   const weights = Array.from(new Set([detail.weightLabel, ...detail.weightOptions]))
+  const imageSrc = safeImageUrl(detail.imageUrl)
 
   return (
     <div className="panel dish-panel" id="product" role="dialog" aria-modal="true" aria-labelledby="product-title">
@@ -42,16 +42,7 @@ export function ProductPanel({ detail, loading, failed = false, chrome, onClose 
         <button className="close" type="button" aria-label="Закрыть" onClick={onClose}>
           ×
         </button>
-        <button
-          className="fav"
-          type="button"
-          aria-label="В избранное"
-          aria-pressed={fav}
-          onClick={() => setFav(!fav)}
-        >
-          {fav ? '♥' : '♡'}
-        </button>
-        <img src={detail.imageUrl} alt={detail.name} />
+        {imageSrc ? <img src={imageSrc} alt={detail.name} /> : null}
       </div>
       <div className="dish-sheet">
         <h2 id="product-title">{detail.name}</h2>
@@ -64,12 +55,7 @@ export function ProductPanel({ detail, loading, failed = false, chrome, onClose 
         <p className="field-label">Вес</p>
         <div className="weights">
           {weights.map((w) => (
-            <button
-              key={w}
-              type="button"
-              aria-pressed={weight === w}
-              onClick={() => setWeight(w)}
-            >
+            <button key={w} type="button" aria-pressed={weight === w} onClick={() => setWeight(w)}>
               {w}
             </button>
           ))}

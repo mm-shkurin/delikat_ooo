@@ -13,12 +13,19 @@ export class ErrorBoundary extends Component {
     return { failed: true }
   }
 
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary caught', error, info)
+  }
+
   render() {
     if (this.state.failed) {
       return (
-        <p role="alert" style={{ padding: 24, textAlign: 'center' }}>
-          Что-то сломалось. Обновите страницу.
-        </p>
+        <div className="error-boundary" role="alert">
+          <p>Что-то сломалось. Обновите страницу.</p>
+          <button className="btn btn-accent" type="button" onClick={() => window.location.reload()}>
+            Обновить
+          </button>
+        </div>
       )
     }
     return this.props.children

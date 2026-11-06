@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { THEME_STORAGE_KEY, normalizeTheme } from './logic/fulfillmentView'
+
+export const THEME_STORAGE_KEY = 'delikat-theme'
+
+/** @param {string | null | undefined} saved */
+export function normalizeTheme(saved) {
+  return saved === 'charcoal' ? 'charcoal' : 'wine'
+}
 
 /** Theme preference for store chrome (wine / charcoal). */
 export function useTheme() {

@@ -9,8 +9,8 @@ export function OAuthCallbackPage() {
   const navigate = useNavigate()
   const [error, setError] = useState(null)
   const started = useRef(false)
-  const completeAuth = useRef(chrome.completeAuthMock)
-  completeAuth.current = chrome.completeAuthMock
+  const completeAuth = useRef(chrome.completeAuth)
+  completeAuth.current = chrome.completeAuth
 
   useEffect(() => {
     const providerError = params.get('error')

@@ -9,13 +9,7 @@ export function addressChipLabel({ mode, address = '', defaultCity = 'Омск' 
   return trimmed || defaultCity
 }
 
-export const THEME_STORAGE_KEY = 'delikat-theme'
 export const FULFILLMENT_STORAGE_KEY = 'delikat.fulfillment'
-
-/** @param {string | null | undefined} saved */
-export function normalizeTheme(saved) {
-  return saved === 'charcoal' ? 'charcoal' : 'wine'
-}
 
 /** @returns {{ mode: FulfillmentMode, address: string }} */
 export function readStoredFulfillment() {

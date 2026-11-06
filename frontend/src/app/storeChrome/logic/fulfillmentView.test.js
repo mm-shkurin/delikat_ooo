@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   FULFILLMENT_STORAGE_KEY,
   addressChipLabel,
-  normalizeTheme,
   readStoredFulfillment,
   writeStoredFulfillment,
 } from './fulfillmentView'
@@ -34,16 +33,5 @@ describe('fulfillment storage', () => {
     expect(readStoredFulfillment()).toEqual({ mode: 'delivery', address: '' })
     sessionStorage.setItem(FULFILLMENT_STORAGE_KEY, '{bad')
     expect(readStoredFulfillment()).toEqual({ mode: 'delivery', address: '' })
-  })
-})
-
-describe('normalizeTheme', () => {
-  it('defaults unknown to wine', () => {
-    expect(normalizeTheme(null)).toBe('wine')
-    expect(normalizeTheme('')).toBe('wine')
-  })
-
-  it('keeps charcoal', () => {
-    expect(normalizeTheme('charcoal')).toBe('charcoal')
   })
 })

@@ -1,5 +1,6 @@
 import { useRouteBodyClass } from '../../shared/ui/useRouteBodyClass'
 import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
+import { elementById, requestFrame } from '../../shared/browser/dom'
 import '../../styles/landing.css'
 import { HeroSection } from './components/HeroSection'
 import { LandingFooter } from './components/LandingFooter'
@@ -22,7 +23,7 @@ export function LandingPage() {
       <LandingFooter
         onPrivacyClick={() => {
           chrome.setPrivacyNoteVisible(true)
-          requestAnimationFrame(() => document.getElementById('privacy-note')?.focus())
+          requestFrame(() => elementById('privacy-note')?.focus())
         }}
       />
       <StoreOverlays chrome={chrome} />

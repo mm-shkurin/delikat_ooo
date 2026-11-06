@@ -2,9 +2,10 @@ import { beginSession, endSession } from '../../../shared/session/authSession'
 import { send } from '../../../shared/api/send'
 import { isTokenPairBody, isUserProfileBody } from '../../../shared/api/backend/bodyGuards'
 import { BACKEND } from '../../../shared/api/backend/paths'
+import { assignLocation } from '../../../shared/browser/dom'
 
 export function startYandexLogin() {
-  window.location.assign(BACKEND.auth.yandexStart)
+  assignLocation(BACKEND.auth.yandexStart)
 }
 
 export async function exchangeOAuthCode(code) {

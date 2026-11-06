@@ -13,9 +13,38 @@ export function writeLocalStorage(key, value) {
   if (isBrowser()) localStorage.setItem(key, value)
 }
 
+/** @param {string} key */
+export function removeLocalStorage(key) {
+  if (isBrowser()) localStorage.removeItem(key)
+}
+
 /** @param {string} name @param {string} value */
 export function setDocumentAttribute(name, value) {
   if (isBrowser()) document.documentElement.setAttribute(name, value)
+}
+
+/** @param {string} className */
+export function addBodyClass(className) {
+  if (isBrowser()) document.body.classList.add(className)
+}
+
+/** @param {string} className */
+export function removeBodyClass(className) {
+  if (isBrowser()) document.body.classList.remove(className)
+}
+
+/** @param {string} href */
+export function assignLocation(href) {
+  if (isBrowser()) window.location.assign(href)
+}
+
+export function reloadLocation() {
+  if (isBrowser()) window.location.reload()
+}
+
+/** @param {string} path */
+export function replaceHistoryPath(path) {
+  if (isBrowser()) window.history.replaceState({}, '', path)
 }
 
 /** @param {string} id */

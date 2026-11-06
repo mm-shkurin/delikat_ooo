@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
+import { replaceHistoryPath } from '../../shared/browser/dom'
 import { exchangeOAuthCode } from './api/authApi'
 
 export function OAuthCallbackPage() {
@@ -32,7 +33,7 @@ export function OAuthCallbackPage() {
       })
       .catch(() => {
         setError('exchange_failed')
-        window.history.replaceState({}, '', '/auth/callback')
+        replaceHistoryPath('/auth/callback')
       })
   }, [params, navigate])
 

@@ -254,14 +254,15 @@
       display: flex; flex-direction: column;
       min-width: 0;
       transition: background .35s ease, transform .15s;
-      cursor: pointer;
-      text-align: left;
-      padding: 0;
-      color: inherit;
-      font: inherit;
       width: 100%;
     }
     .card:hover { transform: translateY(-2px); }
+    .card-open {
+      display: flex; flex-direction: column; flex: 1; min-width: 0;
+      border: 0; padding: 0; margin: 0;
+      background: transparent; color: inherit; font: inherit;
+      text-align: left; cursor: pointer; width: 100%;
+    }
     .plate {
       position: relative;
       aspect-ratio: 1.05 / 1;
@@ -305,10 +306,11 @@
       text-decoration: line-through; font-weight: 600;
     }
     .add {
-      margin-top: auto;
+      margin: 0 16px 16px;
       min-height: 46px; border: 0; border-radius: 999px;
       background: #fff; color: #0a0a0a; font-weight: 800;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      cursor: pointer;
     }
     .add:hover { filter: brightness(0.96); }
     .empty {

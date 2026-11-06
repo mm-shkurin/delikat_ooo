@@ -7,9 +7,15 @@ import {
 } from '../../features/cart/api/cartApi'
 import { buildFulfillmentUpdate } from '../../features/cart/logic/fulfillmentPayload'
 import { cartToView } from '../../features/cart/logic/cartView'
+import { isAbortError } from '../../shared/api/abortError'
 import { failureText } from '../../shared/api/failureText'
 import { httpErrorIn } from '../../shared/api/httpResponse'
 import { readStoredFulfillment, writeStoredFulfillment } from './logic/fulfillmentView'
+import { useUnmountSignal } from './useUnmountSignal'
+
+function dropped(error, signal) {
+  return signal.aborted || isAbortError(error)
+}
 
 /** @param {'delivery' | 'pickup'} [mode] @param {string} [streetLine] */
 function emptyCart(mode = 'delivery', streetLine = '') {
@@ -33,6 +39,7 @@ function emptyCart(mode = 'delivery', streetLine = '') {
  * }} options
  */
 export function useCartMutations({ openLayer, setLayer, reportCartError }) {
+  const signal = useUnmountSignal()
   const [mode, setModeState] = useState(() => readStoredFulfillment().mode)
   const [address, setAddressState] = useState(() => readStoredFulfillment().address)
   const [cartView, setCartView] = useState(() => {
@@ -59,15 +66,17 @@ export function useCartMutations({ openLayer, setLayer, reportCartError }) {
       writeStoredFulfillment({ mode: next, address })
       setFulfillmentError('')
       try {
-        const body = await updateFulfillment(buildFulfillmentUpdate(next, address))
+        const body = await updateFulfillment(buildFulfillmentUpdate(next, address), signal)
+        if (signal.aborted) return
         applyCartBody(body)
       } catch (error) {
+        if (dropped(error, signal)) return
         setModeState(previous)
         writeStoredFulfillment({ mode: previous, address })
         setFulfillmentError(failureText(error))
       }
     },
-    [address, applyCartBody, mode],
+    [address, applyCartBody, mode, signal],
   )
 
   const saveAddress = useCallback(
@@ -80,14 +89,19 @@ export function useCartMutations({ openLayer, setLayer, reportCartError }) {
       setFulfillmentError('')
       const queuedAdd = pendingAdd
       try {
-        const body = await updateFulfillment(buildFulfillmentUpdate(mode, trimmed))
+        const body = await updateFulfillment(buildFulfillmentUpdate(mode, trimmed), signal)
+        if (signal.aborted) return
         applyCartBody(body)
         if (queuedAdd) {
-          const cartBody = await addCartItem({
-            product_id: queuedAdd.productId,
-            weight_label: queuedAdd.note,
-            quantity: queuedAdd.qty,
-          })
+          const cartBody = await addCartItem(
+            {
+              product_id: queuedAdd.productId,
+              weight_label: queuedAdd.note,
+              quantity: queuedAdd.qty,
+            },
+            signal,
+          )
+          if (signal.aborted) return
           setPendingAdd(null)
           applyCartBody(cartBody)
           openLayer('cart')
@@ -95,12 +109,13 @@ export function useCartMutations({ openLayer, setLayer, reportCartError }) {
           setLayer(null)
         }
       } catch (error) {
+        if (dropped(error, signal)) return
         setAddressState(previous)
         writeStoredFulfillment({ mode, address: previous })
         setFulfillmentError(failureText(error))
       }
     },
-    [address, applyCartBody, mode, openLayer, pendingAdd, setLayer],
+    [address, applyCartBody, mode, openLayer, pendingAdd, setLayer, signal],
   )
 
   const requestAddToCart = useCallback(
@@ -112,14 +127,15 @@ export function useCartMutations({ openLayer, setLayer, reportCartError }) {
         return
       }
       try {
-        const body = await addCartItem({
-          product_id: productId,
-          weight_label: weightLabel,
-          quantity: qty,
-        })
+        const body = await addCartItem(
+          { product_id: productId, weight_label: weightLabel, quantity: qty },
+          signal,
+        )
+        if (signal.aborted) return
         applyCartBody(body)
         openLayer('cart')
       } catch (error) {
+        if (dropped(error, signal)) return
         const failure = httpErrorIn(error)
         if (failure?.errorCode === 'address_required') {
           setPendingAdd({ productId, name, note, price, qty })
@@ -130,7 +146,7 @@ export function useCartMutations({ openLayer, setLayer, reportCartError }) {
         openLayer('cart')
       }
     },
-    [address, applyCartBody, mode, openLayer, reportCartError],
+    [address, applyCartBody, mode, openLayer, reportCartError, signal],
   )
 
   const adjustLineQty = useCallback(
@@ -140,13 +156,16 @@ export function useCartMutations({ openLayer, setLayer, reportCartError }) {
       const nextQty = line.quantity + delta
       if (nextQty > 99) return
       try {
-        const body = nextQty <= 0 ? await deleteCartItem(lineId) : await patchCartItem(lineId, nextQty)
+        const body =
+          nextQty <= 0 ? await deleteCartItem(lineId, signal) : await patchCartItem(lineId, nextQty, signal)
+        if (signal.aborted) return
         applyCartBody(body)
       } catch (error) {
+        if (dropped(error, signal)) return
         reportCartError(error instanceof Error ? error.message : 'Не удалось изменить количество.')
       }
     },
-    [applyCartBody, cartView.items, reportCartError],
+    [applyCartBody, cartView.items, reportCartError, signal],
   )
 
   const resetLocalCart = useCallback(() => {

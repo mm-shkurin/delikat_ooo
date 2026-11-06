@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import { startYandexLogin, updateMe } from '../../features/auth/api/authApi'
 import { profileToView } from '../../features/auth/logic/profileView'
+import { isAbortError } from '../../shared/api/abortError'
 import { safeImageUrl } from '../../shared/ui/safeImageUrl'
+import { useUnmountSignal } from './useUnmountSignal'
 
 /**
  * @param {{ chrome: ReturnType<import('./useStoreChrome').useStoreChrome> }} props
  */
 export function AuthSheet({ chrome }) {
+  const signal = useUnmountSignal()
   const signedIn = chrome.signedIn && chrome.userProfile
   const [nameDraft, setNameDraft] = useState(chrome.userProfile?.displayName ?? '')
   const [saveBusy, setSaveBusy] = useState(false)
@@ -29,12 +32,14 @@ export function AuthSheet({ chrome }) {
     setSaveError('')
     setSaveBusy(true)
     try {
-      const body = await updateMe(nameDraft)
+      const body = await updateMe(nameDraft, signal)
+      if (signal.aborted) return
       applyUserProfile(profileToView(body))
-    } catch {
+    } catch (error) {
+      if (signal.aborted || isAbortError(error)) return
       setSaveError('Не удалось сохранить имя.')
     } finally {
-      setSaveBusy(false)
+      if (!signal.aborted) setSaveBusy(false)
     }
   }
 

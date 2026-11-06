@@ -21,11 +21,12 @@ export function getMe(signal) {
   return send(BACKEND.me, { signal, bearer: true, guard: isUserProfileBody })
 }
 
-/** @param {string} displayName */
-export function updateMe(displayName) {
+/** @param {string} displayName @param {AbortSignal} [signal] */
+export function updateMe(displayName, signal) {
   return send(BACKEND.me, {
     method: 'PATCH',
     bearer: true,
+    signal,
     body: { display_name: displayName },
     guard: isUserProfileBody,
   })

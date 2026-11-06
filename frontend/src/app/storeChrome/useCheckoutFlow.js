@@ -2,7 +2,9 @@ import { useCallback, useRef, useState } from 'react'
 import { loadCartWithSession } from '../../features/cart/logic/loadCart'
 import { createOrder } from '../../features/checkout/api/orderApi'
 import { orderCreatedToView } from '../../features/checkout/logic/orderView'
+import { isAbortError } from '../../shared/api/abortError'
 import { httpErrorIn } from '../../shared/api/httpResponse'
+import { useUnmountSignal } from './useUnmountSignal'
 
 /**
  * Checkout busy/error, last order, and place-order flow.
@@ -14,6 +16,7 @@ import { httpErrorIn } from '../../shared/api/httpResponse'
  * }} options
  */
 export function useCheckoutFlow({ applyCartBody, canCheckout, openLayer, setLayer }) {
+  const signal = useUnmountSignal()
   const [checkoutBusy, setCheckoutBusy] = useState(false)
   const [checkoutError, setCheckoutError] = useState('')
   const [lastOrder, setLastOrder] = useState(
@@ -30,14 +33,17 @@ export function useCheckoutFlow({ applyCartBody, canCheckout, openLayer, setLaye
     setCheckoutError('')
     if (!checkoutKey.current) checkoutKey.current = crypto.randomUUID()
     try {
-      const body = await createOrder({ idempotencyKey: checkoutKey.current })
+      const body = await createOrder({ idempotencyKey: checkoutKey.current, signal })
+      if (signal.aborted) return
       const view = orderCreatedToView(body)
       setLastOrder(view)
-      const cartBody = await loadCartWithSession()
+      const cartBody = await loadCartWithSession(signal)
+      if (signal.aborted) return
       applyCartBody(cartBody)
       setLayer('receipt')
       checkoutKey.current = null
     } catch (error) {
+      if (signal.aborted || isAbortError(error)) return
       const failure = httpErrorIn(error)
       if (failure?.errorCode === 'address_required') {
         openLayer('address')
@@ -45,9 +51,9 @@ export function useCheckoutFlow({ applyCartBody, canCheckout, openLayer, setLaye
       setCheckoutError(error instanceof Error ? error.message : 'Не удалось оформить заказ.')
     } finally {
       checkoutInFlight.current = false
-      setCheckoutBusy(false)
+      if (!signal.aborted) setCheckoutBusy(false)
     }
-  }, [applyCartBody, canCheckout, openLayer, setLayer])
+  }, [applyCartBody, canCheckout, openLayer, setLayer, signal])
 
   const clearCheckoutState = useCallback(() => {
     setCheckoutError('')

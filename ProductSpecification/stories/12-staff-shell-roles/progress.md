@@ -14,15 +14,15 @@
 
 - [x] implement — gate: Tier 1 UI (+ Security UI); `/admin` shell + Employees ACL
 - [x] refactor — n/a (staff files ≤ ~175; ACL/view extracted)
-- [x] check — `npm test` + `npm run ci`; contract OK
+- [x] check — `npm test` + vitest staff ACL/view; browser smoke `:5173/admin`
 
 ## Back (backend/)
 
 - [x] implement — gate: Tier 1 API (+ Security API); usecase staff + HTTP `/api/v1/staff/*`
 - [x] refactor — n/a (touched files ≤ ~200)
-- [ ] contract tests
+- [x] contract tests — `check_api_contract.py` OK; `pytest usecase/tests/staff` 10 passed
 
 ## Close
 
-- [x] progress + stories.md update (front band)
-- [ ] full story close — after browser smoke + back contract if needed
+- [x] progress + stories.md update
+- [x] full story close — contract + browser smoke 2026-11-07

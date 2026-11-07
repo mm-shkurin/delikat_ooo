@@ -24,11 +24,16 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 
 План дробления: [`WAVE-3-ADMIN.md`](./WAVE-3-ADMIN.md).
 
+## Done — Wave 3 (staff shell)
+
+| # | Story | Spec | Front | Back | Check | Notes |
+|---|-------|------|-------|------|-------|-------|
+| 12 | Staff: вход, роль, каркас вкладок | x | x | x | x | `/admin` + ACL; `/staff/*`; smoke fake OAuth owner |
+
 ## Backlog — Wave 3 (catalog staff)
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 12 | Staff: вход, роль, каркас вкладок | x | ~ | ~ | · | front `/admin` + ACL; back `/staff/*`; browser smoke / contract open |
 | 13 | Staff: CRUD каталога (NEW/SALE, hide) | · | · | · | · | после 12; write API |
 | 14 | Витрина = тот же каталог (hide/badges) | · | · | · | · | после 13 |
 

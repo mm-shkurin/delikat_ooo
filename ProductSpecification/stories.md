@@ -34,8 +34,9 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 13 | Staff: CRUD каталога (NEW/SALE, hide) | · | · | · | · | после 12; write API |
+| 13 | Staff: CRUD каталога (NEW/SALE, hide) | · | · | · | · | после 12; write API; категории только select |
 | 14 | Витрина = тот же каталог (hide/badges) | · | · | · | · | после 13 |
+| 17 | Staff: категории каталога (CRUD + порядок) | · | · | · | · | после 13; sort_order на витрине |
 
 ## Backlog — Wave 4 (orders staff)
 

@@ -9,7 +9,9 @@
 | 10 | cart/orders — closed; staff orders → **15** |
 | 11 | **mock done** — референс для 12–16; prod story-spec не на 11 |
 | 12 | **closed** — shell+roster; next **13** catalog write |
-| 13–16 | после 12; см. `WAVE-3-ADMIN.md` |
+| 13 | **interview** — catalog write; next `/story-spec 13` |
+| 14–16 | после 13; см. `WAVE-3-ADMIN.md` |
+| 17 | backlog — staff categories CRUD + sort; после 13 |
 
 **Архитектура:** `CLAUDE.md`, `technology.md`, `PARALLEL-WAVE-1.md`, **`WAVE-3-ADMIN.md`**.
 

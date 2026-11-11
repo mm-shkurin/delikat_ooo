@@ -69,24 +69,7 @@ describe('staffCatalogForm', () => {
       { ...original, badge: '', marbleGrade: '', description: '' },
       { mode: 'edit', hasImage: false, keepImage: true },
     ).values
-    const patch = buildPatchBody(/** @type {NonNullable<typeof cleared>} */ (cleared), {
-      id: 'rib',
-      name: 'Рибай',
-      categoryId: 'beef',
-      categoryTitle: 'Говядина',
-      weightLabel: '~350 г',
-      price: 1450,
-      was: null,
-      discountPercent: null,
-      popularity: 90,
-      properties: [],
-      badge: 'NEW',
-      marbleGrade: 'x',
-      imageUrl: '/x',
-      description: 'old',
-      hidden: false,
-      createdAt: '2026-01-01T00:00:00Z',
-    })
+    const patch = buildPatchBody(/** @type {NonNullable<typeof cleared>} */ (cleared))
     expect(patch.badge).toBeNull()
     expect(patch.marble_grade_label).toBeNull()
     expect(patch.description).toBeNull()

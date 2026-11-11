@@ -149,13 +149,9 @@ export function buildCreateFormData(values, file) {
   return form
 }
 
-/**
- * @param {NonNullable<ReturnType<typeof validateEditorDraft>['values']>} values
- * @param {ReturnType<import('./staffCatalogView').staffProductToView>} original
- */
-export function buildPatchBody(values, original) {
-  /** @type {Record<string, unknown>} */
-  const body = {
+/** @param {NonNullable<ReturnType<typeof validateEditorDraft>['values']>} values */
+export function buildPatchBody(values) {
+  return {
     name: values.name,
     category_id: values.categoryId,
     default_weight_label: values.weightLabel,
@@ -168,7 +164,4 @@ export function buildPatchBody(values, original) {
     marble_grade_label: values.marbleGrade,
     description: values.description,
   }
-  // Always send nulls so server can clear (exclude_unset would skip undefined).
-  void original
-  return body
 }

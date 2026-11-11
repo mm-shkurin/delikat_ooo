@@ -107,7 +107,7 @@ export function useCatalogPanel() {
       if (editorMode === 'create') {
         await createStaffCatalogProduct(buildCreateFormData(checked.values, /** @type {File} */ (imageFile)))
       } else if (editing) {
-        await patchStaffCatalogProduct(editing.id, buildPatchBody(checked.values, editing))
+        await patchStaffCatalogProduct(editing.id, buildPatchBody(checked.values))
         if (imageFile) await putStaffCatalogProductImage(editing.id, imageFile)
       }
       setEditorOpen(false)

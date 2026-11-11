@@ -2,8 +2,9 @@ import { useRouteBodyClass } from '../../shared/ui/useRouteBodyClass'
 import { AdminGate } from './components/AdminGate'
 import { AdminHeader } from './components/AdminHeader'
 import { AdminTabs } from './components/AdminTabs'
+import { CatalogPanel } from './components/CatalogPanel'
 import { EmployeesPanel } from './components/EmployeesPanel'
-import { CatalogShell, MoneyShell, OrdersShell, StatsShell } from './components/ShellPanels'
+import { MoneyShell, OrdersShell, StatsShell } from './components/ShellPanels'
 import { useAdminPage } from './useAdminPage'
 import '../../styles/admin.css'
 
@@ -26,7 +27,7 @@ export function AdminPage() {
       <AdminHeader roleLabel={page.me.roleLabel} onLogout={page.logout} />
       <AdminTabs role={page.me.role} activeTab={page.tab} onSelect={page.setTab} />
       <main className="admin-wrap">
-        {page.tab === 'catalog' ? <CatalogShell /> : null}
+        {page.tab === 'catalog' ? <CatalogPanel /> : null}
         {page.tab === 'orders' ? <OrdersShell /> : null}
         {page.tab === 'stats' ? <StatsShell /> : null}
         {page.tab === 'money' ? <MoneyShell /> : null}

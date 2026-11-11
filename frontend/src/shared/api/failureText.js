@@ -14,6 +14,8 @@ const BY_CODE = {
   owner_immutable: 'Роль владельца нельзя менять из кабинета.',
   staff_not_found: 'Сотрудник не найден.',
   validation_error: 'Проверьте введённые данные.',
+  product_id_taken: 'Такой код товара уже есть.',
+  category_not_found: 'Категория не найдена.',
 }
 
 const GENERIC = 'Не получилось. Попробуйте ещё раз.'

@@ -30,5 +30,13 @@ export const BACKEND = {
     me: `${V1}/staff/me`,
     members: `${V1}/staff/members`,
     member: (memberId) => `${V1}/staff/members/${encodeURIComponent(memberId)}`,
+    catalogProducts: `${V1}/staff/catalog/products`,
+    catalogProduct: (productId) =>
+      `${V1}/staff/catalog/products/${encodeURIComponent(productId)}`,
+    catalogProductImage: (productId) =>
+      `${V1}/staff/catalog/products/${encodeURIComponent(productId)}/image`,
+  },
+  media: {
+    product: (productId) => `${V1}/media/products/${encodeURIComponent(productId)}`,
   },
 }

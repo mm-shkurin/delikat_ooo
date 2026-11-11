@@ -1,21 +1,4 @@
-/** Placeholder panels from site/admin — live write in stories 13–16. */
-
-export function CatalogShell() {
-  return (
-    <section id="panel-catalog" role="tabpanel" aria-labelledby="tab-catalog" data-testid="panel-catalog">
-      <div className="admin-toolbar">
-        <label className="admin-field grow">
-          <span>Поиск</span>
-          <input type="search" placeholder="Имя или код" disabled />
-        </label>
-        <button className="admin-btn solid" type="button" disabled>
-          Новый товар
-        </button>
-      </div>
-      <p className="admin-empty">Каркас каталога — правка SKU в следующей истории.</p>
-    </section>
-  )
-}
+/** Placeholder panels from site/admin — live write in stories 14–16. Catalog is live (13). */
 
 export function OrdersShell() {
   return (

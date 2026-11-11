@@ -204,3 +204,20 @@ export function isStaffMemberBody(value) {
 export function isStaffMemberListBody(value) {
   return isRecord(value) && Array.isArray(value.items) && value.items.every(isStaffMemberBody)
 }
+
+export function isStaffProductBody(value) {
+  if (!isProductSummaryBody(value)) return false
+  if (typeof value.hidden !== 'boolean' || typeof value.created_at !== 'string') return false
+  if (
+    value.description !== null &&
+    value.description !== undefined &&
+    typeof value.description !== 'string'
+  ) {
+    return false
+  }
+  return true
+}
+
+export function isStaffProductListBody(value) {
+  return isRecord(value) && Array.isArray(value.items) && value.items.every(isStaffProductBody)
+}

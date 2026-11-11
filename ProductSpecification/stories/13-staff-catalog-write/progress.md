@@ -13,8 +13,8 @@
 ## Delivery
 
 - [x] backend write + Postgres image — usecase fakes T1+T2; HTTP staff catalog + media; migration `0007`
-- [ ] frontend live Catalog tab
-- [ ] check / smoke (Docker: pending — Desktop engine offline)
+- [x] frontend live Catalog tab — list/create/edit/hide/badge + SALE %; vitest/ci/contract green
+- [ ] check / smoke (Docker Desktop engine offline — `cd infra; docker compose up -d --build`)
 
 ## Out → other stories
 

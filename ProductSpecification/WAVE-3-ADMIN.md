@@ -32,7 +32,7 @@
 |---|----------|------|-------|------|------------|--------------|
 | **11** | Мокап кабинета (референс) | mock | `site/` only | · | — | весь `admin/` |
 | **12** | Staff: вход, роль, каркас вкладок | 3 | React admin shell | staff session + role claim | 07 auth patterns | gate + tabs ACL |
-| **13** | Staff: CRUD каталога (+ NEW/SALE, hide) | 3 | вкладка Каталог | write catalog API | **12**, 09 read | catalog tab + dialog |
+| **13** | Staff: CRUD каталога (+ NEW/SALE/TOP, hide) | 3 | вкладка Каталог | write catalog API | **12**, 09 read | catalog tab + dialog |
 | **14** | Витрина читает тот же каталог (hide/badges) | 3 | catalog feature | GET уже есть / донастроить | **13** | — (parity с витриной) |
 | **15** | Staff: список заказов и статусы | 4 | вкладка Заказы | list + patch status | **12**, 10 orders | orders tab |
 | **16** | Владелец: Статистика и Деньги | 5 | вкладки Stats/Money | aggregate read API | **15** | stats + money tabs |
@@ -58,7 +58,7 @@
 | Tier | Фокус |
 |------|--------|
 | **1** | Create / edit / soft-hide; manager+owner могут, cashier — 403; поля как `ProductSummary`; id slug immutable on edit |
-| **2** | NEW/SALE взаимоисключение; валидация price/id; список после create вверху; empty search |
+| **2** | NEW/SALE/TOP взаимоисключение; SALE was/%; sort SALE→NEW→TOP→null (`created_at`); валидация price/id/image; empty search |
 | **3** | Редкие validation edges, mobile-only layout asserts |
 
 ### 14 — Storefront sync

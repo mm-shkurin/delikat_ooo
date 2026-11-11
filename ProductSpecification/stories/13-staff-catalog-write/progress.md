@@ -6,10 +6,9 @@
 ## Spec
 
 - [x] interview — `interview.md`
-- [ ] story-spec / Notes
-- [ ] api-spec (`admin_api` staff catalog + image)
-- [ ] spec-skeptic
-- [ ] test-spec
+- [x] story-spec / Notes — `13_StaffCatalogWrite.md` + `_Notes.md` (skeptic accept)
+- [x] api-spec — `endpoints.md` + `admin_api.yaml` (staff catalog + media)
+- [x] test-spec — `tests/` Tier 1–2 (+ tier3)
 
 ## Delivery
 

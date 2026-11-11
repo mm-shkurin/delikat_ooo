@@ -44,9 +44,12 @@
 - `DECISION:` write API только `/api/v1/staff/catalog/...` в `admin_api.yaml` (не PATCH публичных `/catalog/products` в store).
 - `DECISION:` staff-список видит `hidden`; buyer GET в 13 не меняем → **14**.
 - `DECISION:` поля = `ProductSummary` + optional description; плашки **NEW | SALE | TOP**; одновременно одна; повторный клик/снятие — как в моке (toggle).
-- `DECISION:` картинки в **Postgres** (байты + content-type), раздача через backend URL; без MinIO/S3/nginx-костылей.
+- `DECISION:` картинки в **Postgres** (байты + content-type), раздача через backend URL; **anonymous GET** (без Bearer) для `<img>`; без MinIO/S3/nginx-костылей.
 - `DECISION:` один каталог в Postgres (seed **09**); отдельного admin-seed и client `localStorage` для prod нет.
-- `DECISION:` список как мок: поиск; фильтр live|hidden|all; новый SKU сверху; toggles badge/hide в строке + форма в dialog.
+- `DECISION:` список: поиск по `name` и `id`; фильтр live|hidden|all; **без** toolbar-фильтра категории; toggles badge/hide в строке **и** в dialog.
+- `DECISION:` порядок списка стабильный после reload: **SALE → NEW → TOP → без плашки**; внутри группы `created_at` desc, tie-break `id` asc; `created_at` immutable on edit.
+- `DECISION:` create — upload фото обязателен; edit — keep текущего `image_url` или replace upload; очистка без URL → ошибка у поля.
+- `DECISION:` при SALE в строке: зачёркнутая `compare_at`, актуальная цена, `%` скидки = round((compare_at − price) / compare_at × 100); `compare_at` > price обязателен.
 - `DECISION:` `id` slug только при create, на edit immutable; `^[a-z][a-z0-9-]{0,31}$`; `price_rub` 1…99999; hard delete нет.
 - `DECISION:` manager = owner по правам catalog write.
 - `DECISION:` категории — только select существующих (GET categories **09**); create category OUT.

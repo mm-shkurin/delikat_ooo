@@ -8,7 +8,9 @@ info:
     Доступ к ручкам — только аккаунты с staff-ролью `owner` | `manager` | `cashier`.
     Роль `owner` через эти ручки не назначается и не снимается (bootstrap/ops).
     Суммы integer RUB (позже). Поля JSON — snake_case.
-    Story 12: session/me + roster assign. Catalog write / orders / stats — later stories.
+    Story 12: session/me + roster assign.
+    Story 13: staff catalog list/create/patch + image blob (Postgres) + anonymous media GET.
+    Orders / stats — later stories.
 
 servers:
   - url: http://127.0.0.1:8000
@@ -19,6 +21,10 @@ servers:
 tags:
   - name: staff
     description: Staff me + roster
+  - name: staff-catalog
+    description: Staff catalog write (owner/manager); story 13
+  - name: media
+    description: Public product image bytes from Postgres
 
 paths:
   /api/v1/staff/me:
@@ -203,6 +209,234 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/staff/catalog/products:
+    get:
+      summary: Staff-список SKU
+      description: |
+        Доступ: `owner` | `manager`. Cashier → 403.
+        Видит `hidden`. Сортировка: SALE → NEW → TOP → null, затем `created_at` desc, `id` asc.
+        `q` — substring по `name` или `id`. `visibility` default `all`.
+      operationId: listStaffCatalogProducts
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Поиск по name или id
+        - name: visibility
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/StaffCatalogVisibility'
+          description: Default `all`
+      responses:
+        '200':
+          description: Sorted staff product list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffProductList'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Создать SKU
+      description: |
+        `multipart/form-data`: поля товара + file `image` (обязателен).
+        `properties` — JSON-массив строк ProductProperty в одном form-field.
+        `id` slug `^[a-z][a-z0-9-]{0,31}$`; duplicate → 400 `product_id_taken`.
+        badge=SALE → `compare_at_price_rub` required и > `price_rub`.
+        После save `image_url` = `/api/v1/media/products/{id}`; `created_at` выставляет сервер.
+      operationId: createStaffCatalogProduct
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StaffProductCreateForm'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffProduct'
+        '400':
+          description: validation_error | product_id_taken | category_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/staff/catalog/products/{product_id}:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    patch:
+      summary: Обновить SKU
+      description: |
+        JSON partial update. `id` / `created_at` immutable (не в body).
+        badge=SALE → `compare_at_price_rub` must be set and > `price_rub` (с учётом текущих значений).
+        Soft-hide / badge toggle строки — тот же PATCH (`hidden`, `badge`).
+        Смена картинки — `PUT .../image`, не этим телом.
+      operationId: patchStaffCatalogProduct
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffProductPatch'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffProduct'
+        '400':
+          description: validation_error | category_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: product_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/staff/catalog/products/{product_id}/image:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    put:
+      summary: Заменить изображение SKU
+      description: |
+        `multipart/form-data` с file `image` (jpeg/png/webp, ≤ 2 MiB).
+        Пишет bytes + content-type в Postgres; `image_url` = `/api/v1/media/products/{product_id}`.
+      operationId: putStaffCatalogProductImage
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Updated product (with new image_url)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffProduct'
+        '400':
+          description: validation_error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: product_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/media/products/{product_id}:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    get:
+      summary: Байты изображения товара
+      description: |
+        Без Bearer. Отдаёт stored bytes с Content-Type из Postgres.
+        404 если blob отсутствует (например seed ещё на `/assets/...`).
+      operationId: getProductMedia
+      tags: [media]
+      security: []
+      responses:
+        '200':
+          description: Image bytes
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: product_not_found | no blob
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -218,6 +452,13 @@ components:
       schema:
         type: string
         format: uuid
+    ProductId:
+      name: product_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-z][a-z0-9-]{0,31}$'
 
   schemas:
     Error:
@@ -232,6 +473,9 @@ components:
             - forbidden
             - staff_not_found
             - owner_immutable
+            - product_not_found
+            - product_id_taken
+            - category_not_found
         message:
           type: string
 
@@ -313,3 +557,180 @@ components:
       properties:
         role:
           $ref: '#/components/schemas/AssignableStaffRole'
+
+    StaffCatalogVisibility:
+      type: string
+      enum: [live, hidden, all]
+      default: all
+
+    ProductProperty:
+      type: string
+      enum: [chilled, frozen, fresh, premium]
+      description: Same enum as store_api ProductProperty
+
+    ProductBadge:
+      type: string
+      enum: [NEW, TOP, SALE]
+      description: Same enum as store_api ProductBadge
+
+    StaffProduct:
+      type: object
+      required:
+        - id
+        - name
+        - category_id
+        - default_weight_label
+        - price_rub
+        - popularity_score
+        - properties
+        - image_url
+        - hidden
+        - created_at
+      properties:
+        id:
+          type: string
+          pattern: '^[a-z][a-z0-9-]{0,31}$'
+        name:
+          type: string
+        category_id:
+          type: string
+        default_weight_label:
+          type: string
+          example: "~350 г"
+        price_rub:
+          type: integer
+          minimum: 1
+          maximum: 99999
+        compare_at_price_rub:
+          type: integer
+          nullable: true
+          minimum: 1
+          maximum: 99999
+          description: Required and > price_rub when badge=SALE
+        popularity_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductProperty'
+        badge:
+          allOf:
+            - $ref: '#/components/schemas/ProductBadge'
+          nullable: true
+        marble_grade_label:
+          type: string
+          nullable: true
+        image_url:
+          type: string
+          example: /api/v1/media/products/rib
+        description:
+          type: string
+          nullable: true
+        hidden:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          description: Set on create; immutable on edit
+
+    StaffProductList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffProduct'
+
+    StaffProductCreateForm:
+      type: object
+      required:
+        - id
+        - name
+        - category_id
+        - default_weight_label
+        - price_rub
+        - popularity_score
+        - properties
+        - image
+      properties:
+        id:
+          type: string
+          pattern: '^[a-z][a-z0-9-]{0,31}$'
+        name:
+          type: string
+        category_id:
+          type: string
+        default_weight_label:
+          type: string
+        price_rub:
+          type: integer
+          minimum: 1
+          maximum: 99999
+        compare_at_price_rub:
+          type: integer
+          nullable: true
+        popularity_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        properties:
+          type: string
+          description: JSON array of ProductProperty, e.g. '["chilled","fresh"]'
+        badge:
+          allOf:
+            - $ref: '#/components/schemas/ProductBadge'
+          nullable: true
+        marble_grade_label:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        hidden:
+          type: boolean
+          default: false
+        image:
+          type: string
+          format: binary
+          description: jpeg/png/webp, max 2 MiB
+
+    StaffProductPatch:
+      type: object
+      description: At least one property required; id and created_at not accepted
+      properties:
+        name:
+          type: string
+        category_id:
+          type: string
+        default_weight_label:
+          type: string
+        price_rub:
+          type: integer
+          minimum: 1
+          maximum: 99999
+        compare_at_price_rub:
+          type: integer
+          nullable: true
+        popularity_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductProperty'
+        badge:
+          allOf:
+            - $ref: '#/components/schemas/ProductBadge'
+          nullable: true
+        marble_grade_label:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        hidden:
+          type: boolean

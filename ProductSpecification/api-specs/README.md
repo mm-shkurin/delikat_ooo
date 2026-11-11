@@ -30,6 +30,7 @@
 | корзина local | `GET/POST/PATCH/DELETE /cart/*` |
 | checkout | `POST /orders` → `OrderCreated` (+ `lines` для чека) |
 | кабинет `/admin` (12) | `GET /staff/me`, `GET/POST/PATCH/DELETE /staff/members` — см. `admin_api.yaml` |
+| кабинет Каталог (13) | `GET/POST/PATCH /staff/catalog/products`, `PUT .../image`, `GET /media/products/{id}` — `admin_api.yaml`; categories select → store `GET /catalog/categories` |
 
 ## Seed product ids
 

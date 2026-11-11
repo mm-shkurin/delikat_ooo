@@ -12,9 +12,9 @@
 
 ## Delivery
 
-- [ ] backend write + Postgres image
+- [x] backend write + Postgres image — usecase fakes T1+T2; HTTP staff catalog + media; migration `0007`
 - [ ] frontend live Catalog tab
-- [ ] check / smoke
+- [ ] check / smoke (Docker: pending — Desktop engine offline)
 
 ## Out → other stories
 

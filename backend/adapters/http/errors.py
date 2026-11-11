@@ -20,6 +20,12 @@ from usecase.cart.errors import (
     ShopSessionRequired,
 )
 from usecase.catalog.errors import InvalidCatalogQuery, ProductNotFound
+from usecase.staff_catalog.errors import CategoryNotFound
+from usecase.staff_catalog.errors import MediaNotFound
+from usecase.staff_catalog.errors import ProductIdTaken
+from usecase.staff_catalog.errors import StaffCatalogForbidden
+from usecase.staff_catalog.errors import StaffCatalogValidation
+from usecase.staff_catalog.errors import StaffProductNotFound
 
 _UNAUTHORIZED = {"code": "unauthorized", "message": "Credentials are not valid"}
 _SESSION_REQUIRED = {"code": "unauthorized", "message": "Shop session is required"}
@@ -38,6 +44,9 @@ _INVALID_DISPLAY_NAME = {"code": "invalid_display_name", "message": "Display nam
 _UNAVAILABLE = {"code": "unavailable", "message": "The service is temporarily unavailable"}
 _FINISHED = {"code": "internal_error", "message": "The request could not be finished"}
 _IDEMPOTENCY_CONFLICT = {"code": "idempotency_conflict", "message": "Idempotency key is already in use"}
+_PRODUCT_ID_TAKEN = {"code": "product_id_taken", "message": "Product id is already taken"}
+_CATEGORY_NOT_FOUND = {"code": "category_not_found", "message": "Category was not found"}
+_STAFF_CATALOG_VALIDATION = {"code": "validation_error", "message": "Staff catalog request is not valid"}
 _LOG = logging.getLogger("delikat.http")
 
 
@@ -45,6 +54,8 @@ def register_errors(app: FastAPI) -> None:
     app.add_exception_handler(Unauthorized, _status(401, _UNAUTHORIZED))
     app.add_exception_handler(ShopSessionRequired, _status(401, _SESSION_REQUIRED))
     app.add_exception_handler(ProductNotFound, _status(404, _PRODUCT_NOT_FOUND))
+    app.add_exception_handler(StaffProductNotFound, _status(404, _PRODUCT_NOT_FOUND))
+    app.add_exception_handler(MediaNotFound, _status(404, _PRODUCT_NOT_FOUND))
     app.add_exception_handler(StaffNotFound, _status(404, _STAFF_NOT_FOUND))
     app.add_exception_handler(LineNotFound, _status(404, _LINE_NOT_FOUND))
     app.add_exception_handler(AddressRequired, _status(409, _ADDRESS_REQUIRED))
@@ -57,7 +68,11 @@ def register_errors(app: FastAPI) -> None:
     app.add_exception_handler(InvalidQuantity, _status(400, _INVALID_REQUEST))
     app.add_exception_handler(InvalidCatalogQuery, _status(400, _VALIDATION))
     app.add_exception_handler(StaffValidation, _status(400, _STAFF_VALIDATION))
+    app.add_exception_handler(StaffCatalogValidation, _status(400, _STAFF_CATALOG_VALIDATION))
+    app.add_exception_handler(ProductIdTaken, _status(400, _PRODUCT_ID_TAKEN))
+    app.add_exception_handler(CategoryNotFound, _status(400, _CATEGORY_NOT_FOUND))
     app.add_exception_handler(StaffForbidden, _status(403, _FORBIDDEN))
+    app.add_exception_handler(StaffCatalogForbidden, _status(403, _FORBIDDEN))
     app.add_exception_handler(OwnerImmutable, _status(403, _OWNER_IMMUTABLE))
     app.add_exception_handler(InvalidDisplayName, _status(422, _INVALID_DISPLAY_NAME))
     app.add_exception_handler(StoreUnavailable, _status(503, _UNAVAILABLE))

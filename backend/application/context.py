@@ -21,6 +21,7 @@ from usecase.account.sign_in import SignIn
 from usecase.cart.service import CartService
 from usecase.catalog.service import CatalogService
 from usecase.staff.service import StaffService
+from usecase.staff_catalog.service import StaffCatalogService
 
 
 @dataclass
@@ -41,6 +42,7 @@ class AppContext:
     catalog: CatalogService
     cart: CartService
     staff: StaffService
+    staff_catalog: StaffCatalogService
     redis: Redis
 
 
@@ -48,8 +50,9 @@ def build_context(settings: Settings) -> AppContext:
     engine = create_db_engine(settings.database_url)
     session_factory = create_session_factory(engine)
     accounts = PostgresAccountStore(session_factory)
+    staff_store = PostgresStaffStore(session_factory)
     staff = StaffService(
-        PostgresStaffStore(session_factory),
+        staff_store,
         accounts,
         settings.staff_owner_emails,
     )
@@ -79,6 +82,7 @@ def build_context(settings: Settings) -> AppContext:
     catalog_store = PostgresCatalogStore(session_factory)
     catalog = CatalogService(catalog_store)
     cart = CartService(PostgresCartStore(session_factory), catalog_store)
+    staff_catalog = StaffCatalogService(staff_store, catalog_store)
     return AppContext(
         settings=settings,
         engine=engine,
@@ -90,6 +94,7 @@ def build_context(settings: Settings) -> AppContext:
         catalog=catalog,
         cart=cart,
         staff=staff,
+        staff_catalog=staff_catalog,
         redis=redis,
     )
 

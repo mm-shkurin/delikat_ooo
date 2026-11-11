@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 import pytest
 
 from domain.catalog.category import Category
@@ -6,6 +8,8 @@ from usecase.catalog.errors import InvalidCatalogQuery, ProductNotFound
 from usecase.catalog.queries import ProductListQuery, ProductListResult
 from usecase.catalog.service import CatalogService
 from usecase.tests.catalog.fakes import FakeCatalogRepository
+
+_T0 = datetime(2026, 1, 1, tzinfo=UTC)
 
 
 def _sample_products() -> list[Product]:
@@ -22,6 +26,7 @@ def _sample_products() -> list[Product]:
             badge="NEW",
             marble_grade_label="4–5",
             image_url="/assets/products/ribeye.jpg",
+            created_at=_T0,
         ),
         Product(
             id="beef",
@@ -35,6 +40,7 @@ def _sample_products() -> list[Product]:
             badge="SALE",
             marble_grade_label=None,
             image_url="/assets/products/beef.jpg",
+            created_at=_T0,
         ),
         Product(
             id="sauce1",
@@ -48,6 +54,7 @@ def _sample_products() -> list[Product]:
             badge=None,
             marble_grade_label=None,
             image_url="/assets/products/ai-banner.jpg",
+            created_at=_T0,
         ),
     ]
 

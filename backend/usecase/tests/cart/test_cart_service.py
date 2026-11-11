@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -19,6 +20,7 @@ _PRODUCT = Product(
     badge=None,
     marble_grade_label=None,
     image_url="/assets/products/ribeye.jpg",
+    created_at=datetime(2026, 1, 1, tzinfo=UTC),
 )
 
 

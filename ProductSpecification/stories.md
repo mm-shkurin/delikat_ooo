@@ -34,7 +34,7 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 13 | Staff: CRUD каталога (NEW/SALE/TOP, hide) | x | · | · | · | test-spec done; next back/front delivery |
+| 13 | Staff: CRUD каталога (NEW/SALE/TOP, hide) | x | · | x | · | back write+media done; next `/frontend-delivery 13` |
 | 14 | Витрина = тот же каталог (hide/badges) | · | · | · | · | после 13 |
 | 17 | Staff: категории каталога (CRUD + порядок) | · | · | · | · | после 13; sort_order на витрине |
 

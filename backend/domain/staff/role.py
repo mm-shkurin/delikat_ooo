@@ -16,6 +16,10 @@ def can_manage_roster(role: StaffRole) -> bool:
     return role in {StaffRole.OWNER, StaffRole.MANAGER}
 
 
+def can_write_catalog(role: StaffRole) -> bool:
+    return role in {StaffRole.OWNER, StaffRole.MANAGER}
+
+
 def assignable_by(actor: StaffRole) -> frozenset[StaffRole]:
     if actor is StaffRole.OWNER:
         return frozenset({StaffRole.MANAGER, StaffRole.CASHIER})

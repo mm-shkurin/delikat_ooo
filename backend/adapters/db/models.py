@@ -1,14 +1,13 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, Uuid
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from adapters.db.base import Base
+from adapters.db.catalog_models import CategoryRow, ProductRow  # noqa: F401 — alembic metadata
 from domain.account.account import Account
 from domain.cart.models import Cart, CartLine, DeliveryAddress, Fulfillment
-from domain.catalog.category import Category
-from domain.catalog.product import Product
 from domain.staff.member import StaffMember
 from domain.staff.role import StaffRole, StaffStatus
 
@@ -66,50 +65,6 @@ class StaffMemberRow(Base):
         self.role = member.role.value
         self.status = member.status.value
         self.user_id = member.user_id
-
-
-class CategoryRow(Base):
-    __tablename__ = "catalog_categories"
-
-    id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    title: Mapped[str] = mapped_column(String(120), nullable=False)
-    sort_order: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    def to_domain(self) -> Category:
-        return Category(id=self.id, title=self.title, sort_order=self.sort_order)
-
-
-class ProductRow(Base):
-    __tablename__ = "catalog_products"
-
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    name: Mapped[str] = mapped_column(String(200), nullable=False)
-    category_id: Mapped[str] = mapped_column(String(32), ForeignKey("catalog_categories.id"), nullable=False)
-    default_weight_label: Mapped[str] = mapped_column(String(32), nullable=False)
-    price_rub: Mapped[int] = mapped_column(Integer, nullable=False)
-    compare_at_price_rub: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    popularity_score: Mapped[int] = mapped_column(Integer, nullable=False)
-    properties: Mapped[list[str]] = mapped_column(JSON, nullable=False)
-    badge: Mapped[str | None] = mapped_column(String(8), nullable=True)
-    marble_grade_label: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    image_url: Mapped[str] = mapped_column(String(512), nullable=False)
-    description: Mapped[str | None] = mapped_column(Text, nullable=True)
-
-    def to_domain(self) -> Product:
-        return Product(
-            id=self.id,
-            name=self.name,
-            category_id=self.category_id,
-            default_weight_label=self.default_weight_label,
-            price_rub=self.price_rub,
-            compare_at_price_rub=self.compare_at_price_rub,
-            popularity_score=self.popularity_score,
-            properties=tuple(self.properties),
-            badge=self.badge,
-            marble_grade_label=self.marble_grade_label,
-            image_url=self.image_url,
-            description=self.description,
-        )
 
 
 class ShopCartRow(Base):

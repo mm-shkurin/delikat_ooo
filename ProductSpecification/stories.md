@@ -30,12 +30,22 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 |---|-------|------|-------|------|-------|-------|
 | 12 | Staff: вход, роль, каркас вкладок | x | x | x | x | `/admin` + ACL; `/staff/*`; smoke fake OAuth owner |
 
+## Done — Wave 3 (catalog staff write)
+
+| # | Story | Spec | Front | Back | Check | Notes |
+|---|-------|------|-------|------|-------|-------|
+| 13 | Staff: CRUD каталога (NEW/SALE/TOP, hide) | x | x | x | x | live `/admin/catalog`; Docker healthy |
+
+## In Progress — Wave 3 (storefront sync)
+
+| # | Story | Spec | Front | Back | Check | Notes |
+|---|-------|------|-------|------|-------|-------|
+| 14 | Витрина = тот же каталог (hide/badges) | ~ | · | · | · | story-spec+skeptic; next api-spec |
+
 ## Backlog — Wave 3 (catalog staff)
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 13 | Staff: CRUD каталога (NEW/SALE/TOP, hide) | x | x | x | · | live `/admin/catalog`; check/smoke after Docker |
-| 14 | Витрина = тот же каталог (hide/badges) | · | · | · | · | после 13 |
 | 17 | Staff: категории каталога (CRUD + порядок) | · | · | · | · | после 13; sort_order на витрине |
 
 ## Backlog — Wave 4 (orders staff)

@@ -14,7 +14,7 @@
 
 - [x] backend write + Postgres image — usecase fakes T1+T2; HTTP staff catalog + media; migration `0007`
 - [x] frontend live Catalog tab — list/create/edit/hide/badge + SALE %; vitest/ci/contract green
-- [ ] check / smoke (Docker Desktop engine offline — `cd infra; docker compose up -d --build`)
+- [x] check / smoke — Docker rebuilt; backend healthy; frontend :5173 up (multipart dep added)
 
 ## Out → other stories
 

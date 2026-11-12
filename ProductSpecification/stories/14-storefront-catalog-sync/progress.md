@@ -19,9 +19,9 @@
 
 ## Back (backend/)
 
-- [ ] implement — после test-spec Tier 1 (API); list/detail/cart hide
-- [ ] refactor
-- [ ] contract tests
+- [x] implement — после test-spec Tier 1 (API); list/detail/cart hide
+- [x] refactor — n/a (touched files under limits; DTO assert in adapters/http/tests)
+- [x] contract tests — usecase T1/T2 + `check_api_contract.py`
 
 ## Close
 

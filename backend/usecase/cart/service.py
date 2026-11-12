@@ -64,7 +64,7 @@ class CartService:
         if quantity < 1 or quantity > 99:
             raise InvalidQuantity()
         product = await self._catalog.get_product(product_id)
-        if product is None:
+        if product is None or product.hidden:
             raise ProductNotFound(product_id)
         await self._carts.ensure(session_id)
         weight = weight_label or product.default_weight_label

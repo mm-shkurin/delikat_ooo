@@ -26,7 +26,7 @@ class FakeCatalogRepository:
 
 
 def apply_product_list(products: list[Product], query: ProductListQuery) -> ProductListResult:
-    filtered = list(products)
+    filtered = [row for row in products if not row.hidden]
     if query.category_id:
         filtered = [row for row in filtered if row.category_id == query.category_id]
     if query.max_price_rub is not None:

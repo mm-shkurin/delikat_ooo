@@ -27,7 +27,7 @@ class CatalogService:
 
     async def get_product(self, product_id: str) -> Product:
         row = await self._catalog.get_product(product_id)
-        if row is None:
+        if row is None or row.hidden:
             raise ProductNotFound(product_id)
         return row
 

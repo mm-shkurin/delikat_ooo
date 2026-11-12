@@ -107,7 +107,7 @@ class PostgresCatalogStore:
 
 
 def _filtered_products(query: ProductListQuery):
-    stmt = select(ProductRow)
+    stmt = select(ProductRow).where(ProductRow.hidden.is_(False))
     if query.category_id:
         stmt = stmt.where(ProductRow.category_id == query.category_id)
     if query.max_price_rub is not None:

@@ -7,7 +7,7 @@
 
 - [x] interview — `interview.md`
 - [x] story-spec — `14_StorefrontCatalogSync.md` + `_Notes.md` (skeptic accept)
-- [ ] api-spec — семантика hide на buyer GET (+ cart) в `store_api.yaml` / `endpoints.md`
+- [x] api-spec — `endpoints.md` + live-only semantics в `store_api.yaml` / json-contracts / README
 - [x] spec-skeptic — accept (clean: no poll/SSE; stale open panel OUT)
 - [ ] test-spec — `tests/` Tier 1–2 (+ tier3)
 

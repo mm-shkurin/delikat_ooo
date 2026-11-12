@@ -7,8 +7,8 @@
 | POST | `/api/v1/sessions` | — | `SessionCreated` |
 | POST | `/api/v1/sessions/reset` | — | — (`204`, новый cookie) |
 | GET | `/api/v1/catalog/categories` | — | `CategoryList` |
-| GET | `/api/v1/catalog/products` | query | `ProductListResponse` |
-| GET | `/api/v1/catalog/products/{product_id}` | — | `ProductDetail` |
+| GET | `/api/v1/catalog/products` | query | `ProductListResponse` (live only, **14**) |
+| GET | `/api/v1/catalog/products/{product_id}` | — | `ProductDetail` (hidden → 404, **14**) |
 | GET | `/api/v1/cart` | — | `Cart` |
 | PUT | `/api/v1/cart/fulfillment` | `CartFulfillmentUpdate` | `Cart` |
 | POST | `/api/v1/cart/items` | `AddCartItemRequest` | `Cart` |

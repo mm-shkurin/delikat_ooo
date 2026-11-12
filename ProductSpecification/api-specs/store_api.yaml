@@ -73,6 +73,10 @@ paths:
   /api/v1/catalog/products:
     get:
       summary: Список товаров
+      description: |
+        Только live SKU (`hidden=false`). Staff soft-hide (**13**) не попадает в items;
+        `total_count` считает только live после фильтров. Поле `hidden` в ответе отсутствует
+        (story **14**). Sort enum без изменений: `pop` | `price_asc` | `sale_first`.
       operationId: listProducts
       tags: [catalog]
       parameters:
@@ -134,23 +138,29 @@ paths:
   /api/v1/catalog/products/{product_id}:
     get:
       summary: Карточка товара
+      description: |
+        Live SKU only. Hidden или неизвестный `product_id` → **404** `product_not_found`
+        (одинаковый ответ; story **14**). Поле `hidden` в теле не возвращается.
       operationId: getProduct
       tags: [catalog]
       parameters:
         - $ref: '#/components/parameters/ProductId'
       responses:
         '200':
-          description: Детали товара
+          description: Детали live-товара
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductDetail'
         '404':
-          description: Товар не найден
+          description: product_not_found (missing или soft-hidden)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                code: product_not_found
+                message: Товар не найден
 
   /api/v1/cart:
     get:
@@ -205,6 +215,10 @@ paths:
   /api/v1/cart/items:
     post:
       summary: Добавить товар в корзину
+      description: |
+        Резолв товара как buyer get: soft-hidden SKU → **404** `product_not_found`
+        (без отдельного hide-кода; story **14**). Строки, добавленные до hide, контракт
+        не чистит автоматически.
       operationId: addCartItem
       tags: [cart]
       security:
@@ -224,11 +238,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Cart'
         '404':
-          description: product_not_found
+          description: product_not_found (unknown или soft-hidden)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                code: product_not_found
+                message: Товар не найден
         '409':
           description: address_required (delivery без street_line)
           content:
@@ -583,6 +600,9 @@ components:
 
     ProductSummary:
       type: object
+      description: |
+        Buyer DTO. Не содержит `hidden` — soft-hidden SKU не отдаются list/detail (**14**).
+        Staff list с `hidden` — только `admin_api.yaml` (**13**).
       required:
         - id
         - name

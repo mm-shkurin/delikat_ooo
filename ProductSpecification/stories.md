@@ -40,7 +40,7 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 14 | Витрина = тот же каталог (hide/badges) | ~ | · | · | · | story-spec+skeptic; next api-spec |
+| 14 | Витрина = тот же каталог (hide/badges) | ~ | · | · | · | api-spec done; next test-spec |
 
 ## Backlog — Wave 3 (catalog staff)
 

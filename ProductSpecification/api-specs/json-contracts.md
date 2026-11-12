@@ -59,6 +59,8 @@ VITE_API_BASE=http://127.0.0.1:8000   # когда hex-backend поднят
 
 ### `GET /api/v1/catalog/products` → `200`
 
+Только live SKU (`hidden=false`). Soft-hidden staff (**13**) в `items` / `total_count` не входят (**14**). Поля `hidden` в JSON нет.
+
 Query (все опциональны кроме пагинации):
 
 | Query | Пример | Смысл |
@@ -136,14 +138,16 @@ Query (все опциональны кроме пагинации):
 }
 ```
 
-### `404`
+### `404` (missing **или** soft-hidden — одинаково, **14**)
 
 ```json
 {
   "code": "product_not_found",
-  "message": "Product not found"
+  "message": "Товар не найден"
 }
 ```
+
+`POST /cart/items` на hidden id → тот же `404` / `product_not_found` (без отдельного hide-кода). Строки корзины, добавленные до hide, API не чистит.
 
 ---
 

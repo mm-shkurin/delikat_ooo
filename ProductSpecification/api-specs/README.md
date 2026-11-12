@@ -22,7 +22,7 @@
 | Мокап (`catalog.js`) | API |
 |----------------------|-----|
 | `CATS` | `GET /catalog/categories` + «Все» на клиенте |
-| `PRODUCTS` | `GET /catalog/products?...` |
+| `PRODUCTS` | `GET /catalog/products?...` (live only; soft-hidden out — **14**) |
 | `state.maxPrice` | `max_price_rub` |
 | `activeProps()` | повтор `property=` |
 | sort pop/price/sale | `pop` / `price_asc` / `sale_first` |
@@ -31,6 +31,7 @@
 | checkout | `POST /orders` → `OrderCreated` (+ `lines` для чека) |
 | кабинет `/admin` (12) | `GET /staff/me`, `GET/POST/PATCH/DELETE /staff/members` — см. `admin_api.yaml` |
 | кабинет Каталог (13) | `GET/POST/PATCH /staff/catalog/products`, `PUT .../image`, `GET /media/products/{id}` — `admin_api.yaml`; categories select → store `GET /catalog/categories` |
+| витрина sync hide (14) | store `GET /catalog/products` + `/{id}` + `POST /cart/items`: hidden ≡ not found; buyer DTO без `hidden` |
 
 ## Seed product ids
 

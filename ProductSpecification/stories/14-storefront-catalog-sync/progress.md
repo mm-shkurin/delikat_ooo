@@ -9,7 +9,7 @@
 - [x] story-spec — `14_StorefrontCatalogSync.md` + `_Notes.md` (skeptic accept)
 - [x] api-spec — `endpoints.md` + live-only semantics в `store_api.yaml` / json-contracts / README
 - [x] spec-skeptic — accept (clean: no poll/SSE; stale open panel OUT)
-- [ ] test-spec — `tests/` Tier 1–2 (+ tier3)
+- [x] test-spec — `tests/` T1=9 / T2=8 (+ tier3)
 
 ## Front (frontend/)
 

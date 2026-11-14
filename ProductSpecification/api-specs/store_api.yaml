@@ -82,10 +82,12 @@ paths:
       parameters:
         - name: category_id
           in: query
-          description: Фильтр категории; omit = все
+          description: |
+            Фильтр категории; omit = все. Любой существующий `catalog_categories.id` (story **17**).
+            Кривой или неизвестный id → 400 `validation_error`. Клиент не шлёт `all`.
           schema:
             type: string
-            enum: [beef, pork, poultry, marble, semi, sauce]
+            pattern: '^[a-z][a-z0-9-]{0,31}$'
         - name: max_price_rub
           in: query
           schema:
@@ -901,3 +903,18 @@ components:
           items:
             $ref: '#/components/schemas/OrderLine'
           description: Снимок строк для экрана «чек»
+
+x-websocket:
+  /api/v1/catalog/live:
+    summary: Сигнал витрине после записи категории
+    description: |
+      Story 17. Без staff-токена. Кадр только после успешного create, rename,
+      reorder или delete категории, когда запись уже видна следующему GET.
+      Hide и правка одного SKU кадр не шлют. Poll и SSE нет.
+    message:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [catalog_changed]

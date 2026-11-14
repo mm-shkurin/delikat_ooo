@@ -10,6 +10,7 @@ info:
     Суммы integer RUB (позже). Поля JSON — snake_case.
     Story 12: session/me + roster assign.
     Story 13: staff catalog list/create/patch + image blob (Postgres) + anonymous media GET.
+    Story 17: staff category list/create/patch/delete/order. Buyer live signal is store_api `x-websocket`.
     Orders / stats — later stories.
 
 servers:
@@ -22,7 +23,7 @@ tags:
   - name: staff
     description: Staff me + roster
   - name: staff-catalog
-    description: Staff catalog write (owner/manager); story 13
+    description: Staff catalog write (owner/manager); stories 13 and 17
   - name: media
     description: Public product image bytes from Postgres
 
@@ -437,6 +438,197 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/staff/catalog/categories:
+    get:
+      summary: Список категорий для кабинета
+      description: |
+        Owner и manager. Cashier → 403. В каждой строке `product_count` — все SKU, включая скрытые.
+        Порядок: `sort_order`, затем `id` asc.
+      operationId: listStaffCategories
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Категории
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffCategoryList'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Создать категорию
+      description: |
+        Id только при создании. `all` → 400 `category_id_reserved`. Занятый id → 400 `category_id_taken`.
+        Пустая таблица получает `sort_order` 1. Иначе max+1 в той же записи. Дырку после удаления не заполнять.
+      operationId: createStaffCategory
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffCategoryCreate'
+      responses:
+        '201':
+          description: Создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffCategory'
+        '400':
+          description: validation_error | category_id_taken | category_id_reserved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/staff/catalog/categories/order:
+    put:
+      summary: Записать полный порядок категорий
+      description: |
+        `ids` — все текущие id ровно один раз. Успех пишет `sort_order` с 1 по N.
+        Чужой, повторный или неполный список → 400 `validation_error`.
+        Объявлять раньше `/{category_id}`.
+      operationId: reorderStaffCategories
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffCategoryOrder'
+      responses:
+        '200':
+          description: Список в новом порядке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffCategoryList'
+        '400':
+          description: validation_error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/staff/catalog/categories/{category_id}:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    patch:
+      summary: Переименовать категорию
+      description: Меняется только title. Id в теле не принимается.
+      operationId: patchStaffCategory
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffCategoryPatch'
+      responses:
+        '200':
+          description: Обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffCategory'
+        '400':
+          description: validation_error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: category_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Удалить категорию и её товары
+      description: |
+        Стирает категорию и все её SKU, включая скрытые. Последнюю тоже можно.
+        Заказы и корзина не меняются.
+      operationId: deleteStaffCategory
+      tags: [staff-catalog]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Удалена
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: category_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -459,6 +651,13 @@ components:
       schema:
         type: string
         pattern: '^[a-z][a-z0-9-]{0,31}$'
+    CategoryId:
+      name: category_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-z][a-z0-9-]{0,31}$'
 
   schemas:
     Error:
@@ -476,6 +675,8 @@ components:
             - product_not_found
             - product_id_taken
             - category_not_found
+            - category_id_taken
+            - category_id_reserved
         message:
           type: string
 
@@ -734,3 +935,64 @@ components:
           nullable: true
         hidden:
           type: boolean
+
+    StaffCategory:
+      type: object
+      required: [id, title, sort_order, product_count]
+      properties:
+        id:
+          type: string
+          pattern: '^[a-z][a-z0-9-]{0,31}$'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        sort_order:
+          type: integer
+          minimum: 1
+        product_count:
+          type: integer
+          minimum: 0
+          description: Все SKU категории, включая скрытые
+
+    StaffCategoryList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffCategory'
+
+    StaffCategoryCreate:
+      type: object
+      required: [id, title]
+      properties:
+        id:
+          type: string
+          pattern: '^[a-z][a-z0-9-]{0,31}$'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+
+    StaffCategoryPatch:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+
+    StaffCategoryOrder:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          type: array
+          minItems: 0
+          uniqueItems: true
+          items:
+            type: string
+            pattern: '^[a-z][a-z0-9-]{0,31}$'

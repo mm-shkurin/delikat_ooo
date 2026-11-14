@@ -65,7 +65,7 @@ Query (все опциональны кроме пагинации):
 
 | Query | Пример | Смысл |
 |-------|--------|--------|
-| `category_id` | `beef` | Фильтр категории |
+| `category_id` | `beef` | Существующий id категории; omit = все. Кривой или неизвестный → 400 |
 | `max_price_rub` | `7000` | Цена ≤ |
 | `property` | `chilled` & `property=fresh` | OR: хотя бы одно свойство |
 | `sort` | `pop` \| `price_asc` \| `sale_first` | Сортировка |

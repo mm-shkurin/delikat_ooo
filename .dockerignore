@@ -4,3 +4,5 @@ frontend/public/assets
 **/.git
 **/.pytest_cache
 **/__pycache__
+**/.env
+**/.env.local

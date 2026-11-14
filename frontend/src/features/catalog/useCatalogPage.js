@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { getProduct, listCategories, listProducts } from './api/catalogApi'
+import { listCategories, listProducts } from './api/catalogApi'
 import { buildCatalogQuery, formatShownCount } from './logic/catalogQuery'
-import { productDetailToView, productSummaryToView } from './logic/productView'
+import { catalogCardsFromList } from './logic/productView'
+import { useProductDetail } from './useProductDetail'
 
 const DEFAULT_FILTERS = {
   categoryId: 'all',
@@ -14,6 +15,8 @@ const DEFAULT_FILTERS = {
 /**
  * @param {{
  *   onOpenProduct?: (id: string) => void,
+ *   onCloseProduct?: () => void,
+ *   layer?: string | null,
  *   requestAddToCart?: (item: {
  *     productId: string,
  *     name: string,
@@ -23,26 +26,23 @@ const DEFAULT_FILTERS = {
  *   }) => void,
  * }} [actions]
  */
-export function useCatalogPage({ onOpenProduct, requestAddToCart } = {}) {
+export function useCatalogPage({ onOpenProduct, onCloseProduct, requestAddToCart, layer = null } = {}) {
   const location = useLocation()
   const [filters, setFilters] = useState(() => ({
     ...DEFAULT_FILTERS,
     sort: location.hash === '#sale' ? 'sale' : DEFAULT_FILTERS.sort,
   }))
   const [categories, setCategories] = useState(/** @type {Array<{ id: string, title: string }>} */ ([]))
-  const [products, setProducts] = useState(/** @type {ReturnType<typeof productSummaryToView>[]} */ ([]))
+  const [products, setProducts] = useState(
+    /** @type {ReturnType<typeof import('./logic/productView').productSummaryToView>[]} */ ([]),
+  )
   const [totalCount, setTotalCount] = useState(0)
   const [status, setStatus] = useState(/** @type {'loading' | 'ready' | 'error'} */ ('loading'))
   const [loadingMore, setLoadingMore] = useState(false)
-  const [productDetail, setProductDetail] = useState(
-    /** @type {ReturnType<typeof productDetailToView> | null} */ (null),
-  )
-  const [productLoading, setProductLoading] = useState(false)
-  const [productFailed, setProductFailed] = useState(false)
   const [loadMoreError, setLoadMoreError] = useState('')
   const [reloadTick, setReloadTick] = useState(0)
   const loadMoreAbort = useRef(/** @type {AbortController | null} */ (null))
-  const productAbort = useRef(/** @type {AbortController | null} */ (null))
+  const detail = useProductDetail({ onOpenProduct, onCloseProduct, layer })
 
   const queryKey = useMemo(
     () =>
@@ -72,7 +72,7 @@ export function useCatalogPage({ onOpenProduct, requestAddToCart } = {}) {
       .then(([categoryPage, page]) => {
         if (controller.signal.aborted) return
         setCategories([{ id: 'all', title: 'Все' }, ...categoryPage.items.map((c) => ({ id: c.id, title: c.title }))])
-        setProducts(page.items.map(productSummaryToView))
+        setProducts(catalogCardsFromList(page.items))
         setTotalCount(page.total_count)
         setStatus('ready')
       })
@@ -93,7 +93,7 @@ export function useCatalogPage({ onOpenProduct, requestAddToCart } = {}) {
     listProducts(buildCatalogQuery({ ...filters, offset: nextOffset }), controller.signal)
       .then((page) => {
         if (controller.signal.aborted) return
-        setProducts((prev) => [...prev, ...page.items.map(productSummaryToView)])
+        setProducts((prev) => [...prev, ...catalogCardsFromList(page.items)])
       })
       .catch((error) => {
         if (controller.signal.aborted || error?.name === 'AbortError') return
@@ -104,38 +104,7 @@ export function useCatalogPage({ onOpenProduct, requestAddToCart } = {}) {
       })
   }, [filters, products.length, totalCount])
 
-  const loadProduct = useCallback((productId) => {
-    productAbort.current?.abort()
-    setProductLoading(true)
-    setProductFailed(false)
-    setProductDetail(null)
-    const controller = new AbortController()
-    productAbort.current = controller
-    getProduct(productId, controller.signal)
-      .then((body) => {
-        if (controller.signal.aborted) return
-        setProductDetail(productDetailToView(body))
-      })
-      .catch((error) => {
-        if (controller.signal.aborted || error?.name === 'AbortError') return
-        setProductDetail(null)
-        setProductFailed(true)
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setProductLoading(false)
-      })
-    return () => controller.abort()
-  }, [])
-
   const retryLoad = useCallback(() => setReloadTick((tick) => tick + 1), [])
-
-  const openProduct = useCallback(
-    (id) => {
-      onOpenProduct?.(id)
-      loadProduct(id)
-    },
-    [loadProduct, onOpenProduct],
-  )
 
   const quickAdd = useCallback(
     (product) => {
@@ -164,13 +133,14 @@ export function useCatalogPage({ onOpenProduct, requestAddToCart } = {}) {
     loadMoreError,
     retryLoad,
     loadMore,
-    openProduct,
+    openProduct: detail.openProduct,
+    closeProduct: detail.closeProduct,
     quickAdd,
     canLoadMore,
     shownLabel,
-    loadProduct,
-    productDetail,
-    productLoading,
-    productFailed,
+    productDetail: detail.productDetail,
+    productLoading: detail.productLoading,
+    productFailed: detail.productFailed,
+    productNotFound: detail.productNotFound,
   }
 }

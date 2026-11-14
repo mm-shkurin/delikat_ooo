@@ -23,3 +23,8 @@ export function productDetailToView(p) {
     description: p.description ?? null,
   }
 }
+
+/** Grid after a list fetch: exactly the live page, no leftover cards. */
+export function catalogCardsFromList(items) {
+  return items.map(productSummaryToView)
+}

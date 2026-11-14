@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
 import { safeImageUrl } from '../../../shared/ui/safeImageUrl'
+import { productPanelCopy } from '../logic/storefront'
 
 /**
  * @param {{
  *   detail: import('../logic/productView').productDetailToView extends (...args: any) => infer R ? R | null : null,
  *   loading: boolean,
  *   failed: boolean,
+ *   notFound?: boolean,
  *   chrome: ReturnType<import('../../../app/storeChrome/useStoreChrome').useStoreChrome>,
  *   onClose: () => void,
  * }} props
  */
-export function ProductPanel({ detail, loading, failed = false, chrome, onClose }) {
+export function ProductPanel({ detail, loading, failed = false, notFound = false, chrome, onClose }) {
   const [weight, setWeight] = useState('')
   const [qty, setQty] = useState(1)
 
@@ -26,8 +28,8 @@ export function ProductPanel({ detail, loading, failed = false, chrome, onClose 
         <button className="close" type="button" aria-label="Закрыть" onClick={onClose}>
           ×
         </button>
-        <p className="muted" id="product-title" style={{ padding: 24 }}>
-          {loading && !failed ? 'Загрузка карточки…' : 'Не удалось открыть карточку.'}
+        <p className="muted" id="product-title" data-testid="product-panel-status" style={{ padding: 24 }}>
+          {productPanelCopy({ loading: loading && !failed, notFound })}
         </p>
       </div>
     )

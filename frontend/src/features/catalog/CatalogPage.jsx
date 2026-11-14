@@ -19,7 +19,9 @@ export function CatalogPage() {
   const chrome = useStoreChromeContext()
   const page = useCatalogPage({
     onOpenProduct: chrome.openProduct,
+    onCloseProduct: chrome.closeLayers,
     requestAddToCart: chrome.requestAddToCart,
+    layer: chrome.layer,
   })
   const openAuth = () => chrome.openLayer('auth')
 
@@ -161,8 +163,9 @@ export function CatalogPage() {
               detail={page.productDetail}
               loading={page.productLoading}
               failed={page.productFailed}
+              notFound={page.productNotFound}
               chrome={chrome}
-              onClose={chrome.closeLayers}
+              onClose={page.closeProduct}
             />
           ) : null
         }

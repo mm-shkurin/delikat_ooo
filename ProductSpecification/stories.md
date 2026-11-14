@@ -36,11 +36,11 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 |---|-------|------|-------|------|-------|-------|
 | 13 | Staff: CRUD каталога (NEW/SALE/TOP, hide) | x | x | x | x | live `/admin/catalog`; Docker healthy |
 
-## In Progress — Wave 3 (storefront sync)
+## Done — Wave 3 (storefront sync)
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 14 | Витрина = тот же каталог (hide/badges) | ~ | · | x | · | back live-only hide; next front |
+| 14 | Витрина = тот же каталог (hide/badges) | x | x | x | x | panel «товар не найден»; `?product=` deep link |
 
 ## Backlog — Wave 3 (catalog staff)
 

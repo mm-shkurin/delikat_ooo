@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { safeImageUrl } from '../../../shared/ui/safeImageUrl'
+import { catalogEmptyCopy } from '../logic/storefront'
 
 /**
  * @param {{
@@ -21,11 +22,15 @@ import { safeImageUrl } from '../../../shared/ui/safeImageUrl'
 const ProductCard = memo(function ProductCard({ product, onOpen, onQuickAdd, rub }) {
   const imageSrc = safeImageUrl(product.imageUrl)
   return (
-    <article className="card">
+    <article className="card" data-testid={`product-${product.id}`}>
       <button type="button" className="card-open" onClick={() => onOpen(product.id)}>
         <div className="plate">
           {imageSrc ? <img src={imageSrc} alt="" loading="lazy" /> : null}
-          {product.badge ? <span className={`badge${product.badge === 'TOP' ? ' top' : ''}`}>{product.badge}</span> : null}
+          {product.badge ? (
+            <span className={`badge${product.badge === 'TOP' ? ' top' : ''}`} data-testid="product-badge">
+              {product.badge}
+            </span>
+          ) : null}
           {product.marbleGrade ? <span className="marble">{product.marbleGrade}</span> : null}
         </div>
         <div className="card-body">
@@ -33,7 +38,7 @@ const ProductCard = memo(function ProductCard({ product, onOpen, onQuickAdd, rub
           <div className="meta-row">
             <span className="weight">{product.weightLabel}</span>
             <div className="price">
-              {product.was ? <s>{rub(product.was)}</s> : null}
+              {product.was ? <s data-testid="product-was">{rub(product.was)}</s> : null}
               {rub(product.price)}
             </div>
           </div>
@@ -61,7 +66,7 @@ export const ProductGrid = memo(function ProductGrid({ products, busy, failed = 
     return (
       <div className="grid" id="grid" data-testid="product-grid" aria-busy="false">
         <p className="empty">
-          {failed ? 'Каталог недоступен. Нажмите «Повторить» выше.' : 'Ничего не нашлось. Снимите часть фильтров.'}
+          {catalogEmptyCopy(failed)}
         </p>
       </div>
     )

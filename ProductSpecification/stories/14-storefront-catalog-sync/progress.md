@@ -13,9 +13,9 @@
 
 ## Front (frontend/)
 
-- [ ] implement — после test-spec Tier 1 (UI); panel 404 copy
-- [ ] refactor
-- [ ] check
+- [x] implement — panel «товар не найден» только на 404; deep link `?product=`
+- [x] refactor — n/a (touched files under limits; fetch lives in the search effect)
+- [x] check — vitest/ci; browser: deep link, badges, was, empty copy
 
 ## Back (backend/)
 
@@ -25,4 +25,4 @@
 
 ## Close
 
-- [ ] progress + stories.md update
+- [x] progress + stories.md update

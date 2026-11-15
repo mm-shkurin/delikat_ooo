@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
+import { useStoreChromeContext } from '../../shared/storeChrome/context'
 import { replaceHistoryPath } from '../../shared/browser/dom'
 import { exchangeOAuthCode } from './api/authApi'
 import { consumeAuthReturn } from './logic/authReturn'

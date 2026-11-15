@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { elementById, onDocument } from '../../shared/browser/dom'
-import { clearShopSession } from './clearShopSession'
+import { clearShopSession } from '../../widgets/storeChrome/clearShopSession'
 import { addressChipLabel } from './logic/fulfillmentView'
 import { useAuthChrome } from './useAuthChrome'
 import { useCartBootstrap } from './useCartBootstrap'

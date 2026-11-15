@@ -109,3 +109,21 @@
 - JWT still client-readable (XSS); storeChrome↔features inversion
 - thin RTL coverage; no authorizedRequest tests; eslint no-undef off
 - Stage A frontend stopped below 2.5 after 5+ iterations (cap progress)
+
+## Iteration 11 — Score: 2.0 / 3.0 — 2026-11-15 — e438e87 (pre-fix baseline)
+### Fixed Issues:
+- (none — fresh /sprint-check --front zero-bias audit)
+### Outstanding Blockers:
+- JWT in sessionStorage; CSS mid-splits; storeChrome→features; thin RTL; no-undef off
+
+## Iteration 12 — Score: 2.0 / 3.0 — 2026-11-15 — b95a0bc
+### Fixed Issues:
+- HttpOnly JWT cookies (backend+front); SPA memory expiry only; styles/index.css + tokens-*; DOC-ARCH/ENV; ENV helpers; paths.live; prettier; no-undef
+### Outstanding Blockers:
+- OAuth/refresh still materialize JWT strings briefly; reload without markCookieSession; features→app; thin RTL; CSRF note
+
+## Iteration 13 — Score: pending — 2026-11-15 — 5ceff77
+### Fixed Issues:
+- exchange/refresh keep only expires_in_sec; markCookieSession after getMe; authorizedRequest 401/renew tests; WS backoff
+### Outstanding Blockers:
+- (awaiting confirmation audit)

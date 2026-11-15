@@ -33,7 +33,7 @@ export function StoreOverlays({ chrome, catalogMode = false, productPanel = null
 
       {chrome.privacyNoteVisible ? (
         <p id="privacy-note" className="wrap muted" style={{ padding: 16, background: '#fff' }} tabIndex={-1}>
-          Адрес и состав корзины сохраняются на сервере для оформления заказа. JWT хранится локально до выхода.
+          Адрес и состав корзины сохраняются на сервере для оформления заказа. Сессия входа — в HttpOnly-cookie, не в localStorage.
         </p>
       ) : null}
     </>

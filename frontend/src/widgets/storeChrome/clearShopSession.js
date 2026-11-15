@@ -2,7 +2,8 @@ import { logout } from '../../features/auth/api/authApi'
 import { resetGuestSession } from '../../features/cart/api/sessionApi'
 import { endSession } from '../../shared/session/authSession'
 import { removeSessionStorage } from '../../shared/browser/dom'
-import { FULFILLMENT_STORAGE_KEY } from './logic/fulfillmentView'
+
+const FULFILLMENT_STORAGE_KEY = 'delikat.fulfillment'
 
 /**
  * Full client reset: expiry hint, HttpOnly auth cookies (via logout), guest cookie, fulfillment.

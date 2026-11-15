@@ -1,6 +1,6 @@
 import { useRouteBodyClass } from '../../shared/ui/useRouteBodyClass'
-import { StoreOverlays } from '../../app/storeChrome/StoreOverlays'
-import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
+import { useStoreChromeContext } from '../../shared/storeChrome/context'
+import { StoreOverlays } from '../../widgets/storeChrome/StoreOverlays'
 import { CatalogNav } from './components/CatalogNav'
 import { ProductGrid } from './components/ProductGrid'
 import { ProductPanel } from './components/ProductPanel'

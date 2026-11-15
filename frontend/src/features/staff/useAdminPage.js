@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { clearShopSession } from '../../app/storeChrome/clearShopSession'
+import { clearShopSession } from '../../widgets/storeChrome/clearShopSession'
 import { httpErrorIn } from '../../shared/api/httpResponse'
 import { isSessionExpired } from '../../shared/session/authorizedRequest'
 import { rememberAuthReturn } from '../auth/logic/authReturn'

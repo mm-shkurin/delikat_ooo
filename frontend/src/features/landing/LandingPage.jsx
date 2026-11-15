@@ -1,11 +1,11 @@
 import { useRouteBodyClass } from '../../shared/ui/useRouteBodyClass'
-import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
+import { useStoreChromeContext } from '../../shared/storeChrome/context'
 import { elementById, requestFrame } from '../../shared/browser/dom'
 import { HeroSection } from './components/HeroSection'
 import { LandingFooter } from './components/LandingFooter'
 import { LandingNav } from './components/LandingNav'
 import { PackagingSection } from './components/PackagingSection'
-import { StoreOverlays } from '../../app/storeChrome/StoreOverlays'
+import { StoreOverlays } from '../../widgets/storeChrome/StoreOverlays'
 
 export function LandingPage() {
   useRouteBodyClass('route-landing')

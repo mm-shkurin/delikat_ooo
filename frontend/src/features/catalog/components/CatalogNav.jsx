@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { StoreNavChrome } from '../../../app/storeChrome/StoreNavChrome'
+import { StoreNavChrome } from '../../../widgets/storeChrome/StoreNavChrome'
 
 /**
  * @param {{

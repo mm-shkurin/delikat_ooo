@@ -114,13 +114,14 @@ export function isCartBody(value) {
   )
 }
 
+/** Cookie-session exchange/refresh body — no JWT strings in JSON. */
 export function isTokenPairBody(value) {
   return (
     isRecord(value) &&
-    typeof value.access_token === 'string' &&
-    typeof value.refresh_token === 'string' &&
     typeof value.token_type === 'string' &&
-    typeof value.expires_in_sec === 'number'
+    typeof value.expires_in_sec === 'number' &&
+    value.access_token === undefined &&
+    value.refresh_token === undefined
   )
 }
 

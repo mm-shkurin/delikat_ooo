@@ -35,15 +35,19 @@ def test_fake_oauth_exchange_flow():
         handoff = callback.headers["location"].split("code=", 1)[1].split("&", 1)[0]
         exchange = client.post("/api/v1/auth/oauth/exchange", json={"code": handoff})
         assert exchange.status_code == 200
-        tokens = exchange.json()
-        assert tokens["access_token"]
+        body = exchange.json()
+        assert "access_token" not in body
+        assert "refresh_token" not in body
+        assert body["expires_in_sec"] > 0
         assert exchange.cookies.get("delikat_access")
         assert exchange.cookies.get("delikat_refresh")
-
-        me = client.get("/api/v1/me", headers={"Authorization": f"Bearer {tokens['access_token']}"})
-        assert me.status_code == 200
-        assert me.json()["email"]
 
         me_cookie = client.get("/api/v1/me")
         assert me_cookie.status_code == 200
         assert me_cookie.json()["email"]
+
+        me_bearer = client.get(
+            "/api/v1/me",
+            headers={"Authorization": f"Bearer {exchange.cookies.get('delikat_access')}"},
+        )
+        assert me_bearer.status_code == 200

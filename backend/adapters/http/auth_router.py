@@ -65,13 +65,13 @@ def _profile_response(view: UserProfileView) -> UserProfileResponse:
 
 
 def _attach_auth_cookies(request: Request, pair, *, access_ttl: int, refresh_ttl: int):
-    body = TokenPairResponse(
-        access_token=pair.access_token,
-        refresh_token=pair.refresh_token,
-        token_type=pair.token_type,
-        expires_in_sec=access_ttl,
+    # JWTs go only into HttpOnly cookies — body carries expiry for the SPA, never token strings.
+    response = JSONResponse(
+        content={
+            "token_type": pair.token_type,
+            "expires_in_sec": access_ttl,
+        }
     )
-    response = JSONResponse(content=body.model_dump())
     set_auth_cookies(
         response,
         request,

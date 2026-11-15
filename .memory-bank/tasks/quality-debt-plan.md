@@ -44,8 +44,8 @@
 
 | # | Task | Done when |
 |---|------|-----------|
-| D1 | Move access/refresh off `localStorage` → **httpOnly cookies** (or BFF pattern) | `SEC-WEB-STORAGE` real PASS; SPA uses credentials |
-| D2 | Align CORS / cookie SameSite / CSRF story for cookie auth | smoke OAuth + refresh still works via Docker |
+| D1 | Move access/refresh off `localStorage` → **httpOnly cookies** (or BFF pattern) | **DONE 2026-11-15** — cookies + no JWT in SPA/JSON body; see sprint-check front report |
+| D2 | Align CORS / cookie SameSite / CSRF story for cookie auth | SameSite=Lax documented; double-submit still open; smoke OAuth + refresh via Docker |
 
 Do **D** after A–C if timeboxed; admin panel must not start while JWT still in web storage if D is in this plan’s “must”.
 

@@ -102,3 +102,10 @@
 - proactive expiresAtMs refresh; CSS catalog split; OrderCard RTL; authSession test
 ### Outstanding Blockers:
 - JWT still client-persisted; landing/admin CSS size; storeChrome→features
+## Iteration 10 — Score: 2.0 / 3.0 — 2026-11-15 — Stage A stop
+### Fixed Issues:
+- migrate localStorage→sessionStorage on read; expanded authSession tests
+### Outstanding Blockers:
+- JWT still client-readable (XSS); storeChrome↔features inversion
+- thin RTL coverage; no authorizedRequest tests; eslint no-undef off
+- Stage A frontend stopped below 2.5 after 5+ iterations (cap progress)

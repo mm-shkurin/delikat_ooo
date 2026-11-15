@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint src",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,css,json}\" \"*.json\"",
     "ci": "npm run lint && vitest run && vite build"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^16.5.0",
     "jsdom": "^26.1.0",
+    "prettier": "^3.10.1",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
   }

@@ -9,13 +9,14 @@ export function startYandexLogin() {
 }
 
 export async function exchangeOAuthCode(code) {
-  const tokens = await send(BACKEND.auth.oauthExchange, {
+  const wire = await send(BACKEND.auth.oauthExchange, {
     method: 'POST',
     body: { code },
     guard: isTokenPairBody,
   })
-  beginSession(tokens)
-  return tokens
+  // Cookies carry JWTs; only keep expiry in memory — never retain token strings.
+  beginSession({ expires_in_sec: wire.expires_in_sec })
+  return { expires_in_sec: wire.expires_in_sec }
 }
 
 export function getMe(signal) {

@@ -48,8 +48,8 @@ async function renewOnce() {
 
 async function performRenewal() {
   try {
-    const pair = await refreshTokens()
-    renewTokens(undefined, undefined, pair.expiresInSec)
+    const { expiresInSec } = await refreshTokens()
+    renewTokens(undefined, undefined, expiresInSec)
     return Boolean(currentSession())
   } catch {
     return false

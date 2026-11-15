@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getMe } from '../../features/auth/api/authApi'
 import { profileToView } from '../../features/auth/logic/profileView'
 import { httpErrorIn } from '../../shared/api/httpResponse'
-import { currentSession, endSession } from '../../shared/session/authSession'
+import { currentSession, endSession, markCookieSession } from '../../shared/session/authSession'
 import { isSessionExpired } from '../../shared/session/authorizedRequest'
 
 /**
@@ -20,6 +20,7 @@ export function useAuthChrome() {
     setProfileBusy(true)
     try {
       const body = await getMe()
+      markCookieSession(3600)
       const view = profileToView(body)
       setUserProfile(view)
       setSignedIn(true)

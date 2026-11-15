@@ -1,6 +1,7 @@
 import { useRouteBodyClass } from '../../shared/ui/useRouteBodyClass'
 import { useStoreChromeContext } from '../../app/storeChrome/StoreChromeProvider'
 import { elementById, requestFrame } from '../../shared/browser/dom'
+import '../../styles/landing-hero.css'
 import '../../styles/landing.css'
 import { HeroSection } from './components/HeroSection'
 import { LandingFooter } from './components/LandingFooter'

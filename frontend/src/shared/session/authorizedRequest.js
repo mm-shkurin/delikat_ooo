@@ -1,5 +1,5 @@
 import { isHttpError, request } from '../api/httpClient'
-import { currentSession, endSession, renewTokens } from './authSession'
+import { accessExpiringSoon, currentSession, endSession, renewTokens } from './authSession'
 import { refreshTokens } from './refreshApi'
 
 export class SessionExpiredError extends Error {
@@ -16,7 +16,13 @@ export function isSessionExpired(error) {
 let inFlight = null
 
 export async function authorizedRequest(path, options = {}) {
-  const session = currentSession()
+  let session = currentSession()
+  if (!session) throw new SessionExpiredError()
+  if (accessExpiringSoon() && !(await renewOnce())) {
+    endSession()
+    throw new SessionExpiredError()
+  }
+  session = currentSession()
   if (!session) throw new SessionExpiredError()
   try {
     return await request(path, withToken(options, session.accessToken))
@@ -52,7 +58,7 @@ async function performRenewal() {
   if (!session?.refreshToken) return false
   try {
     const pair = await refreshTokens(session.refreshToken)
-    renewTokens(pair.accessToken, pair.refreshToken)
+    renewTokens(pair.accessToken, pair.refreshToken, pair.expiresInSec)
     return true
   } catch {
     return false

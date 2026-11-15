@@ -22,16 +22,30 @@ export function beginSession(tokens) {
   memory = {
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token,
-    expiresInSec: tokens.expires_in_sec,
+    expiresAtMs: Date.now() + Number(tokens.expires_in_sec || 0) * 1000,
   }
   writeLocalStorage(STORAGE_KEY, JSON.stringify(memory))
 }
 
-export function renewTokens(accessToken, refreshToken) {
+export function renewTokens(accessToken, refreshToken, expiresInSec) {
   const session = currentSession()
   if (!session) return
-  memory = { ...session, accessToken, refreshToken }
+  memory = {
+    ...session,
+    accessToken,
+    refreshToken,
+    expiresAtMs:
+      expiresInSec == null ? session.expiresAtMs : Date.now() + Number(expiresInSec) * 1000,
+  }
   writeLocalStorage(STORAGE_KEY, JSON.stringify(memory))
+}
+
+/** True when access token is missing or within 60s of expiry. */
+export function accessExpiringSoon(nowMs = Date.now()) {
+  const session = currentSession()
+  if (!session?.accessToken) return true
+  if (typeof session.expiresAtMs !== 'number') return false
+  return session.expiresAtMs - nowMs <= 60_000
 }
 
 export function endSession() {

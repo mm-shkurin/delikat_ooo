@@ -8,5 +8,9 @@ export async function refreshTokens(refreshToken) {
     body: { refresh_token: refreshToken },
     guard: isTokenPairBody,
   })
-  return { accessToken: wire.access_token, refreshToken: wire.refresh_token }
+  return {
+    accessToken: wire.access_token,
+    refreshToken: wire.refresh_token,
+    expiresInSec: wire.expires_in_sec,
+  }
 }

@@ -90,3 +90,10 @@
 ### Outstanding Blockers:
 - JWT localStorage; mapper-only tests; storeChrome→features
 - CSS megaliths; panels without abort; OrderCard duplicate keys
+## Iteration 8 — Score: 2.0 / 3.0 — 2026-11-15 — 31bae46
+### Fixed Issues:
+- AbortController on orders/analytics/admin boot; staffBodyGuards tests
+- OrderCard keys; analyticsFailure removed; jsconfig; JWT note in README
+### Outstanding Blockers:
+- JWT localStorage; no RTL/hook tests; storeChrome→features; CSS megaliths
+- reloadMembers without abort; useAdminPage size; expiresInSec unused

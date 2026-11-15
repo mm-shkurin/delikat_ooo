@@ -91,7 +91,7 @@ export function useAdminPage() {
     }
   }, [me, tab, tabParam, navigate])
 
-  async function reloadMembers() {
+  async function reloadMembers(signal) {
     if (!me || !canManageRoster(me.role)) {
       setMembers([])
       setMembersStatus('idle')
@@ -100,10 +100,12 @@ export function useAdminPage() {
     setMembersStatus('loading')
     setMembersError(null)
     try {
-      const body = await listStaffMembers()
+      const body = await listStaffMembers(signal)
+      if (signal?.aborted) return
       setMembers(staffMemberListToView(body))
       setMembersStatus('ready')
     } catch (error) {
+      if (signal?.aborted || error?.name === 'AbortError') return
       setMembersStatus('error')
       setMembersError(error instanceof Error ? error.message : 'Не удалось загрузить список')
     }
@@ -111,7 +113,9 @@ export function useAdminPage() {
 
   useEffect(() => {
     if (phase !== 'ready' || tab !== 'employees') return
-    reloadMembers()
+    const ac = new AbortController()
+    reloadMembers(ac.signal)
+    return () => ac.abort()
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reload when entering employees
   }, [phase, tab, me?.role])
 

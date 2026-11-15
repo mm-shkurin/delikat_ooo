@@ -101,3 +101,10 @@
 - silent 500-order analytics truncation; unbounded staff product list
 - CI ignores live OAuth/HTTP tests; no adapter DB integration tests
 - OAuth rate limit; WS path doc mismatch; JWT refresh in JSON body
+## Iteration 7 (confirmation) — Score: 2.5 / 3.0 — 2026-11-15 — c10ca53
+### Fixed Issues:
+- truncated flag on staff orders; staff product list cap; WS path README
+### Outstanding Blockers:
+- analytics discards truncated; CI ignores live HTTP; OAuth rate limit
+- StaffCategoryFailure HTTP status in usecase; in-memory WS hub
+- score held — Stage A backend complete

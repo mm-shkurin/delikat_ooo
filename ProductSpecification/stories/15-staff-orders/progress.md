@@ -13,15 +13,15 @@
 ## Front (frontend/)
 
 - [x] implement
-- [ ] refactor
-- [ ] check
+- [x] refactor
+- [x] check
 
 ## Back (backend/)
 
 - [x] implement
-- [ ] refactor
+- [x] refactor
 - [x] contract tests
 
 ## Close
 
-- [ ] progress + stories.md update
+- [x] progress + stories.md update

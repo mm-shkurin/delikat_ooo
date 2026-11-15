@@ -13,7 +13,7 @@
 ## Front (frontend/)
 
 - [x] implement
-- [x] refactor — n/a, новые файлы короче лимита; `bodyGuards.js` уже был длиннее 200
+- [x] refactor — staff-guards вынесены из `bodyGuards.js`
 - [x] check — вкладка, создание, порядок, сокет, пустая категория, узкое окно
 
 ## Back (backend/)

@@ -97,3 +97,8 @@
 ### Outstanding Blockers:
 - JWT localStorage; no RTL/hook tests; storeChrome→features; CSS megaliths
 - reloadMembers without abort; useAdminPage size; expiresInSec unused
+## Iteration 9 — Score: 2.0 / 3.0 — 2026-11-15 — 0b5bd8d
+### Fixed Issues:
+- proactive expiresAtMs refresh; CSS catalog split; OrderCard RTL; authSession test
+### Outstanding Blockers:
+- JWT still client-persisted; landing/admin CSS size; storeChrome→features

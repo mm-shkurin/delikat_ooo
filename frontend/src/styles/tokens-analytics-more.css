@@ -1,4 +1,5 @@
-﻿  height: 100%;
+﻿.bar-fill {
+  height: 100%;
   background: linear-gradient(90deg, var(--hero), var(--accent));
   border-radius: var(--radius-pill);
 }

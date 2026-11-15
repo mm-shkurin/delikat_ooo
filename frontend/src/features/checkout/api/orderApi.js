@@ -12,7 +12,7 @@ export function createOrder({ customerNote, idempotencyKey, signal }) {
     method: 'POST',
     body,
     signal,
-    bearer: Boolean(currentSession()?.accessToken),
+    bearer: Boolean(currentSession()),
     headers: { 'Idempotency-Key': idempotencyKey },
     guard: isOrderCreatedBody,
   })

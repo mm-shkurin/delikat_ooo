@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { isBrowser } from '../../../shared/browser/dom'
+import { isBrowser, matchMediaQuery } from '../../../shared/browser/dom'
 import { CATEGORY_COPY, dragEnabled } from '../logic/staffCategoryForm'
 import { useCategoriesPanel } from '../useCategoriesPanel'
 import { CategoryDialogs } from './CategoryDialogs'
@@ -67,10 +67,10 @@ export function CategoriesPanel() {
 }
 
 function useDragEnabled() {
-  const [enabled, setEnabled] = useState(() => dragEnabled(isBrowser() ? window.innerWidth : 1024))
+  const [enabled, setEnabled] = useState(() => dragEnabled(1024))
   useEffect(() => {
     if (!isBrowser()) return undefined
-    const query = window.matchMedia('(max-width: 420px)')
+    const query = matchMediaQuery('(max-width: 420px)')
     const apply = () => setEnabled(!query.matches)
     apply()
     query.addEventListener('change', apply)

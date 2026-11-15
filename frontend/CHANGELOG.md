@@ -2,11 +2,13 @@
 
 ## 2026-11-15
 
+- Auth: HttpOnly `delikat_access` / `delikat_refresh` cookies; SPA keeps JWT out of web storage (memory hint only).
+- Styles: single `styles/index.css` entry; page CSS lives under `styles/tokens-*.css`.
+- README architecture map; `.env.example` uses placeholder host; Prettier config; `no-undef` lint.
+- Catalog live WS path comes from `BACKEND.catalog.live`; browser globals via `shared/browser/dom`.
 - Staff admin: roster ACL, catalog editor, categories reorder, orders board, owner analytics.
 - Categories panel aborts in-flight reloads on unmount; catalog property filters reuse staff form options.
 - CI runs the full `npm run ci` lane (lint + vitest + vite build).
-- Staff JWT moves to `sessionStorage` with proactive refresh from `expiresAtMs`; OrderCard RTL smoke + authSession unit tests.
-- Catalog/landing/admin/staff CSS split under the ~200-line file budget.
 
 ## 2026-11-05
 

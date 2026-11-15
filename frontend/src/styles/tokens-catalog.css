@@ -1,4 +1,7 @@
-﻿      background: #c41e3a; color: #fff; font-weight: 700;
+﻿    .dock {
+      position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 25;
+      min-height: 54px; border: 0; border-radius: 999px;
+      background: #c41e3a; color: #fff; font-weight: 700;
       box-shadow: 0 16px 40px rgba(196,30,58,.35);
     }
 

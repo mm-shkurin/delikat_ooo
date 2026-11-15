@@ -1,7 +1,6 @@
 import { OrderCard } from './OrderCard'
 import { useOrdersPanel } from '../useOrdersPanel'
 import { FILTER_OPTIONS, ordersChrome } from '../logic/staffOrdersView'
-import '../orders.css'
 
 export function OrdersPanel() {
   const panel = useOrdersPanel()

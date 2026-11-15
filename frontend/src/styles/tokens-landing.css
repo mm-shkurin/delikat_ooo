@@ -1,4 +1,6 @@
-﻿      .hero-art { min-height: 280px; order: -1; }
+﻿    @media (max-width: 960px) {
+      .hero-main { grid-template-columns: 1fr; }
+      .hero-art { min-height: 280px; order: -1; }
       .hero { padding-top: 100px; }
       .logo-img { height: 36px; }
     }
@@ -105,4 +107,3 @@
       transform: scale(1.12);
       transform-origin: center right;
     }
-    @media (max-width: 960px) {

@@ -1,4 +1,5 @@
-﻿      .pack { padding: 56px 0 64px; }
+﻿    @media (max-width: 960px) {
+      .pack { padding: 56px 0 64px; }
       .pack-grid { grid-template-columns: 1fr; gap: 20px; }
       .pack-visual { order: -1; margin-right: 0; min-height: 0; }
       .pack-visual img {

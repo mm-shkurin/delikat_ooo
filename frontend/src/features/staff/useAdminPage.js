@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { clearShopSession } from '../../app/storeChrome/clearShopSession'
-import { currentSession } from '../../shared/session/authSession'
 import { httpErrorIn } from '../../shared/api/httpResponse'
 import { isSessionExpired } from '../../shared/session/authorizedRequest'
 import { rememberAuthReturn } from '../auth/logic/authReturn'
@@ -50,11 +49,6 @@ export function useAdminPage() {
   useEffect(() => {
     const runId = ++boot.current
     const ac = new AbortController()
-    if (!currentSession()?.accessToken) {
-      setPhase('need_auth')
-      setMe(null)
-      return
-    }
     setPhase('loading')
     getStaffMe(ac.signal)
       .then((body) => {
@@ -140,9 +134,10 @@ export function useAdminPage() {
 
   async function assign(email, role) {
     setActionError(null)
+    const ac = new AbortController()
     try {
       await assignStaffMember({ email: email.trim(), role })
-      await reloadMembers()
+      await reloadMembers(ac.signal)
       return true
     } catch (error) {
       setActionError(error instanceof Error ? error.message : 'Не удалось назначить')
@@ -152,9 +147,10 @@ export function useAdminPage() {
 
   async function changeRole(memberId, role) {
     setActionError(null)
+    const ac = new AbortController()
     try {
       await updateStaffMemberRole(memberId, { role })
-      await reloadMembers()
+      await reloadMembers(ac.signal)
       return true
     } catch (error) {
       setActionError(error instanceof Error ? error.message : 'Не удалось сменить роль')
@@ -164,9 +160,10 @@ export function useAdminPage() {
 
   async function remove(memberId) {
     setActionError(null)
+    const ac = new AbortController()
     try {
       await removeStaffMember(memberId)
-      await reloadMembers()
+      await reloadMembers(ac.signal)
       return true
     } catch (error) {
       setActionError(error instanceof Error ? error.message : 'Не удалось убрать')

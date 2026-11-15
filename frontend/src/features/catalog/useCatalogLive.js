@@ -1,7 +1,12 @@
 import { useEffect, useRef } from 'react'
-import { isBrowser } from '../../shared/browser/dom'
-
-const CATALOG_LIVE_PATH = '/api/v1/catalog/live'
+import {
+  clearSchedule,
+  isBrowser,
+  locationHost,
+  locationProtocol,
+  scheduleTimeout,
+} from '../../shared/browser/dom'
+import { BACKEND } from '../../shared/api/backend/paths'
 import { isCatalogChangedFrame } from './logic/catalogRefresh'
 
 /** @param {() => void} onChange */
@@ -19,20 +24,20 @@ export function useCatalogLive(onChange) {
 
     const connect = () => {
       if (stopped) return
-      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      socket = new WebSocket(`${proto}//${window.location.host}${CATALOG_LIVE_PATH}`)
+      const proto = locationProtocol() === 'https:' ? 'wss:' : 'ws:'
+      socket = new WebSocket(`${proto}//${locationHost()}${BACKEND.catalog.live}`)
       socket.onmessage = (event) => {
         if (isCatalogChangedFrame(event.data)) onChangeRef.current()
       }
       socket.onclose = () => {
-        if (!stopped) timer = window.setTimeout(connect, 400)
+        if (!stopped) timer = scheduleTimeout(connect, 400)
       }
     }
 
     connect()
     return () => {
       stopped = true
-      window.clearTimeout(timer)
+      clearSchedule(timer)
       socket?.close()
     }
   }, [])

@@ -2,10 +2,11 @@ import { request } from '../api/httpClient'
 import { BACKEND } from '../api/backend/paths'
 import { isTokenPairBody } from '../api/backend/bodyGuards'
 
-export async function refreshTokens(refreshToken) {
+/** Refresh via HttpOnly cookie only — body stays empty so JS never holds refresh JWT. */
+export async function refreshTokens() {
   const wire = await request(BACKEND.auth.refresh, {
     method: 'POST',
-    body: { refresh_token: refreshToken },
+    body: {},
     guard: isTokenPairBody,
   })
   return {

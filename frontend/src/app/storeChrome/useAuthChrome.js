@@ -17,11 +17,6 @@ export function useAuthChrome() {
   const [privacyNoteVisible, setPrivacyNoteVisible] = useState(false)
 
   const refreshUserProfile = useCallback(async () => {
-    if (!currentSession()) {
-      setUserProfile(null)
-      setSignedIn(false)
-      return null
-    }
     setProfileBusy(true)
     try {
       const body = await getMe()
@@ -31,7 +26,7 @@ export function useAuthChrome() {
       return view
     } catch (error) {
       const unauthorized = isSessionExpired(error) || httpErrorIn(error)?.status === 401
-      if (unauthorized) {
+      if (unauthorized || !currentSession()) {
         endSession()
         setUserProfile(null)
         setSignedIn(false)

@@ -1,30 +1,21 @@
 import { logout } from '../../features/auth/api/authApi'
 import { resetGuestSession } from '../../features/cart/api/sessionApi'
-import { currentSession, endSession } from '../../shared/session/authSession'
+import { endSession } from '../../shared/session/authSession'
+import { removeSessionStorage } from '../../shared/browser/dom'
 import { FULFILLMENT_STORAGE_KEY } from './logic/fulfillmentView'
 
 /**
- * Full client reset: JWT (sessionStorage), guest cookie, local fulfillment.
- * Server httpOnly JWT cookies are out of scope until the backend ships them.
+ * Full client reset: expiry hint, HttpOnly auth cookies (via logout), guest cookie, fulfillment.
  * @param {{ onLocalReset?: () => void }} [options]
  */
 export async function clearShopSession(options = {}) {
-  const session = currentSession()
-  if (session?.accessToken) {
-    try {
-      await logout(session.refreshToken)
-    } catch {
-      endSession()
-    }
-  } else {
+  try {
+    await logout()
+  } catch {
     endSession()
   }
   endSession()
-  try {
-    sessionStorage.removeItem(FULFILLMENT_STORAGE_KEY)
-  } catch {
-    /* ignore */
-  }
+  removeSessionStorage(FULFILLMENT_STORAGE_KEY)
   try {
     await resetGuestSession()
   } catch {

@@ -40,7 +40,7 @@ export function OAuthCallbackPage() {
 
   if (error) {
     return (
-      <main style={{ padding: '2rem' }}>
+      <main className="oauth-callback">
         <h1>Не удалось войти</h1>
         <p>
           {error === 'missing_code'
@@ -57,7 +57,7 @@ export function OAuthCallbackPage() {
   }
 
   return (
-    <main style={{ padding: '2rem' }}>
+    <main className="oauth-callback">
       <p>Вход…</p>
     </main>
   )

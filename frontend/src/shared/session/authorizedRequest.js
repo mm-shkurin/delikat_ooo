@@ -15,31 +15,24 @@ export function isSessionExpired(error) {
 
 let inFlight = null
 
+/**
+ * Cookie-only auth: credentials:include carries HttpOnly JWTs. No Bearer header from JS.
+ */
 export async function authorizedRequest(path, options = {}) {
-  let session = currentSession()
-  if (!session) throw new SessionExpiredError()
-  if (accessExpiringSoon() && !(await renewOnce())) {
+  if (currentSession() && accessExpiringSoon() && !(await renewOnce())) {
     endSession()
     throw new SessionExpiredError()
   }
-  session = currentSession()
-  if (!session) throw new SessionExpiredError()
   try {
-    return await request(path, withToken(options, session.accessToken))
+    return await request(path, options)
   } catch (error) {
     if (!isUnauthorized(error)) throw error
     if (!(await renewOnce())) {
       endSession()
       throw new SessionExpiredError()
     }
-    const renewed = currentSession()
-    if (!renewed) throw new SessionExpiredError()
-    return request(path, withToken(options, renewed.accessToken))
+    return request(path, options)
   }
-}
-
-function withToken(options, token) {
-  return { ...options, headers: { ...options.headers, Authorization: `Bearer ${token}` } }
 }
 
 function isUnauthorized(error) {
@@ -54,12 +47,10 @@ async function renewOnce() {
 }
 
 async function performRenewal() {
-  const session = currentSession()
-  if (!session?.refreshToken) return false
   try {
-    const pair = await refreshTokens(session.refreshToken)
-    renewTokens(pair.accessToken, pair.refreshToken, pair.expiresInSec)
-    return true
+    const pair = await refreshTokens()
+    renewTokens(undefined, undefined, pair.expiresInSec)
+    return Boolean(currentSession())
   } catch {
     return false
   }

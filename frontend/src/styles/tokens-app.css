@@ -17,3 +17,7 @@
 .error-boundary .btn {
   margin-top: 12px;
 }
+
+.oauth-callback {
+  padding: var(--space-6);
+}

@@ -1,4 +1,12 @@
-﻿  max-height: calc(100svh - 24px);
+﻿.admin-editor {
+  position: relative;
+  width: min(640px, 100%);
+  border: 0;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  box-shadow: var(--shadow-pop);
+  background: var(--surface);
+  max-height: calc(100svh - 24px);
   overflow: auto;
   z-index: 1;
 }

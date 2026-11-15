@@ -1,71 +1,53 @@
-import {
-  readLocalStorage,
-  readSessionStorage,
-  removeLocalStorage,
-  removeSessionStorage,
-  writeSessionStorage,
-} from '../browser/dom'
+import { removeLocalStorage, removeSessionStorage } from '../browser/dom'
 
-const STORAGE_KEY = 'delikat.auth'
+const LEGACY_KEY = 'delikat.auth'
 
+/** @type {{ expiresAtMs: number } | null} */
 let memory = null
 
-function readPersisted() {
-  try {
-    const raw = readSessionStorage(STORAGE_KEY) || readLocalStorage(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
-    if (typeof parsed?.accessToken !== 'string') return null
-    return parsed
-  } catch {
-    return null
-  }
+function scrubLegacyStorage() {
+  removeSessionStorage(LEGACY_KEY)
+  removeLocalStorage(LEGACY_KEY)
 }
 
-function persist(session) {
-  writeSessionStorage(STORAGE_KEY, JSON.stringify(session))
-  removeLocalStorage(STORAGE_KEY)
-}
-
+/**
+ * Signed-in hint for the tab. JWTs live only in HttpOnly cookies — never in JS memory
+ * or web storage (XSS cannot read them from the page).
+ */
 export function currentSession() {
-  if (memory) return memory
-  memory = readPersisted()
-  if (memory) persist(memory)
   return memory
 }
 
+/** @param {{ expires_in_sec?: number, access_token?: string, refresh_token?: string }} tokens */
 export function beginSession(tokens) {
+  scrubLegacyStorage()
   memory = {
-    accessToken: tokens.access_token,
-    refreshToken: tokens.refresh_token,
-    expiresAtMs: Date.now() + Number(tokens.expires_in_sec || 0) * 1000,
+    expiresAtMs: Date.now() + Number(tokens.expires_in_sec || 3600) * 1000,
   }
-  persist(memory)
 }
 
-export function renewTokens(accessToken, refreshToken, expiresInSec) {
-  const session = currentSession()
-  if (!session) return
+export function markCookieSession(expiresInSec) {
+  beginSession({ expires_in_sec: expiresInSec })
+}
+
+/** @param {string} [_access] @param {string} [_refresh] @param {number} [expiresInSec] */
+export function renewTokens(_access, _refresh, expiresInSec) {
+  scrubLegacyStorage()
   memory = {
-    ...session,
-    accessToken,
-    refreshToken,
     expiresAtMs:
-      expiresInSec == null ? session.expiresAtMs : Date.now() + Number(expiresInSec) * 1000,
+      expiresInSec == null ? memory?.expiresAtMs ?? Date.now() : Date.now() + Number(expiresInSec) * 1000,
   }
-  persist(memory)
 }
 
-/** True when access token is missing, has no expiry, or is within 60s of expiry. */
+/** True when no session or access is within 60s of expiry. */
 export function accessExpiringSoon(nowMs = Date.now()) {
   const session = currentSession()
-  if (!session?.accessToken) return true
+  if (!session) return true
   if (typeof session.expiresAtMs !== 'number') return true
   return session.expiresAtMs - nowMs <= 60_000
 }
 
 export function endSession() {
   memory = null
-  removeSessionStorage(STORAGE_KEY)
-  removeLocalStorage(STORAGE_KEY)
+  scrubLegacyStorage()
 }

@@ -2,8 +2,6 @@ import { channelIcon, formatRub, groupInflows, payTime, topQty } from '../logic/
 import { useAnalyticsPanel } from '../useAnalyticsPanel'
 import { BarChart } from './BarChart'
 import { KpiRow } from './KpiRow'
-import '../analytics.css'
-import '../analytics-more.css'
 
 const EMPTY = 'Нет данных'
 

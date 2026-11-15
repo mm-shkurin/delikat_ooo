@@ -33,12 +33,12 @@ export function updateMe(displayName, signal) {
   })
 }
 
-export async function logout(refreshToken) {
+export async function logout() {
   try {
     await send(BACKEND.auth.logout, {
       method: 'POST',
       bearer: true,
-      body: refreshToken ? { refresh_token: refreshToken } : undefined,
+      body: {},
     })
   } finally {
     endSession()

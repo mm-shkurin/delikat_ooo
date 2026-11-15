@@ -96,3 +96,26 @@ export function requestFrame(callback) {
 export function cancelFrame(handle) {
   if (isBrowser()) window.cancelAnimationFrame(handle)
 }
+
+export function locationProtocol() {
+  return isBrowser() ? window.location.protocol : 'http:'
+}
+
+export function locationHost() {
+  return isBrowser() ? window.location.host : 'localhost'
+}
+
+/** @param {() => void} fn @param {number} ms */
+export function scheduleTimeout(fn, ms) {
+  return isBrowser() ? window.setTimeout(fn, ms) : 0
+}
+
+/** @param {number} handle */
+export function clearSchedule(handle) {
+  if (isBrowser()) window.clearTimeout(handle)
+}
+
+/** @param {string} query */
+export function matchMediaQuery(query) {
+  return isBrowser() ? window.matchMedia(query) : { matches: false, addEventListener() {}, removeEventListener() {} }
+}

@@ -102,7 +102,3 @@
     .hero-shell .nav-right {
       display: flex; align-items: center; gap: 8px;
     }
-    .hero-shell .nav-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      min-height: 38px; padding: 0 12px; border-radius: 999px; border: 0;
-      background: rgba(255,255,255,.12); color: #fff; font-weight: 700; font-size: 13px;

@@ -31,4 +31,4 @@
 ## Close
 
 - [x] progress + carryover + summary + backlog split
-- [ ] merge mock branch (по договорённости)
+- [x] merge mock branch → `main` (wave 12–17 delivered on this branch)

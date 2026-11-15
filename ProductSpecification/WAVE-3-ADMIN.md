@@ -36,6 +36,9 @@
 | **14** | Витрина читает тот же каталог (hide/badges) | 3 | catalog feature | GET уже есть / донастроить | **13** | — (parity с витриной) |
 | **15** | Staff: список заказов и статусы | 4 | вкладка Заказы | list + patch status | **12**, 10 orders | orders tab |
 | **16** | Владелец: Статистика и Деньги | 5 | вкладки Stats/Money | aggregate read API | **15** | stats + money tabs |
+| **17** | Staff: категории каталога | 3 | вкладка Категории | CRUD + order + WS signal | **13**, **14** | — (после 13) |
+
+**Статус 2026-11-15:** **12–17** delivered; ветка `feature/11-admin-catalog-mock` → `main`.
 
 Папки: `ProductSpecification/stories/NN-slug/` — заводить при `/story` + `/interview` (не раньше старта волны).
 

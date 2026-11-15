@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   createStaffCategory,
   deleteStaffCategory,
@@ -33,22 +33,28 @@ export function useCategoriesPanel() {
   const [pendingDelete, setPendingDelete] = useState(/** @type {ReturnType<typeof toView>[number] | null} */ (null))
   const [saving, setSaving] = useState(false)
   const [dragId, setDragId] = useState('')
+  const reloadGen = useRef(0)
 
-  async function reload(keepBanner) {
+  async function reload(keepBanner, signal) {
+    const runId = ++reloadGen.current
     setStatus('loading')
     try {
-      const body = await listStaffCategories()
+      const body = await listStaffCategories(signal)
+      if (signal?.aborted || runId !== reloadGen.current) return
       setRows(toView(body.items ?? []))
       setStatus('ready')
       if (!keepBanner) setBanner(null)
-    } catch {
+    } catch (error) {
+      if (signal?.aborted || runId !== reloadGen.current || error?.name === 'AbortError') return
       setStatus('error')
       setBanner((current) => (keepBanner && current ? current : CATEGORY_COPY.failed))
     }
   }
 
   useEffect(() => {
-    reload(false)
+    const ac = new AbortController()
+    reload(false, ac.signal)
+    return () => ac.abort()
   }, [])
 
   function openCreate() {

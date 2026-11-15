@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-15
+
+- Staff admin: roster ACL, catalog editor, categories reorder, orders board, owner analytics.
+- Categories panel aborts in-flight reloads on unmount; catalog property filters reuse staff form options.
+- CI runs the full `npm run ci` lane (lint + vitest + vite build).
+
 ## 2026-11-05
 
 - Checkout retries reuse the same `Idempotency-Key` until the order is accepted.

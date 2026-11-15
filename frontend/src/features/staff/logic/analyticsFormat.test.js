@@ -31,4 +31,15 @@ describe('donutModel', () => {
     expect(model.legend).toHaveLength(8)
     expect(model.total).toBe(800)
   })
+
+  it('splits the ring evenly for equal slices', () => {
+    const model = donutModel([
+      { label: 'a', value_rub: 50 },
+      { label: 'b', value_rub: 50 },
+    ])
+    const half = Math.PI * 58
+    expect(model.arcs).toHaveLength(2)
+    expect(model.arcs[0].dash).toBe(`${half} ${half}`)
+    expect(model.arcs[1].offset).toBe(-half)
+  })
 })

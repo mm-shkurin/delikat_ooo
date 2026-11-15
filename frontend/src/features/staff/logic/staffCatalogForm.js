@@ -1,10 +1,7 @@
+import { PROPERTY_OPTIONS } from '../../../shared/catalog/propertyOptions'
+
 export const PRODUCT_ID_PATTERN = /^[a-z][a-z0-9-]{0,31}$/
-export const PROPERTY_OPTIONS = [
-  { value: 'chilled', label: 'Охлаждённое' },
-  { value: 'frozen', label: 'Замороженное' },
-  { value: 'fresh', label: 'Свежее' },
-  { value: 'premium', label: 'Премиум' },
-]
+export { PROPERTY_OPTIONS }
 export const BADGE_OPTIONS = [
   { value: '', label: 'Нет' },
   { value: 'NEW', label: 'NEW' },

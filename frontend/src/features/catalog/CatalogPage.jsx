@@ -5,14 +5,8 @@ import '../../styles/catalog.css'
 import { CatalogNav } from './components/CatalogNav'
 import { ProductGrid } from './components/ProductGrid'
 import { ProductPanel } from './components/ProductPanel'
+import { PROPERTY_OPTIONS } from '../../shared/catalog/propertyOptions'
 import { useCatalogPage } from './useCatalogPage'
-
-const PROPERTY_OPTIONS = [
-  { value: 'chilled', label: 'Охлаждённое' },
-  { value: 'frozen', label: 'Замороженное' },
-  { value: 'fresh', label: 'Свежее' },
-  { value: 'premium', label: 'Премиум' },
-]
 
 export function CatalogPage() {
   useRouteBodyClass('route-catalog')

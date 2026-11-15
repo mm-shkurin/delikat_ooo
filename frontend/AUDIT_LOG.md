@@ -75,3 +75,11 @@
 - (none this iteration)
 ### Outstanding Blockers:
 - score held; JWT interim; storeChrome still composes features
+## Iteration 6 — Score: 2.0 / 3.0 — 2026-11-15 — f827fb6
+### Fixed Issues:
+- (none — fresh /sprint-check audit)
+### Outstanding Blockers:
+- JWT in localStorage; no hook/component tests; CI skips vite build
+- CHANGELOG stale; CSS megaliths; PROPERTY_OPTIONS + failure-mapper duplication
+- storeChrome imports features; weak eslint; large UI modules
+- useCategoriesPanel reload without AbortController; git author typo

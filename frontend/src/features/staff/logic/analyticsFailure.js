@@ -1,15 +1,6 @@
-import { httpErrorIn } from '../../../shared/api/httpResponse'
-import { isSessionExpired } from '../../../shared/session/authorizedRequest'
+import { ordersFailureText } from './ordersFailure'
 
-const GENERIC = 'Не получилось. Попробуйте ещё раз.'
-const EXPIRED = 'Сессия истекла. Войдите заново.'
-const ROLE = 'У этого аккаунта нет доступа в кабинет. Нужна роль сотрудника.'
-
+/** Analytics only needs the shared session/ACL messages from ordersFailure. */
 export function analyticsFailureText(error) {
-  if (isSessionExpired(error)) return EXPIRED
-  const http = httpErrorIn(error)
-  if (!http) return GENERIC
-  if (http.status === 401) return EXPIRED
-  if (http.status === 403) return ROLE
-  return GENERIC
+  return ordersFailureText(error)
 }

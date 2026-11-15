@@ -12,22 +12,20 @@ export function useOrdersPanel() {
   const [savingId, setSavingId] = useState('')
 
   useEffect(() => {
-    let live = true
-    listStaffOrders()
+    const ac = new AbortController()
+    listStaffOrders(ac.signal)
       .then((body) => {
-        if (!live) return
+        if (ac.signal.aborted) return
         setItems(body.items)
         setPhase('ready')
         setBanner(null)
       })
       .catch((error) => {
-        if (!live) return
+        if (ac.signal.aborted || error?.name === 'AbortError') return
         setPhase('error')
         setBanner(ordersFailureText(error))
       })
-    return () => {
-      live = false
-    }
+    return () => ac.abort()
   }, [])
 
   async function changeStatus(orderId, status) {

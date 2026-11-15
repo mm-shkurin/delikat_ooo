@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getStaffMoney, getStaffStats } from './api/staffAnalyticsApi'
-import { analyticsFailureText } from './logic/analyticsFailure'
+import { ordersFailureText } from './logic/ordersFailure'
 
 /** @param {'stats' | 'money'} kind */
 export function useAnalyticsPanel(kind) {
@@ -9,25 +9,23 @@ export function useAnalyticsPanel(kind) {
   const [banner, setBanner] = useState(/** @type {string | null} */ (null))
 
   useEffect(() => {
-    let live = true
+    const ac = new AbortController()
     const load = kind === 'stats' ? getStaffStats : getStaffMoney
     setPhase('loading')
     setData(null)
     setBanner(null)
-    load()
+    load(ac.signal)
       .then((body) => {
-        if (!live) return
+        if (ac.signal.aborted) return
         setData(body)
         setPhase('ready')
       })
       .catch((error) => {
-        if (!live) return
+        if (ac.signal.aborted || error?.name === 'AbortError') return
         setPhase('error')
-        setBanner(analyticsFailureText(error))
+        setBanner(ordersFailureText(error))
       })
-    return () => {
-      live = false
-    }
+    return () => ac.abort()
   }, [kind])
 
   return { phase, data, banner }

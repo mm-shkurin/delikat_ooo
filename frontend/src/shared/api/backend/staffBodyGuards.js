@@ -87,7 +87,11 @@ export function isStaffOrderBody(value) {
 }
 
 export function isStaffOrderListBody(value) {
-  return isRecord(value) && Array.isArray(value.items) && value.items.every(isStaffOrderBody)
+  if (!isRecord(value) || !Array.isArray(value.items) || !value.items.every(isStaffOrderBody)) {
+    return false
+  }
+  if ('truncated' in value && typeof value.truncated !== 'boolean') return false
+  return true
 }
 
 function isMoneySlice(value) {

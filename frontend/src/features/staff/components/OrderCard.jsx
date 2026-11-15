@@ -22,8 +22,8 @@ export function OrderCard({ order, busy, onStatus }) {
       <p className="order-contact">{card.contact}</p>
       {card.note ? <p className="order-note">{card.note}</p> : null}
       <ul className="order-lines">
-        {card.lines.map((text) => (
-          <li key={text}>{text}</li>
+        {card.lines.map((text, index) => (
+          <li key={`${index}:${text}`}>{text}</li>
         ))}
       </ul>
       <label className="admin-field">

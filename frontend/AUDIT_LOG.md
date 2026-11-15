@@ -83,3 +83,10 @@
 - CHANGELOG stale; CSS megaliths; PROPERTY_OPTIONS + failure-mapper duplication
 - storeChrome imports features; weak eslint; large UI modules
 - useCategoriesPanel reload without AbortController; git author typo
+## Iteration 7 — Score: 2.0 / 3.0 — 2026-11-15 — 30b7a3f
+### Fixed Issues:
+- AbortController on categories reload; shared PROPERTY_OPTIONS
+- analyticsFailure delegates to ordersFailure; CHANGELOG; CI npm run ci
+### Outstanding Blockers:
+- JWT localStorage; mapper-only tests; storeChrome→features
+- CSS megaliths; panels without abort; OrderCard duplicate keys

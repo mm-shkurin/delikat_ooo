@@ -49,21 +49,22 @@ export function useAdminPage() {
 
   useEffect(() => {
     const runId = ++boot.current
+    const ac = new AbortController()
     if (!currentSession()?.accessToken) {
       setPhase('need_auth')
       setMe(null)
       return
     }
     setPhase('loading')
-    getStaffMe()
+    getStaffMe(ac.signal)
       .then((body) => {
-        if (runId !== boot.current) return
+        if (ac.signal.aborted || runId !== boot.current) return
         setMe(staffMeToView(body))
         setPhase('ready')
         setErrorText(null)
       })
       .catch((error) => {
-        if (runId !== boot.current) return
+        if (ac.signal.aborted || runId !== boot.current || error?.name === 'AbortError') return
         if (isSessionExpired(error)) {
           setPhase('need_auth')
           setMe(null)
@@ -78,6 +79,7 @@ export function useAdminPage() {
         setPhase('error')
         setErrorText(error instanceof Error ? error.message : 'Не удалось открыть кабинет')
       })
+    return () => ac.abort()
   }, [])
 
   const tab = me ? resolveAllowedTab(me.role, tabParam) : null

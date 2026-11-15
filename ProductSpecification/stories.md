@@ -46,7 +46,7 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 17 | Staff: категории каталога (CRUD + порядок) | x | x | x | x | `/admin/categories`; WS `catalog_changed` |
+| 17 | Staff: категории каталога (CRUD + порядок) | x | x | x | x | `/admin/categories`; WS; live smoke create→витрина→delete |
 
 ## Done — Wave 4 (orders staff)
 

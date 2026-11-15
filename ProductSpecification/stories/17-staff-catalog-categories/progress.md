@@ -15,13 +15,15 @@
 - [x] implement
 - [x] refactor — staff-guards вынесены из `bodyGuards.js`
 - [x] check — вкладка, создание, порядок, сокет, пустая категория, узкое окно
+- [x] live smoke 2026-11-15 — Docker :5173/:8000; create `smoke17` → витрина «Смок 17» + empty copy → delete
 
 ## Back (backend/)
 
 - [x] implement
 - [x] refactor — n/a, файлы короче лимита
-- [x] contract tests — pytest usecase + `check_api_contract.py`
+- [x] contract tests — pytest usecase 15 + `check_api_contract.py` (0 missing)
 
 ## Close
 
 - [x] progress + stories.md update
+- [x] live smoke close — admin categories CRUD + buyer sidebar (seed restored to 6)

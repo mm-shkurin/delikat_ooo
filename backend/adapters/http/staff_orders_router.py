@@ -21,8 +21,11 @@ async def list_staff_orders(
     access_token: Annotated[str, Depends(bearer_token)],
 ) -> dict:
     account = await request.app.state.ctx.session.caller(access_token)
-    rows = await _orders(request).list_orders(account)
-    return {"items": [staff_order_payload(row) for row in rows]}
+    rows, truncated = await _orders(request).list_orders(account)
+    return {
+        "items": [staff_order_payload(row) for row in rows],
+        "truncated": truncated,
+    }
 
 
 @router.patch("/staff/orders/{order_id}")

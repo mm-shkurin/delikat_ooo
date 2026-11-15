@@ -71,7 +71,9 @@ class PostgresCatalogStore:
                         ProductRow.id.ilike(needle, escape="\\"),
                     )
                 )
-            rows = (await session.scalars(stmt)).all()
+            rows = (
+                await session.scalars(stmt.order_by(ProductRow.created_at.desc()).limit(500))
+            ).all()
             return [row.to_domain() for row in rows]
 
     async def category_exists(self, category_id: str) -> bool:

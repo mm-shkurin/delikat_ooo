@@ -22,9 +22,10 @@ class StaffOrdersService:
         self._staff = staff
         self._orders = orders
 
-    async def list_orders(self, actor: Account) -> list[StaffOrder]:
+    async def list_orders(self, actor: Account) -> tuple[list[StaffOrder], bool]:
         await self._require(actor)
-        return sort_staff_orders(await self._orders.list_all())
+        rows, truncated = await self._orders.list_all()
+        return sort_staff_orders(rows), truncated
 
     async def set_status(self, actor: Account, order_id: UUID, status: str) -> StaffOrder:
         await self._require(actor)

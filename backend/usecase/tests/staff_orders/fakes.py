@@ -117,7 +117,7 @@ class OrderBook:
         return order
 
     async def list_all(self):
-        return [record.to_staff() for record in self._records]
+        return [record.to_staff() for record in self._records], False
 
     async def get(self, order_id: UUID):
         found = self._find(order_id)

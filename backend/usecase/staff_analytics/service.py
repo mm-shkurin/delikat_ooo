@@ -13,11 +13,13 @@ class StaffAnalyticsService:
 
     async def stats(self, actor: Account) -> StatsResult:
         await self._require_owner(actor)
-        return build_stats(await self._orders.list_all())
+        rows, _truncated = await self._orders.list_all()
+        return build_stats(rows)
 
     async def money(self, actor: Account) -> MoneyResult:
         await self._require_owner(actor)
-        return build_money(await self._orders.list_all())
+        rows, _truncated = await self._orders.list_all()
+        return build_money(rows)
 
     async def _require_owner(self, actor: Account) -> None:
         member = await self._staff.get_by_user_id(actor.id)

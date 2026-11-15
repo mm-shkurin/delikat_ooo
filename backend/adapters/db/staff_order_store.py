@@ -26,16 +26,17 @@ class PostgresStaffOrderStore:
         except (OperationalError, InterfaceError, DBAPIError) as exc:
             raise StoreUnavailable() from exc
 
-    async def list_all(self) -> list[StaffOrder]:
+    async def list_all(self) -> tuple[list[StaffOrder], bool]:
         async with self._open() as session:
             stmt = (
                 select(OrderRow)
                 .options(selectinload(OrderRow.lines))
                 .order_by(OrderRow.created_at.desc())
-                .limit(500)
+                .limit(501)
             )
-            rows = await session.scalars(stmt)
-            return [_to_staff(row) for row in rows]
+            rows = list(await session.scalars(stmt))
+            truncated = len(rows) > 500
+            return [_to_staff(row) for row in rows[:500]], truncated
 
     async def get(self, order_id: UUID) -> StaffOrder | None:
         async with self._open() as session:

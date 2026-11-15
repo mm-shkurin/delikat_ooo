@@ -79,7 +79,7 @@ async def test_staff_lists_every_order_newest_first_without_phone(role: StaffRol
     book.seed(created_at=_T0, order_id=older_id, customer_note="позвонить", lines=(_line("rib"),))
     book.seed(created_at=_LATER, order_id=newer_tie, buyer_email=None, lines=(_line("fat"),))
     book.seed(created_at=_LATER, order_id=newer_first, buyer_name="Ада", buyer_email="ada@shop.test")
-    rows = await staff.list_orders(actor)
+    rows, _truncated = await staff.list_orders(actor)
     assert [row.order_id for row in rows] == [newer_first, newer_tie, older_id]
     assert rows[0].buyer_name == "Ада"
     assert rows[0].buyer_email == "ada@shop.test"
@@ -121,7 +121,7 @@ async def test_checkout_stores_buyer_once_and_hides_it_from_receipt():
     receipt = await cart.create_order(guest, idempotency_key=uuid4(), customer_note=None)
     assert receipt.status == "accepted"
     assert "buyer_name" not in OrderCreated.__dataclass_fields__
-    guest_card = (await staff.list_orders(actor))[0]
+    guest_card = (await staff.list_orders(actor))[0][0]
     assert guest_card.buyer_name == "Гость"
     assert guest_card.buyer_email is None
 
@@ -131,7 +131,7 @@ async def test_checkout_stores_buyer_once_and_hides_it_from_receipt():
     blank = str(uuid4())
     await _fill(cart, blank)
     await cart.create_order(blank, idempotency_key=uuid4(), customer_note=None, access_token="blank")
-    cards = {row.buyer_email: row for row in await staff.list_orders(actor)}
+    cards = {row.buyer_email: row for row in (await staff.list_orders(actor))[0]}
     assert cards["ada@shop.test"].buyer_name == "Ада"
     assert cards["blank@shop.test"].buyer_name == "Гость"
     assert cards[None].buyer_name == "Гость"
@@ -145,7 +145,7 @@ async def test_repeat_checkout_key_returns_staff_status_and_original_message():
     await _fill(cart, session)
     key = uuid4()
     first = await cart.create_order(session, idempotency_key=key, customer_note="у двери")
-    card = (await staff.list_orders(actor))[0]
+    card = (await staff.list_orders(actor))[0][0]
     await staff.set_status(actor, card.order_id, "cancelled")
     again = await cart.create_order(session, idempotency_key=key, customer_note="другое", access_token="live")
     assert again.status == "cancelled"

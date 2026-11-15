@@ -55,10 +55,10 @@ async def test_bad_token_does_not_create_or_rewrite_an_order():
     await _fill(cart, session)
     with pytest.raises(Unauthorized):
         await cart.create_order(session, idempotency_key=uuid4(), customer_note=None, access_token="dead")
-    assert await staff.list_orders(actor) == []
+    assert (await staff.list_orders(actor))[0] == []
     key = uuid4()
     await cart.create_order(session, idempotency_key=key, customer_note=None, access_token="live")
-    card = (await staff.list_orders(actor))[0]
+    card = (await staff.list_orders(actor))[0][0]
     await staff.set_status(actor, card.order_id, "packing")
     with pytest.raises(Unauthorized):
         await cart.create_order(session, idempotency_key=key, customer_note=None, access_token="dead")
@@ -88,7 +88,7 @@ async def test_legacy_order_reads_as_guest_and_lines_keep_creation_order():
         lines=(first, second),
         fulfillment=Fulfillment(mode="delivery", address=DeliveryAddress(city="Омск", street_line="Ленина 10")),
     )
-    rows = await staff.list_orders(actor)
+    rows, _truncated = await staff.list_orders(actor)
     assert rows[1].buyer_name == "Гость"
     assert rows[1].buyer_email is None
     assert [line.product_id for line in rows[0].lines] == ["rib", "fat"]

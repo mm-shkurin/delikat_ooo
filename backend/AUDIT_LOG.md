@@ -92,3 +92,12 @@
 - image.read unbounded before size check; ilike wildcard not escaped
 - tzdata missing; pytest skips adapters/http/tests; CI skips Ruff + some tests
 - README/CHANGELOG stale past stories 09–10; no structured logging / OAuth rate limit
+## Iteration 6 — Score: 2.5 / 3.0 — 2026-11-15 — 30b7a3f
+### Fixed Issues:
+- ILIKE escape; capped image read; order status FOR UPDATE re-check
+- Staff*Forbidden share Forbidden base; tzdata; pytest paths; CI Ruff
+- README/CHANGELOG staff 12–17
+### Outstanding Blockers:
+- silent 500-order analytics truncation; unbounded staff product list
+- CI ignores live OAuth/HTTP tests; no adapter DB integration tests
+- OAuth rate limit; WS path doc mismatch; JWT refresh in JSON body

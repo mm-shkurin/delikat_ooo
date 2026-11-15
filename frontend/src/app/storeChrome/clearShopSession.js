@@ -4,7 +4,7 @@ import { currentSession, endSession } from '../../shared/session/authSession'
 import { FULFILLMENT_STORAGE_KEY } from './logic/fulfillmentView'
 
 /**
- * Full client reset: JWT (localStorage), guest cookie, local fulfillment.
+ * Full client reset: JWT (sessionStorage), guest cookie, local fulfillment.
  * Server httpOnly JWT cookies are out of scope until the backend ships them.
  * @param {{ onLocalReset?: () => void }} [options]
  */

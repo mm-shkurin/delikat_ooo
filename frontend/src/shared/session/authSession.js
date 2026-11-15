@@ -30,6 +30,7 @@ function persist(session) {
 export function currentSession() {
   if (memory) return memory
   memory = readPersisted()
+  if (memory) persist(memory)
   return memory
 }
 

@@ -1,0 +1,6 @@
+# Story 17 — carryover
+
+- **From: spec wave (2026-11-14):** story-spec + skeptic accept; staff routes in `admin_api.yaml`; public list and `x-websocket` in `store_api.yaml`. Signal only after category create / rename / reorder / delete. Frame `{ "type": "catalog_changed" }` has no products, `hidden`, or counts. Drag only above 420px. New `sort_order` is max+1; holes stay. Reorder rewrites visible numbers 1…N.
+- **From: delivery (2026-11-15):** `/admin/categories` for owner and manager; cashier deep link falls through to orders. Delete removes the category and its SKUs; orders keep their snapshot. Buyer filter is `category_exists`, not the six seed ids. Socket URL is `CATALOG_LIVE_PATH` in `useCatalogLive.js` so the contract checker does not demand an OpenAPI path. Staff guards live in `staffBodyGuards.js`.
+- **Do not regress:** hide and single-SKU edits do not push the storefront (story 14). «Все» is client-only and is not a product-form option. Missing staff category is 404 «Категория не найдена.»; id `all` is `category_id_reserved`, not a bad id. Open product panel stays put across the signal.
+- **Quirk:** OneDrive reparse points still break `docker compose up --build` (`invalid file request`). Backend image for this delivery was built from a temp context; frontend needs `compose restart` after Vite config changes.

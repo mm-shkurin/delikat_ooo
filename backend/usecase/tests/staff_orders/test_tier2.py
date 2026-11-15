@@ -8,7 +8,7 @@ from usecase.account.errors import Unauthorized
 from usecase.staff_orders.errors import InvalidOrderId, InvalidOrderStatus, OrderNotFound
 from usecase.staff_orders.validation import parse_order_id, parse_status_body
 from usecase.tests.staff_orders.test_tier1 import _T0, _fill, _line, _services
-from usecase.tests.staff_orders.fakes import MapBuyers
+from usecase.tests.staff_orders.helpers import MapBuyers
 
 _EARLIER = datetime(2026, 11, 1, tzinfo=UTC)
 

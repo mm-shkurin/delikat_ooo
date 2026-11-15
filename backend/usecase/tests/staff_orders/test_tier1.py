@@ -13,7 +13,8 @@ from usecase.staff_orders.errors import InvalidStatusTransition, StaffOrdersForb
 from usecase.staff_orders.service import StaffOrdersService
 from usecase.tests.cart.fakes import FakeCatalogForCart
 from usecase.tests.staff.fakes import FakeStaffStore
-from usecase.tests.staff_orders.fakes import MapBuyers, OrderBook, make_account, staff_field_names
+from usecase.tests.staff_orders.fakes import OrderBook
+from usecase.tests.staff_orders.helpers import MapBuyers, make_account, staff_field_names
 
 _T0 = datetime(2026, 11, 14, 10, 0, tzinfo=UTC)
 _LATER = datetime(2026, 11, 14, 12, 0, tzinfo=UTC)

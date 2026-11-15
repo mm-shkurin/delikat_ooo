@@ -20,9 +20,9 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 11 | Мокап кабинета staff | mock | `site/` | · | x | `site/admin/` roles+tabs; prod → **12–16** |
+| 11 | Мокап кабинета staff | mock | `site/` | · | x | `site/admin/`; ветка влита в `main` (12–17) |
 
-План дробления: [`WAVE-3-ADMIN.md`](./WAVE-3-ADMIN.md).
+План дробления: [`WAVE-3-ADMIN.md`](./WAVE-3-ADMIN.md). Wave 3–5 (**12–17**) закрыты и в `main`.
 
 ## Done — Wave 3 (staff shell)
 

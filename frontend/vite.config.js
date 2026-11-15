@@ -12,7 +12,9 @@ export default defineConfig(({ command, mode }) => {
       host,
       port,
       strictPort: true,
-      proxy: serving ? { '/api': { target: proxyTarget(env), changeOrigin: true } } : undefined,
+      proxy: serving
+        ? { '/api': { target: proxyTarget(env), changeOrigin: true, ws: true } }
+        : undefined,
     },
     preview: {
       host,

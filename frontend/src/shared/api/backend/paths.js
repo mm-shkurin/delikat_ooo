@@ -35,6 +35,10 @@ export const BACKEND = {
       `${V1}/staff/catalog/products/${encodeURIComponent(productId)}`,
     catalogProductImage: (productId) =>
       `${V1}/staff/catalog/products/${encodeURIComponent(productId)}/image`,
+    catalogCategories: `${V1}/staff/catalog/categories`,
+    catalogCategoryOrder: `${V1}/staff/catalog/categories/order`,
+    catalogCategory: (categoryId) =>
+      `${V1}/staff/catalog/categories/${encodeURIComponent(categoryId)}`,
   },
   media: {
     product: (productId) => `${V1}/media/products/${encodeURIComponent(productId)}`,

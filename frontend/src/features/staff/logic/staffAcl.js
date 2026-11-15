@@ -1,10 +1,10 @@
 /** @typedef {'owner' | 'manager' | 'cashier'} StaffRole */
-/** @typedef {'catalog' | 'orders' | 'stats' | 'money' | 'employees'} StaffTab */
+/** @typedef {'catalog' | 'categories' | 'orders' | 'stats' | 'money' | 'employees'} StaffTab */
 
 /** @type {Record<StaffRole, StaffTab[]>} */
 export const ROLE_TABS = {
-  owner: ['catalog', 'orders', 'stats', 'money', 'employees'],
-  manager: ['catalog', 'orders', 'employees'],
+  owner: ['catalog', 'categories', 'orders', 'stats', 'money', 'employees'],
+  manager: ['catalog', 'categories', 'orders', 'employees'],
   cashier: ['orders'],
 }
 
@@ -18,6 +18,7 @@ export const ROLE_LABELS = {
 /** @type {Record<StaffTab, string>} */
 export const TAB_LABELS = {
   catalog: 'Каталог',
+  categories: 'Категории',
   orders: 'Заказы',
   stats: 'Статистика',
   money: 'Деньги',

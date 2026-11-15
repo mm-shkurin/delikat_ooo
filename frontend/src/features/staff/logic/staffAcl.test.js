@@ -12,6 +12,7 @@ describe('staffAcl', () => {
   it('owner sees full tab set including employees', () => {
     expect(tabsForRole('owner')).toEqual([
       'catalog',
+      'categories',
       'orders',
       'stats',
       'money',
@@ -24,10 +25,11 @@ describe('staffAcl', () => {
   })
 
   it('manager sees catalog, orders, employees — not stats or money', () => {
-    expect(tabsForRole('manager')).toEqual(['catalog', 'orders', 'employees'])
+    expect(tabsForRole('manager')).toEqual(['catalog', 'categories', 'orders', 'employees'])
   })
 
   it('deep-link to forbidden tab resolves to first allowed', () => {
+    expect(resolveAllowedTab('cashier', 'categories')).toBe('orders')
     expect(resolveAllowedTab('cashier', 'catalog')).toBe('orders')
     expect(resolveAllowedTab('cashier', 'employees')).toBe('orders')
     expect(resolveAllowedTab('manager', 'money')).toBe('catalog')

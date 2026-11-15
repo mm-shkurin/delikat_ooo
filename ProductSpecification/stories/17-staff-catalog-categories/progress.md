@@ -12,16 +12,16 @@
 
 ## Front (frontend/)
 
-- [ ] implement
-- [ ] refactor
-- [ ] check
+- [x] implement
+- [x] refactor — n/a, новые файлы короче лимита; `bodyGuards.js` уже был длиннее 200
+- [x] check — вкладка, создание, порядок, сокет, пустая категория, узкое окно
 
 ## Back (backend/)
 
-- [ ] implement
-- [ ] refactor
-- [ ] contract tests
+- [x] implement
+- [x] refactor — n/a, файлы короче лимита
+- [x] contract tests — pytest usecase + `check_api_contract.py`
 
 ## Close
 
-- [ ] progress + stories.md update
+- [x] progress + stories.md update

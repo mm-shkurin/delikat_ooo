@@ -16,6 +16,8 @@ const BY_CODE = {
   validation_error: 'Проверьте введённые данные.',
   product_id_taken: 'Такой код товара уже есть.',
   category_not_found: 'Категория не найдена.',
+  category_id_taken: 'Такая категория уже есть.',
+  category_id_reserved: 'Код all занят кнопкой «Все».',
 }
 
 const GENERIC = 'Не получилось. Попробуйте ещё раз.'

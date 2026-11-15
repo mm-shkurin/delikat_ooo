@@ -1,0 +1,1 @@
+"""Staff catalog category writes."""

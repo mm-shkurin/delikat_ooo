@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ConfigDict
 
 from usecase.catalog.queries import ProductListQuery
@@ -96,6 +96,17 @@ async def get_product(product_id: str, request: Request) -> ProductDetailRespons
         weight_options=list(service.weight_options_for(row)),
         description=service.description_for(row),
     )
+
+
+@router.websocket("/catalog/live")
+async def catalog_live(socket: WebSocket) -> None:
+    hub = socket.app.state.ctx.catalog_live
+    await hub.connect(socket)
+    try:
+        while True:
+            await socket.receive_text()
+    except WebSocketDisconnect:
+        hub.disconnect(socket)
 
 
 def _summary(row) -> ProductSummaryResponse:

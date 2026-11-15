@@ -28,7 +28,11 @@ class PostgresCatalogStore:
 
     async def list_categories(self) -> list[Category]:
         async with self._open() as session:
-            rows = (await session.scalars(select(CategoryRow).order_by(CategoryRow.sort_order))).all()
+            rows = (
+                await session.scalars(
+                    select(CategoryRow).order_by(CategoryRow.sort_order, CategoryRow.id)
+                )
+            ).all()
             return [row.to_domain() for row in rows]
 
     async def list_products(self, query: ProductListQuery) -> ProductListResult:

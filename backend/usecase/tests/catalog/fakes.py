@@ -15,6 +15,9 @@ class FakeCatalogRepository:
     async def list_categories(self) -> list[Category]:
         return list(self._categories)
 
+    async def category_exists(self, category_id: str) -> bool:
+        return any(row.id == category_id for row in self._categories)
+
     async def list_products(self, query: ProductListQuery) -> ProductListResult:
         return apply_product_list(self._products, query)
 

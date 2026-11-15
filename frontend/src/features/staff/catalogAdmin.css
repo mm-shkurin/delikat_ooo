@@ -223,6 +223,27 @@
   resize: vertical;
 }
 
+.admin-cat-list {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.admin-cat {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: center;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+}
+
+.admin-cat[draggable='true'] { cursor: grab; }
+
 @media (max-width: 420px) {
   .admin-sku {
     grid-template-columns: 56px minmax(0, 1fr);

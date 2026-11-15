@@ -26,6 +26,7 @@ from usecase.staff_catalog.errors import ProductIdTaken
 from usecase.staff_catalog.errors import StaffCatalogForbidden
 from usecase.staff_catalog.errors import StaffCatalogValidation
 from usecase.staff_catalog.errors import StaffProductNotFound
+from usecase.staff_categories.errors import StaffCategoryFailure, StaffCategoryForbidden
 
 _UNAUTHORIZED = {"code": "unauthorized", "message": "Credentials are not valid"}
 _SESSION_REQUIRED = {"code": "unauthorized", "message": "Shop session is required"}
@@ -73,11 +74,20 @@ def register_errors(app: FastAPI) -> None:
     app.add_exception_handler(CategoryNotFound, _status(400, _CATEGORY_NOT_FOUND))
     app.add_exception_handler(StaffForbidden, _status(403, _FORBIDDEN))
     app.add_exception_handler(StaffCatalogForbidden, _status(403, _FORBIDDEN))
+    app.add_exception_handler(StaffCategoryForbidden, _status(403, _FORBIDDEN))
+    app.add_exception_handler(StaffCategoryFailure, _category_failure)
     app.add_exception_handler(OwnerImmutable, _status(403, _OWNER_IMMUTABLE))
     app.add_exception_handler(InvalidDisplayName, _status(422, _INVALID_DISPLAY_NAME))
     app.add_exception_handler(StoreUnavailable, _status(503, _UNAVAILABLE))
     app.add_exception_handler(RequestValidationError, _status(400, _INVALID_REQUEST))
     app.add_exception_handler(Exception, _status(500, _FINISHED, log_error=True))
+
+
+async def _category_failure(_request: Request, exc: StaffCategoryFailure) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status,
+        content={"code": exc.code, "message": exc.message},
+    )
 
 
 def _status(status: int, body: dict, *, log_error: bool = False):

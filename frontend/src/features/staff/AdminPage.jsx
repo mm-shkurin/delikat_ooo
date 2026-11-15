@@ -3,6 +3,7 @@ import { AdminGate } from './components/AdminGate'
 import { AdminHeader } from './components/AdminHeader'
 import { AdminTabs } from './components/AdminTabs'
 import { CatalogPanel } from './components/CatalogPanel'
+import { CategoriesPanel } from './components/CategoriesPanel'
 import { EmployeesPanel } from './components/EmployeesPanel'
 import { MoneyShell, OrdersShell, StatsShell } from './components/ShellPanels'
 import { useAdminPage } from './useAdminPage'
@@ -28,6 +29,7 @@ export function AdminPage() {
       <AdminTabs role={page.me.role} activeTab={page.tab} onSelect={page.setTab} />
       <main className="admin-wrap">
         {page.tab === 'catalog' ? <CatalogPanel /> : null}
+        {page.tab === 'categories' ? <CategoriesPanel /> : null}
         {page.tab === 'orders' ? <OrdersShell /> : null}
         {page.tab === 'stats' ? <StatsShell /> : null}
         {page.tab === 'money' ? <MoneyShell /> : null}

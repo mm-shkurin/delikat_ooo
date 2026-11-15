@@ -9,6 +9,8 @@ from adapters.cache.redis_revocations import RedisRevocations
 from adapters.db.account_store import PostgresAccountStore
 from adapters.db.cart_store import PostgresCartStore
 from adapters.db.catalog_store import PostgresCatalogStore
+from adapters.db.category_store import PostgresStaffCategoryStore
+from adapters.live.catalog_hub import CatalogLiveHub
 from adapters.db.session import create_db_engine, create_session_factory
 from adapters.db.staff_store import PostgresStaffStore
 from adapters.oauth.fake import FakeOAuthProvider
@@ -22,6 +24,7 @@ from usecase.cart.service import CartService
 from usecase.catalog.service import CatalogService
 from usecase.staff.service import StaffService
 from usecase.staff_catalog.service import StaffCatalogService
+from usecase.staff_categories.service import StaffCategoryService
 
 
 @dataclass
@@ -43,6 +46,8 @@ class AppContext:
     cart: CartService
     staff: StaffService
     staff_catalog: StaffCatalogService
+    staff_categories: StaffCategoryService
+    catalog_live: CatalogLiveHub
     redis: Redis
 
 
@@ -83,6 +88,12 @@ def build_context(settings: Settings) -> AppContext:
     catalog = CatalogService(catalog_store)
     cart = CartService(PostgresCartStore(session_factory), catalog_store)
     staff_catalog = StaffCatalogService(staff_store, catalog_store)
+    catalog_live = CatalogLiveHub()
+    staff_categories = StaffCategoryService(
+        staff_store,
+        PostgresStaffCategoryStore(session_factory),
+        catalog_live,
+    )
     return AppContext(
         settings=settings,
         engine=engine,
@@ -95,6 +106,8 @@ def build_context(settings: Settings) -> AppContext:
         cart=cart,
         staff=staff,
         staff_catalog=staff_catalog,
+        staff_categories=staff_categories,
+        catalog_live=catalog_live,
         redis=redis,
     )
 

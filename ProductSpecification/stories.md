@@ -42,11 +42,11 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 |---|-------|------|-------|------|-------|-------|
 | 14 | Витрина = тот же каталог (hide/badges) | x | x | x | x | panel «товар не найден»; `?product=` deep link |
 
-## Backlog — Wave 3 (catalog staff)
+## Done — Wave 3 (catalog categories)
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 17 | Staff: категории каталога (CRUD + порядок) | · | · | · | · | после 13; sort_order на витрине |
+| 17 | Staff: категории каталога (CRUD + порядок) | x | x | x | x | `/admin/categories`; WS `catalog_changed` |
 
 ## Backlog — Wave 4 (orders staff)
 

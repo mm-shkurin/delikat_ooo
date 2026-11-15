@@ -221,3 +221,11 @@ export function isStaffProductBody(value) {
 export function isStaffProductListBody(value) {
   return isRecord(value) && Array.isArray(value.items) && value.items.every(isStaffProductBody)
 }
+
+export function isStaffCategoryBody(value) {
+  return isCategoryBody(value) && typeof value.product_count === 'number'
+}
+
+export function isStaffCategoryListBody(value) {
+  return isRecord(value) && Array.isArray(value.items) && value.items.every(isStaffCategoryBody)
+}

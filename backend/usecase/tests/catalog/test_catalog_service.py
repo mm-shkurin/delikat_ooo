@@ -157,6 +157,9 @@ async def test_list_products_delegates_the_validated_query():
             seen["query"] = query
             return ProductListResult(items=(), total_count=0, limit=query.limit, offset=query.offset)
 
+        async def category_exists(self, category_id: str) -> bool:
+            return True
+
         async def get_product(self, product_id: str):
             return None
 

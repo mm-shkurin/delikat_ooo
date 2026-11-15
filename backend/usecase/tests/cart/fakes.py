@@ -105,6 +105,9 @@ class FakeCatalogForCart:
     async def list_categories(self):
         return []
 
+    async def category_exists(self, category_id: str) -> bool:
+        return any(row.category_id == category_id for row in self._products.values())
+
     async def list_products(self, query: ProductListQuery) -> ProductListResult:
         return apply_product_list(list(self._products.values()), query)
 

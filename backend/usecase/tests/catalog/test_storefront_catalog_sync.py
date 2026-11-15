@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import pytest
 
+from domain.catalog.category import Category
 from domain.catalog.product import Product
 from usecase.cart.service import CartService
 from usecase.catalog.errors import ProductNotFound
@@ -99,7 +100,8 @@ async def test_staff_name_price_edits_appear_on_buyer_list():
 async def test_filters_and_empty_pages_count_only_live():
     service = CatalogService(
         FakeCatalogRepository(
-            products=[_product("gone", category_id="sauce", hidden=True)]
+            categories=[Category(id="sauce", title="Соусы", sort_order=6)],
+            products=[_product("gone", category_id="sauce", hidden=True)],
         )
     )
 

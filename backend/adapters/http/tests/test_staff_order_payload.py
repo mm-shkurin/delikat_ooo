@@ -1,9 +1,9 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from adapters.http.staff_order_payload import staff_order_payload
 from domain.cart.models import DeliveryAddress, Fulfillment, OrderLineSnapshot
 from domain.cart.staff_order import StaffOrder
-from adapters.http.staff_order_payload import staff_order_payload
 
 
 def test_staff_order_payload_has_card_fields_and_no_phone():

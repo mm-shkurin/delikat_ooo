@@ -6,7 +6,7 @@ permissions:
 
 on:
   push:
-    branches: [dev, main, 'features/**']
+    branches: [dev, main, 'feature/**', 'features/**']
   pull_request:
   workflow_dispatch:
 
@@ -46,10 +46,13 @@ jobs:
       - name: Install backend
         working-directory: backend
         run: pip install -r requirements.txt
+      - name: Ruff
+        working-directory: backend
+        run: ruff check .
       - name: Hermetic pytest
         working-directory: backend
         run: >
-          pytest usecase/tests -q
+          pytest -q
           --ignore=usecase/tests/test_oauth_fake.py
           --ignore=usecase/tests/test_catalog_http_validation.py
 
@@ -64,4 +67,4 @@ jobs:
           node-version: '22'
       - name: Test
         working-directory: frontend
-        run: npm ci && npm test && npm run lint
+        run: npm ci && npm run ci

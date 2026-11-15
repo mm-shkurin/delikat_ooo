@@ -11,12 +11,12 @@ from adapters.http.auth_router import router as auth_router
 from adapters.http.cart_router import router as cart_router
 from adapters.http.catalog_router import router as catalog_router
 from adapters.http.errors import register_errors
+from adapters.http.media_router import router as media_router
 from adapters.http.orders_router import router as orders_router
 from adapters.http.sessions_router import router as sessions_router
-from adapters.http.media_router import router as media_router
+from adapters.http.staff_analytics_router import router as staff_analytics_router
 from adapters.http.staff_catalog_router import router as staff_catalog_router
 from adapters.http.staff_category_router import router as staff_category_router
-from adapters.http.staff_analytics_router import router as staff_analytics_router
 from adapters.http.staff_orders_router import router as staff_orders_router
 from adapters.http.staff_router import router as staff_router
 from application.context import AppContext, build_context

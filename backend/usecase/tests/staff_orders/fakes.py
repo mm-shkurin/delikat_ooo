@@ -145,7 +145,8 @@ class OrderBook:
         order_id: UUID | None = None,
         fulfillment: Fulfillment | None = None,
     ):
-        from domain.cart.models import DeliveryAddress, Fulfillment as FulfillmentModel
+        from domain.cart.models import DeliveryAddress
+        from domain.cart.models import Fulfillment as FulfillmentModel
 
         chosen = fulfillment or FulfillmentModel(
             mode="pickup",

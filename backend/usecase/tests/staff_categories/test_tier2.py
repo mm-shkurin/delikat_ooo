@@ -1,5 +1,6 @@
 import pytest
 
+from domain.catalog.category import Category
 from domain.staff.role import StaffRole
 from usecase.catalog.errors import InvalidCatalogQuery
 from usecase.catalog.queries import ProductListQuery
@@ -17,7 +18,6 @@ from usecase.staff_categories.errors import (
 )
 from usecase.tests.catalog.fakes import FakeCatalogRepository
 from usecase.tests.staff_categories.helpers import buyer, opened, product, seed_categories
-from domain.catalog.category import Category
 
 
 @pytest.mark.asyncio

@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from datetime import timedelta
 from secrets import token_urlsafe
-from urllib.parse import urlencode
-
 from typing import Protocol
+from urllib.parse import urlencode
 
 from domain.account.account import Account
 from usecase.account.errors import OAuthFailed, Unauthorized

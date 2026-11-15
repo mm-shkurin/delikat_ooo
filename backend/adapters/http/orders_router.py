@@ -4,8 +4,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Header, Request
 from pydantic import BaseModel, ConfigDict, Field
 
-from adapters.http.shop_session import require_shop_session
 from adapters.http.deps import optional_access_token
+from adapters.http.shop_session import require_shop_session
 from domain.cart.models import OrderCreated
 from usecase.cart.errors import InvalidIdempotencyKey
 from usecase.cart.service import CartService

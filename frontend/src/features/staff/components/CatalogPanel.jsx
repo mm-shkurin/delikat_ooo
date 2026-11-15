@@ -1,4 +1,5 @@
 import '../catalogAdmin.css'
+import '../catalogAdmin-more.css'
 import { useCatalogPanel } from '../useCatalogPanel'
 import { CatalogEditor } from './CatalogEditor'
 import { CatalogSkuRow } from './CatalogSkuRow'

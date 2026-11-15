@@ -18,6 +18,21 @@ export function removeLocalStorage(key) {
   if (isBrowser()) localStorage.removeItem(key)
 }
 
+/** @param {string} key */
+export function readSessionStorage(key) {
+  return isBrowser() ? sessionStorage.getItem(key) : null
+}
+
+/** @param {string} key @param {string} value */
+export function writeSessionStorage(key, value) {
+  if (isBrowser()) sessionStorage.setItem(key, value)
+}
+
+/** @param {string} key */
+export function removeSessionStorage(key) {
+  if (isBrowser()) sessionStorage.removeItem(key)
+}
+
 /** @param {string} name @param {string} value */
 export function setDocumentAttribute(name, value) {
   if (isBrowser()) document.documentElement.setAttribute(name, value)

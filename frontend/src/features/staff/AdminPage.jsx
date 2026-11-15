@@ -10,6 +10,7 @@ import { OrdersPanel } from './components/OrdersPanel'
 import { StatsPanel } from './components/StatsPanel'
 import { useAdminPage } from './useAdminPage'
 import '../../styles/admin.css'
+import '../../styles/admin-more.css'
 
 export function AdminPage() {
   useRouteBodyClass('route-admin')

@@ -1,21 +1,36 @@
-import { readLocalStorage, removeLocalStorage, writeLocalStorage } from '../browser/dom'
+import {
+  readLocalStorage,
+  readSessionStorage,
+  removeLocalStorage,
+  removeSessionStorage,
+  writeSessionStorage,
+} from '../browser/dom'
 
 const STORAGE_KEY = 'delikat.auth'
 
 let memory = null
 
-export function currentSession() {
-  if (memory) return memory
+function readPersisted() {
   try {
-    const raw = readLocalStorage(STORAGE_KEY)
+    const raw = readSessionStorage(STORAGE_KEY) || readLocalStorage(STORAGE_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw)
     if (typeof parsed?.accessToken !== 'string') return null
-    memory = parsed
-    return memory
+    return parsed
   } catch {
     return null
   }
+}
+
+function persist(session) {
+  writeSessionStorage(STORAGE_KEY, JSON.stringify(session))
+  removeLocalStorage(STORAGE_KEY)
+}
+
+export function currentSession() {
+  if (memory) return memory
+  memory = readPersisted()
+  return memory
 }
 
 export function beginSession(tokens) {
@@ -24,7 +39,7 @@ export function beginSession(tokens) {
     refreshToken: tokens.refresh_token,
     expiresAtMs: Date.now() + Number(tokens.expires_in_sec || 0) * 1000,
   }
-  writeLocalStorage(STORAGE_KEY, JSON.stringify(memory))
+  persist(memory)
 }
 
 export function renewTokens(accessToken, refreshToken, expiresInSec) {
@@ -37,18 +52,19 @@ export function renewTokens(accessToken, refreshToken, expiresInSec) {
     expiresAtMs:
       expiresInSec == null ? session.expiresAtMs : Date.now() + Number(expiresInSec) * 1000,
   }
-  writeLocalStorage(STORAGE_KEY, JSON.stringify(memory))
+  persist(memory)
 }
 
-/** True when access token is missing or within 60s of expiry. */
+/** True when access token is missing, has no expiry, or is within 60s of expiry. */
 export function accessExpiringSoon(nowMs = Date.now()) {
   const session = currentSession()
   if (!session?.accessToken) return true
-  if (typeof session.expiresAtMs !== 'number') return false
+  if (typeof session.expiresAtMs !== 'number') return true
   return session.expiresAtMs - nowMs <= 60_000
 }
 
 export function endSession() {
   memory = null
+  removeSessionStorage(STORAGE_KEY)
   removeLocalStorage(STORAGE_KEY)
 }

@@ -24,7 +24,7 @@ npm run dev
 
 API — hex backend на `VITE_API_PROXY_TARGET`. Контракт: `ProductSpecification/api-specs/store_api.yaml`.
 
-Staff JWT (access + refresh) сейчас в `localStorage` (`delikat.auth`) — промежуточное решение до httpOnly cookie; любой XSS крадёт сессию.
+Staff JWT (access + refresh) сейчас в `sessionStorage` (`delikat.auth`; legacy `localStorage` cleared on write) — промежуточное решение до httpOnly cookie; XSS в вкладке всё ещё крадёт сессию.
 
 ## Структура (по фичам)
 

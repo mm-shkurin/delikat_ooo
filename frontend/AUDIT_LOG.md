@@ -139,3 +139,9 @@
 - held ≥2.5; UnexpectedBodyError no longer retains body; shared useUnmountSignal; Prettier format:check in ci
 ### Outstanding Blockers:
 - widgets→features residual; thin RTL; author email typo (historical)
+
+## Iteration 16 — Score: 2.5 / 3.0 — 2026-11-15 — 2d8a712
+### Fixed Issues:
+- CSS under 200 lines; timing config; storage via browser helpers; README widgets layer
+### Outstanding Blockers:
+- Stage A ceiling 2.5 (FSD/RTL); GIT-* historical; SMELL-LONG-FUNC/DUPLICATION

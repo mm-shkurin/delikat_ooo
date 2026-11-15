@@ -20,7 +20,7 @@ export function useAuthChrome() {
     setProfileBusy(true)
     try {
       const body = await getMe()
-      markCookieSession(3600)
+      if (!currentSession()) markCookieSession(3600)
       const view = profileToView(body)
       setUserProfile(view)
       setSignedIn(true)

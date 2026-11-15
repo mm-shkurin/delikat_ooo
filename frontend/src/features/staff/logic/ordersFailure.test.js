@@ -11,16 +11,20 @@ function httpError(status, errorCode, message) {
 
 describe('ordersFailureText', () => {
   it('keeps transition, missing order, and role copy distinct from the generic failure', () => {
-    expect(ordersFailureText(httpError(409, 'invalid_status_transition', 'Этот статус отсюда не поставить.'))).toBe(
-      'Этот статус отсюда не поставить.',
+    expect(
+      ordersFailureText(
+        httpError(409, 'invalid_status_transition', 'Этот статус отсюда не поставить.'),
+      ),
+    ).toBe('Этот статус отсюда не поставить.')
+    expect(ordersFailureText(httpError(404, 'order_not_found', 'Заказ не найден.'))).toBe(
+      'Заказ не найден.',
     )
-    expect(ordersFailureText(httpError(404, 'order_not_found', 'Заказ не найден.'))).toBe('Заказ не найден.')
     expect(ordersFailureText(httpError(403, 'forbidden', 'Access is forbidden'))).toBe(
       'У этого аккаунта нет доступа в кабинет. Нужна роль сотрудника.',
     )
-    expect(ordersFailureText(httpError(400, 'validation_error', 'Некорректный номер заказа.'))).toBe(
-      'Некорректный номер заказа.',
-    )
+    expect(
+      ordersFailureText(httpError(400, 'validation_error', 'Некорректный номер заказа.')),
+    ).toBe('Некорректный номер заказа.')
     expect(ordersFailureText(httpError(500, 'internal_error', 'boom'))).toBe(
       'Не получилось. Попробуйте ещё раз.',
     )

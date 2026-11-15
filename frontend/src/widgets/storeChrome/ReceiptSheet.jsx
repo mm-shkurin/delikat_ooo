@@ -6,7 +6,13 @@
  */
 export function ReceiptSheet({ chrome, order }) {
   return (
-    <div className="panel drawer" id="receipt" role="dialog" aria-modal="true" aria-labelledby="receipt-title">
+    <div
+      className="panel drawer"
+      id="receipt"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="receipt-title"
+    >
       <button className="close" type="button" aria-label="Закрыть" onClick={chrome.closeLayers}>
         ×
       </button>

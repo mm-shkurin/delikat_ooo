@@ -41,11 +41,21 @@
   white-space: nowrap;
 }
 
-.order-pill[data-status='accepted'] { color: var(--text); }
-.order-pill[data-status='packing'] { color: var(--accent); }
-.order-pill[data-status='ready'] { color: var(--success); }
-.order-pill[data-status='done'] { color: var(--text-muted); }
-.order-pill[data-status='cancelled'] { color: var(--danger); }
+.order-pill[data-status='accepted'] {
+  color: var(--text);
+}
+.order-pill[data-status='packing'] {
+  color: var(--accent);
+}
+.order-pill[data-status='ready'] {
+  color: var(--success);
+}
+.order-pill[data-status='done'] {
+  color: var(--text-muted);
+}
+.order-pill[data-status='cancelled'] {
+  color: var(--danger);
+}
 
 .order-meta,
 .order-contact,
@@ -55,8 +65,13 @@
   margin: 0;
 }
 
-.order-total { font-weight: 800; }
-.order-count { margin-top: var(--space-3); color: var(--text-muted); }
+.order-total {
+  font-weight: 800;
+}
+.order-count {
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+}
 
 .order-lines {
   margin: 0;

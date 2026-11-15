@@ -10,7 +10,7 @@
     "test": "vitest run",
     "lint": "eslint src",
     "format:check": "prettier --check \"src/**/*.{js,jsx,css,json}\" \"*.json\"",
-    "ci": "npm run lint && vitest run && vite build"
+    "ci": "npm run lint && vitest run && vite build && npm run format:check"
   },
   "dependencies": {
     "react": "^19.1.1",

@@ -59,7 +59,9 @@ export function statusOptions(order) {
 }
 
 export function matchesQuery(order, raw) {
-  const query = String(raw ?? '').trim().toLowerCase()
+  const query = String(raw ?? '')
+    .trim()
+    .toLowerCase()
   if (!query) return true
   const id = String(order.order_id).toLowerCase()
   const parts = [id, order.buyer_name]

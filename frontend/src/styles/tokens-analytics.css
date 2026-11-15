@@ -37,7 +37,9 @@
   box-shadow: var(--shadow-card);
   padding: var(--space-4);
 }
-.chart-wide { grid-column: 1 / -1; }
+.chart-wide {
+  grid-column: 1 / -1;
+}
 .chart-card h2 {
   margin: 0;
   font-family: var(--font-display);
@@ -49,14 +51,21 @@
   color: var(--text-muted);
 }
 
-.donut-wrap { display: grid; gap: var(--space-4); }
+.donut-wrap {
+  display: grid;
+  gap: var(--space-4);
+}
 .donut-figure {
   position: relative;
   width: 168px;
   height: 168px;
   margin: 0 auto;
 }
-.donut { width: 168px; height: 168px; display: block; }
+.donut {
+  width: 168px;
+  height: 168px;
+  display: block;
+}
 .donut-center {
   position: absolute;
   inset: 0;
@@ -65,7 +74,9 @@
   text-align: center;
   pointer-events: none;
 }
-.donut-center strong { font-size: var(--text-sm); }
+.donut-center strong {
+  font-size: var(--text-sm);
+}
 .donut-center span {
   display: block;
   color: var(--text-muted);
@@ -91,14 +102,20 @@
   border-radius: 50%;
 }
 
-.bars { display: grid; gap: var(--space-3); }
+.bars {
+  display: grid;
+  gap: var(--space-3);
+}
 .bar-row {
   display: grid;
   grid-template-columns: 88px minmax(0, 1fr) 96px;
   gap: var(--space-3);
   align-items: center;
 }
-.bar-label { font-weight: 700; font-size: var(--text-xs); }
+.bar-label {
+  font-weight: 700;
+  font-size: var(--text-xs);
+}
 .bar-track {
   height: 14px;
   background: var(--tint);

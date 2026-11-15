@@ -1,109 +1,155 @@
-﻿    @media (max-width: 960px) {
-      .hero-main { grid-template-columns: 1fr; }
-      .hero-art { min-height: 280px; order: -1; }
-      .hero { padding-top: 100px; }
-      .logo-img { height: 36px; }
-    }
-    @media (max-width: 640px) {
-      .nav { inset: 12px 12px auto; }
-      .nav-bar { padding: 10px 12px; gap: 8px; border-radius: 22px; }
-      .nav-chip { display: none; }
-      .hero { padding-top: 88px; }
-    }
+﻿@media (max-width: 960px) {
+  .hero-main {
+    grid-template-columns: 1fr;
+  }
+  .hero-art {
+    min-height: 280px;
+    order: -1;
+  }
+  .hero {
+    padding-top: 100px;
+  }
+  .logo-img {
+    height: 36px;
+  }
+}
+@media (max-width: 640px) {
+  .nav {
+    inset: 12px 12px auto;
+  }
+  .nav-bar {
+    padding: 10px 12px;
+    gap: 8px;
+    border-radius: 22px;
+  }
+  .nav-chip {
+    display: none;
+  }
+  .hero {
+    padding-top: 88px;
+  }
+}
 
-    /* вЂ”вЂ” Smart packaging (2nd block) вЂ”вЂ” */
-    .pack {
-      position: relative;
-      overflow: hidden;
-      color: #fff;
-      padding: 72px 0 88px;
-      background:
-        radial-gradient(ellipse 55% 70% at 15% 20%, rgba(196, 30, 58, 0.35), transparent 60%),
-        radial-gradient(ellipse 50% 55% at 85% 55%, rgba(139, 26, 26, 0.28), transparent 55%),
-        linear-gradient(180deg, #1a1a1a 0%, #121212 50%, #0c0c0c 100%);
-    }
-    html[data-theme="wine"] .pack {
-      background:
-        radial-gradient(ellipse 55% 70% at 15% 20%, rgba(196, 30, 58, 0.45), transparent 60%),
-        radial-gradient(ellipse 50% 55% at 85% 55%, rgba(92, 16, 16, 0.5), transparent 55%),
-        linear-gradient(180deg, #2a0a0e 0%, #160608 55%, #0a0405 100%);
-    }
-    .pack-grid {
-      display: grid;
-      grid-template-columns: 0.75fr 1.45fr;
-      gap: 20px;
-      align-items: center;
-    }
-    .pack-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 14px; border-radius: 999px;
-      font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
-      color: #fff;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(196, 30, 58, 0.65);
-      box-shadow: 0 0 18px rgba(196, 30, 58, 0.25);
-      margin: 0 0 20px;
-    }
-    .pack h2 {
-      margin: 0 0 16px;
-      font-size: clamp(28px, 4vw, 44px);
-      line-height: 1.12;
-      letter-spacing: -0.02em;
-      font-weight: 800;
-      max-width: 16ch;
-    }
-    .pack-lead {
-      margin: 0 0 28px;
-      max-width: 42ch;
-      color: rgba(255,255,255,.72);
-      font-size: 16px;
-      line-height: 1.55;
-    }
-    .pack-features {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin: 0 0 32px;
-    }
-    .pack-feature {
-      display: grid; gap: 10px;
-      padding: 14px 12px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-    .pack-feature i {
-      width: 36px; height: 36px; border-radius: 10px;
-      display: grid; place-items: center;
-      background: rgba(196, 30, 58, 0.18);
-      border: 1px solid rgba(196, 30, 58, 0.35);
-      font-style: normal;
-    }
-    .pack-feature i svg { width: 16px; height: 16px; display: block; }
-    .pack-feature span {
-      font-size: 13px; font-weight: 700; line-height: 1.35;
-      color: rgba(255,255,255,.88);
-    }
-    .pack-cta {
-      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      min-height: 54px; padding: 0 26px; border-radius: 999px;
-      background: #f0e6dc; color: #0a0a0a;
-      font-weight: 800; font-size: 15px; border: 0;
-      box-shadow: 0 12px 32px rgba(0,0,0,.25);
-    }
-    .pack-cta:hover { filter: brightness(1.03); }
-    .pack-visual {
-      position: relative;
-      display: grid; place-items: center;
-      margin-right: -48px;
-      min-height: min(72vh, 720px);
-    }
-    .pack-visual img {
-      width: min(135%, 920px);
-      max-width: none;
-      height: auto;
-      display: block;
-      filter: drop-shadow(0 32px 64px rgba(0,0,0,.55));
-      transform: scale(1.12);
-      transform-origin: center right;
-    }
+/* вЂ”вЂ” Smart packaging (2nd block) вЂ”вЂ” */
+.pack {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  padding: 72px 0 88px;
+  background:
+    radial-gradient(ellipse 55% 70% at 15% 20%, rgba(196, 30, 58, 0.35), transparent 60%),
+    radial-gradient(ellipse 50% 55% at 85% 55%, rgba(139, 26, 26, 0.28), transparent 55%),
+    linear-gradient(180deg, #1a1a1a 0%, #121212 50%, #0c0c0c 100%);
+}
+html[data-theme='wine'] .pack {
+  background:
+    radial-gradient(ellipse 55% 70% at 15% 20%, rgba(196, 30, 58, 0.45), transparent 60%),
+    radial-gradient(ellipse 50% 55% at 85% 55%, rgba(92, 16, 16, 0.5), transparent 55%),
+    linear-gradient(180deg, #2a0a0e 0%, #160608 55%, #0a0405 100%);
+}
+.pack-grid {
+  display: grid;
+  grid-template-columns: 0.75fr 1.45fr;
+  gap: 20px;
+  align-items: center;
+}
+.pack-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(196, 30, 58, 0.65);
+  box-shadow: 0 0 18px rgba(196, 30, 58, 0.25);
+  margin: 0 0 20px;
+}
+.pack h2 {
+  margin: 0 0 16px;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  max-width: 16ch;
+}
+.pack-lead {
+  margin: 0 0 28px;
+  max-width: 42ch;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.pack-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 0 0 32px;
+}
+.pack-feature {
+  display: grid;
+  gap: 10px;
+  padding: 14px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pack-feature i {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(196, 30, 58, 0.18);
+  border: 1px solid rgba(196, 30, 58, 0.35);
+  font-style: normal;
+}
+.pack-feature i svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.pack-feature span {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.88);
+}
+.pack-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: #f0e6dc;
+  color: #0a0a0a;
+  font-weight: 800;
+  font-size: 15px;
+  border: 0;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+.pack-cta:hover {
+  filter: brightness(1.03);
+}
+.pack-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-right: -48px;
+  min-height: min(72vh, 720px);
+}
+.pack-visual img {
+  width: min(135%, 920px);
+  max-width: none;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 32px 64px rgba(0, 0, 0, 0.55));
+  transform: scale(1.12);
+  transform-origin: center right;
+}

@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  orderCardModel,
-  ordersChrome,
-  statusOptions,
-  visibleOrders,
-} from './staffOrdersView'
+import { orderCardModel, ordersChrome, statusOptions, visibleOrders } from './staffOrdersView'
 
 const ID = 'b10e8400-e29b-41d4-a716-446655440000'
 
@@ -35,11 +30,21 @@ function order(patch = {}) {
 
 describe('staffOrdersView', () => {
   it('offers the current status, then the next step, then cancelled', () => {
-    expect(statusOptions(order()).map((item) => item.label)).toEqual(['Принят', 'Собираем', 'Отменён'])
+    expect(statusOptions(order()).map((item) => item.label)).toEqual([
+      'Принят',
+      'Собираем',
+      'Отменён',
+    ])
     const packing = order({ status: 'packing', allowed_next: ['ready', 'cancelled'] })
-    expect(statusOptions(packing).map((item) => item.label)).toEqual(['Собираем', 'Готов', 'Отменён'])
+    expect(statusOptions(packing).map((item) => item.label)).toEqual([
+      'Собираем',
+      'Готов',
+      'Отменён',
+    ])
     expect(orderCardModel(order({ status: 'done', allowed_next: [] })).statusDisabled).toBe(true)
-    expect(orderCardModel(order({ status: 'cancelled', allowed_next: [] })).statusDisabled).toBe(true)
+    expect(orderCardModel(order({ status: 'cancelled', allowed_next: [] })).statusDisabled).toBe(
+      true,
+    )
   })
 
   it('hides the counter until the list has loaded', () => {
@@ -60,7 +65,16 @@ describe('staffOrdersView', () => {
   })
 
   it('searches number, name, email, note, and street, not the city', () => {
-    const rows = [order(), order({ buyer_name: 'Гость', buyer_email: null, customer_note: null, order_id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', fulfillment: { mode: 'pickup', address: { city: 'Омск', street_line: '' } } })]
+    const rows = [
+      order(),
+      order({
+        buyer_name: 'Гость',
+        buyer_email: null,
+        customer_note: null,
+        order_id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+        fulfillment: { mode: 'pickup', address: { city: 'Омск', street_line: '' } },
+      }),
+    ]
     expect(visibleOrders(rows, 'all', ' ада ').map((row) => row.buyer_name)).toEqual(['Ада'])
     expect(visibleOrders(rows, 'all', 'ADA@shop').length).toBe(1)
     expect(visibleOrders(rows, 'all', 'двери').length).toBe(1)

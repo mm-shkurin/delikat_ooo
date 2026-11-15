@@ -14,8 +14,7 @@
   place-items: center;
   padding: var(--space-5);
   background:
-    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(139, 26, 26, 0.16), transparent 60%),
-    var(--bg);
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(139, 26, 26, 0.16), transparent 60%), var(--bg);
 }
 
 .admin-gate-card {
@@ -53,8 +52,15 @@
   font-weight: 700;
 }
 
-.admin-lede { margin: 0; color: var(--text-muted); }
-.admin-error { margin: 0; color: var(--danger); font-weight: 700; }
+.admin-lede {
+  margin: 0;
+  color: var(--text-muted);
+}
+.admin-error {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 700;
+}
 
 .admin-top {
   display: flex;
@@ -83,7 +89,9 @@
   font-weight: 700;
 }
 
-.admin-brand img { width: 92px; }
+.admin-brand img {
+  width: 92px;
+}
 
 .admin-brand small {
   display: block;
@@ -119,7 +127,10 @@
   white-space: nowrap;
 }
 
-.admin-text-link { color: var(--text-on-hero); font-weight: 700; }
+.admin-text-link {
+  color: var(--text-on-hero);
+  font-weight: 700;
+}
 
 .admin-top .admin-btn.ghost {
   background: transparent;
@@ -133,4 +144,3 @@
   margin-left: auto;
   margin-right: auto;
 }
-

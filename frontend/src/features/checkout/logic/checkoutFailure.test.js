@@ -8,6 +8,8 @@ describe('checkoutFailureText', () => {
     const cause = new Error('Credentials are not valid')
     cause.status = 401
     cause.errorCode = 'unauthorized'
-    expect(checkoutFailureText(new Error('wrapped', { cause }))).toBe('Сессия истекла. Войдите заново.')
+    expect(checkoutFailureText(new Error('wrapped', { cause }))).toBe(
+      'Сессия истекла. Войдите заново.',
+    )
   })
 })

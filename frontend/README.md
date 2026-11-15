@@ -52,7 +52,7 @@ No Zustand / Redux / TanStack Query until a cross-route cache is required.
 
 ## Decisions
 
-- **Why HttpOnly cookies for JWT:** XSS in the SPA must not be able to read access/refresh tokens from `localStorage` / `sessionStorage` / JS memory. Trade-off: API clients still get JSON tokens for Bearer; browsers rely on cookies + `credentials: 'include'`.
+- **Why HttpOnly cookies for JWT:** XSS in the SPA must not be able to read access/refresh tokens from `localStorage` / `sessionStorage` / JS memory. Exchange/refresh JSON exposes only `expires_in_sec`; browsers rely on cookies + `credentials: 'include'`. CSRF posture: SameSite=Lax on auth cookies (documented trade-off vs double-submit).
 - **Why no shared state library yet:** one route owns its data; a cache layer is a trade-off we defer until cross-route duplication appears (see waivers on ARCH-STATE-*).
 - **Why CSS lives under `styles/tokens-*.css` + one `index.css` entry:** keeps design literals in token files and avoids feature-level global CSS imports.
 

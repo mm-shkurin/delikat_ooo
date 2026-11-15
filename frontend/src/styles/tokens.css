@@ -16,8 +16,8 @@
   --success: #2a9b6a;
   --tint: #ececec;
   --font-display: Oswald, Impact, sans-serif;
-  --font-serif: "Source Serif 4", Georgia, serif;
-  --font-sans: Manrope, "Segoe UI", sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-sans: Manrope, 'Segoe UI', sans-serif;
   --text-xs: 12px;
   --line-xs: 16px;
   --text-sm: 14px;

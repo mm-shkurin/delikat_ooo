@@ -49,7 +49,9 @@
   gap: var(--space-3);
 }
 
-.admin-form-grid .span-2 { grid-column: 1 / -1; }
+.admin-form-grid .span-2 {
+  grid-column: 1 / -1;
+}
 
 .admin-field-error {
   color: var(--danger);
@@ -118,7 +120,9 @@
   padding: var(--space-3);
 }
 
-.admin-cat[draggable='true'] { cursor: grab; }
+.admin-cat[draggable='true'] {
+  cursor: grab;
+}
 
 @media (max-width: 420px) {
   .admin-sku {
@@ -131,11 +135,27 @@
   }
 
   .admin-sku img,
-  .admin-sku-ph { grid-area: photo; }
-  .admin-sku-title { grid-area: title; }
-  .admin-sku-price { grid-area: price; justify-content: flex-start; }
-  .admin-sku-pills { grid-area: pills; justify-content: flex-start; }
-  .admin-sku .admin-row-actions { grid-area: actions; }
-  .admin-form-grid { grid-template-columns: 1fr; }
-  .admin-form-grid .span-2 { grid-column: auto; }
+  .admin-sku-ph {
+    grid-area: photo;
+  }
+  .admin-sku-title {
+    grid-area: title;
+  }
+  .admin-sku-price {
+    grid-area: price;
+    justify-content: flex-start;
+  }
+  .admin-sku-pills {
+    grid-area: pills;
+    justify-content: flex-start;
+  }
+  .admin-sku .admin-row-actions {
+    grid-area: actions;
+  }
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-form-grid .span-2 {
+    grid-column: auto;
+  }
 }

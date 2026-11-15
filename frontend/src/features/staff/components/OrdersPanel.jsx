@@ -6,7 +6,12 @@ export function OrdersPanel() {
   const panel = useOrdersPanel()
   const chrome = ordersChrome(panel.phase, panel.shown.length, panel.total)
   return (
-    <section id="panel-orders" role="tabpanel" aria-labelledby="tab-orders" data-testid="panel-orders">
+    <section
+      id="panel-orders"
+      role="tabpanel"
+      aria-labelledby="tab-orders"
+      data-testid="panel-orders"
+    >
       <div className="admin-toolbar">
         <label className="admin-field grow">
           <span>Поиск</span>

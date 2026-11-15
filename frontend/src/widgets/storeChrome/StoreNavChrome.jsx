@@ -52,11 +52,27 @@ export function StoreNavChrome({ chrome, onOpenAuth, cartCountId }) {
       </a>
       <button className="icon-circle" type="button" aria-label="Профиль" onClick={onOpenAuth}>
         {chrome.signedIn ? (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            aria-hidden="true"
+          >
             <path d="M5 12l5 5L20 7" />
           </svg>
         ) : (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            aria-hidden="true"
+          >
             <circle cx="12" cy="8" r="3.5" />
             <path d="M5 19c1.5-3.5 4-5 7-5s5.5 1.5 7 5" />
           </svg>
@@ -68,8 +84,7 @@ export function StoreNavChrome({ chrome, onOpenAuth, cartCountId }) {
         aria-label="Корзина"
         onClick={() => chrome.openLayer('cart')}
       >
-        ▤
-        {chrome.cartCount > 0 ? <span id={cartCountId}>{chrome.cartCount}</span> : null}
+        ▤{chrome.cartCount > 0 ? <span id={cartCountId}>{chrome.cartCount}</span> : null}
       </button>
       <button
         className="burger"

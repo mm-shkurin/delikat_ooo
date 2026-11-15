@@ -122,8 +122,20 @@
 ### Outstanding Blockers:
 - OAuth/refresh still materialize JWT strings briefly; reload without markCookieSession; features→app; thin RTL; CSRF note
 
-## Iteration 13 — Score: pending — 2026-11-15 — 5ceff77
+## Iteration 13 — Score: 2.0 / 3.0 — 2026-11-15 — 5ceff77
 ### Fixed Issues:
 - exchange/refresh keep only expires_in_sec; markCookieSession after getMe; authorizedRequest 401/renew tests; WS backoff
 ### Outstanding Blockers:
-- (awaiting confirmation audit)
+- JWT still in exchange JSON; features→app; privacy copy
+
+## Iteration 14 — Score: 2.5 / 3.0 — 2026-11-15 — aaa8fc2
+### Fixed Issues:
+- omit JWT from exchange/refresh JSON; widgets/storeChrome; privacy copy; shared chrome context
+### Outstanding Blockers:
+- widgets→features; Prettier not in CI; thin RTL; UnexpectedBodyError body
+
+## Iteration 15 (confirmation) — Score: 2.5 / 3.0 — 2026-11-15 — aaa8fc2+
+### Fixed Issues:
+- held ≥2.5; UnexpectedBodyError no longer retains body; shared useUnmountSignal; Prettier format:check in ci
+### Outstanding Blockers:
+- widgets→features residual; thin RTL; author email typo (historical)

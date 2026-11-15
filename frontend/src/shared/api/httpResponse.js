@@ -1,8 +1,8 @@
 export class UnexpectedBodyError extends Error {
-  constructor(body) {
+  constructor(_body) {
     super('Сервер вернул ответ неожиданной формы')
     this.name = 'UnexpectedBodyError'
-    this.body = body
+    // Do not retain response body — it may contain credentials.
   }
 }
 

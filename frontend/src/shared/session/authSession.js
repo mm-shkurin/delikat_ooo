@@ -18,11 +18,11 @@ export function currentSession() {
   return memory
 }
 
-/** @param {{ expires_in_sec?: number, access_token?: string, refresh_token?: string }} tokens */
-export function beginSession(tokens) {
+/** @param {{ expires_in_sec?: number }} session */
+export function beginSession(session) {
   scrubLegacyStorage()
   memory = {
-    expiresAtMs: Date.now() + Number(tokens.expires_in_sec || 3600) * 1000,
+    expiresAtMs: Date.now() + Number(session.expires_in_sec || 3600) * 1000,
   }
 }
 
@@ -30,8 +30,8 @@ export function markCookieSession(expiresInSec) {
   beginSession({ expires_in_sec: expiresInSec })
 }
 
-/** @param {string} [_access] @param {string} [_refresh] @param {number} [expiresInSec] */
-export function renewTokens(_access, _refresh, expiresInSec) {
+/** @param {number} [expiresInSec] */
+export function renewTokens(expiresInSec) {
   scrubLegacyStorage()
   memory = {
     expiresAtMs:

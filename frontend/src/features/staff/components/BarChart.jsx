@@ -18,7 +18,10 @@ export function BarChart({ rows, empty, ariaLabel }) {
         <div className="bar-row" key={row.label}>
           <span className="bar-label">{row.label}</span>
           <div className="bar-track">
-            <div className="bar-fill" style={{ width: `${Math.max(4, Math.round((row.value / max) * 100))}%` }} />
+            <div
+              className="bar-fill"
+              style={{ width: `${Math.max(4, Math.round((row.value / max) * 100))}%` }}
+            />
           </div>
           <span className="bar-value">{row.display}</span>
         </div>

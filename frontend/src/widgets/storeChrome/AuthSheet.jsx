@@ -15,8 +15,15 @@ export function AuthSheet({ chrome }) {
   const [nameDraft, setNameDraft] = useState(chrome.userProfile?.displayName ?? '')
   const [saveBusy, setSaveBusy] = useState(false)
   const [saveError, setSaveError] = useState('')
-  const { layer, signedIn: isSignedIn, userProfile, profileBusy, refreshUserProfile, applyUserProfile, resetShopSession } =
-    chrome
+  const {
+    layer,
+    signedIn: isSignedIn,
+    userProfile,
+    profileBusy,
+    refreshUserProfile,
+    applyUserProfile,
+    resetShopSession,
+  } = chrome
 
   useEffect(() => {
     if (layer === 'auth' && isSignedIn && !userProfile && !profileBusy) {
@@ -47,7 +54,13 @@ export function AuthSheet({ chrome }) {
   const avatarSrc = safeImageUrl(userProfile?.avatarUrl)
 
   return (
-    <div className="panel sheet" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div
+      className="panel sheet"
+      id="auth"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-title"
+    >
       <button className="close" type="button" aria-label="Закрыть" onClick={chrome.closeLayers}>
         ×
       </button>
@@ -56,7 +69,13 @@ export function AuthSheet({ chrome }) {
       {signedIn ? (
         <>
           {avatarSrc ? (
-            <img src={avatarSrc} alt="" width={64} height={64} style={{ borderRadius: '50%', marginBottom: 12 }} />
+            <img
+              src={avatarSrc}
+              alt=""
+              width={64}
+              height={64}
+              style={{ borderRadius: '50%', marginBottom: 12 }}
+            />
           ) : null}
           <p className="muted">{userProfile.email}</p>
           <p className="muted" style={{ fontSize: 13 }}>
@@ -76,11 +95,21 @@ export function AuthSheet({ chrome }) {
               onChange={(event) => setNameDraft(event.target.value)}
             />
             {saveError ? <p className="muted">{saveError}</p> : null}
-            <button className="btn btn-accent" type="submit" disabled={saveBusy} style={{ marginTop: 12 }}>
+            <button
+              className="btn btn-accent"
+              type="submit"
+              disabled={saveBusy}
+              style={{ marginTop: 12 }}
+            >
               {saveBusy ? 'Сохранение…' : 'Сохранить имя'}
             </button>
           </form>
-          <button className="btn" type="button" style={{ marginTop: 12 }} onClick={() => void resetShopSession()}>
+          <button
+            className="btn"
+            type="button"
+            style={{ marginTop: 12 }}
+            onClick={() => void resetShopSession()}
+          >
             Выйти
           </button>
         </>

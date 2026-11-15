@@ -78,8 +78,14 @@
   font-weight: 800;
   font-size: 13px;
 }
-.pay-body { display: grid; gap: 2px; min-width: 0; }
-.pay-body strong { font-size: var(--text-sm); }
+.pay-body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.pay-body strong {
+  font-size: var(--text-sm);
+}
 .pay-body span {
   color: #9db5a6;
   font-size: var(--text-xs);
@@ -87,7 +93,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.pay-right { text-align: right; }
+.pay-right {
+  text-align: right;
+}
 .pay-amount {
   color: #21a038;
   font-weight: 800;
@@ -100,10 +108,23 @@
 }
 
 @media (max-width: 720px) {
-  .kpi-row { grid-template-columns: 1fr 1fr; }
-  .stats-grid { grid-template-columns: 1fr; }
-  .chart-wide { grid-column: auto; }
-  .bar-row { grid-template-columns: 72px minmax(0, 1fr) 72px; }
-  .pay-head { flex-direction: column; align-items: start; }
-  .pay-balance { text-align: left; }
+  .kpi-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .chart-wide {
+    grid-column: auto;
+  }
+  .bar-row {
+    grid-template-columns: 72px minmax(0, 1fr) 72px;
+  }
+  .pay-head {
+    flex-direction: column;
+    align-items: start;
+  }
+  .pay-balance {
+    text-align: left;
+  }
 }

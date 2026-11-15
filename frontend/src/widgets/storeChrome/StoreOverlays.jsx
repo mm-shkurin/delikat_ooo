@@ -27,13 +27,21 @@ export function StoreOverlays({ chrome, catalogMode = false, productPanel = null
 
       {chrome.layer === 'product' && productPanel}
       {chrome.layer === 'cart' ? <CartSheet chrome={chrome} catalogMode={catalogMode} /> : null}
-      {chrome.layer === 'receipt' && chrome.lastOrder ? <ReceiptSheet chrome={chrome} order={chrome.lastOrder} /> : null}
+      {chrome.layer === 'receipt' && chrome.lastOrder ? (
+        <ReceiptSheet chrome={chrome} order={chrome.lastOrder} />
+      ) : null}
       {chrome.layer === 'address' ? <AddressSheet chrome={chrome} /> : null}
       {chrome.layer === 'auth' ? <AuthSheet chrome={chrome} /> : null}
 
       {chrome.privacyNoteVisible ? (
-        <p id="privacy-note" className="wrap muted" style={{ padding: 16, background: '#fff' }} tabIndex={-1}>
-          Адрес и состав корзины сохраняются на сервере для оформления заказа. Сессия входа — в HttpOnly-cookie, не в localStorage.
+        <p
+          id="privacy-note"
+          className="wrap muted"
+          style={{ padding: 16, background: '#fff' }}
+          tabIndex={-1}
+        >
+          Адрес и состав корзины сохраняются на сервере для оформления заказа. Сессия входа — в
+          HttpOnly-cookie, не в localStorage.
         </p>
       ) : null}
     </>

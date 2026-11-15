@@ -8,14 +8,22 @@ import { Link } from 'react-router-dom'
  */
 export function CartSheet({ chrome, catalogMode }) {
   return (
-    <div className="panel drawer" id="cart" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div
+      className="panel drawer"
+      id="cart"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cart-title"
+    >
       <button className="close" type="button" aria-label="Закрыть" onClick={chrome.closeLayers}>
         ×
       </button>
       <h2 id="cart-title">Корзина</h2>
       {chrome.cartSyncing ? <p className="muted">Загрузка…</p> : null}
       {!chrome.cartSyncing && chrome.cart.length === 0 ? (
-        <p className="muted">{catalogMode ? 'Пока пусто.' : 'Пока пусто. Товары добавляются в каталоге.'}</p>
+        <p className="muted">
+          {catalogMode ? 'Пока пусто.' : 'Пока пусто. Товары добавляются в каталоге.'}
+        </p>
       ) : (
         chrome.cart.map((line) => (
           <div className="line" key={line.lineId}>
@@ -60,7 +68,12 @@ export function CartSheet({ chrome, catalogMode }) {
           ) : null}
         </>
       ) : (
-        <Link className="btn btn-accent" to="/catalog" style={{ textAlign: 'center' }} onClick={chrome.closeLayers}>
+        <Link
+          className="btn btn-accent"
+          to="/catalog"
+          style={{ textAlign: 'center' }}
+          onClick={chrome.closeLayers}
+        >
           Открыть каталог
         </Link>
       )}

@@ -11,7 +11,8 @@ info:
     Story 12: session/me + roster assign.
     Story 13: staff catalog list/create/patch + image blob (Postgres) + anonymous media GET.
     Story 17: staff category list/create/patch/delete/order. Buyer live signal is store_api `x-websocket`.
-    Story 15: staff order list and status patch. Stats — later.
+    Story 15: staff order list and status patch.
+    Story 16: owner stats and money aggregates (no acquiring).
 
 servers:
   - url: http://127.0.0.1:8000
@@ -28,6 +29,8 @@ tags:
     description: Public product image bytes from Postgres
   - name: staff-orders
     description: Staff order list and status (owner, manager, cashier); story 15
+  - name: staff-analytics
+    description: Owner stats and money aggregates; story 16
 
 paths:
   /api/v1/staff/me:
@@ -726,6 +729,72 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/staff/stats:
+    get:
+      summary: Статистика владельца
+      description: |
+        Только owner. Без Bearer → 401. Не-staff Bearer и staff не-owner → 403.
+        Без query и без страниц. All-time. Живые заказы = status ≠ cancelled.
+        Срезы: value_rub убыв., label возр. (ru). Сервер не режет до 8.
+        buyer key = trim buyer_name, пусто → «Гость». product key = trim product_name,
+        пусто → «Без названия». TZ для агрегатов денег — Asia/Omsk (см. /money).
+      operationId: getStaffStats
+      tags: [staff-analytics]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: KPI и срезы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffStats'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden — не-staff или не owner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/staff/money:
+    get:
+      summary: Деньги владельца
+      description: |
+        Только owner. Без Bearer → 401. Не-staff Bearer и staff не-owner → 403.
+        Без query и без страниц. All-time. Живые заказы = status ≠ cancelled.
+        Календарные дни и порядок ленты в Asia/Omsk.
+        inflows — одна строка на живой заказ; демо-extras мокапа нет.
+        Без эквайринга inflow_rub = revenue_rub.
+      operationId: getStaffMoney
+      tags: [staff-analytics]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: KPI, графики и лента приходов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffMoney'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden — не-staff или не owner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1204,3 +1273,113 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StaffOrder'
+
+    StaffMoneySlice:
+      type: object
+      required: [label, value_rub]
+      properties:
+        label:
+          type: string
+        value_rub:
+          type: integer
+          minimum: 0
+
+    StaffStats:
+      type: object
+      required: [order_count, buyer_count, buyer_slices, product_slices]
+      properties:
+        order_count:
+          type: integer
+          minimum: 0
+        buyer_count:
+          type: integer
+          minimum: 0
+        buyer_slices:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMoneySlice'
+        product_slices:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMoneySlice'
+
+    StaffMoneyDay:
+      type: object
+      required: [day, label, value_rub]
+      properties:
+        day:
+          type: string
+          format: date
+          description: Календарный день Asia/Omsk (YYYY-MM-DD)
+        label:
+          type: string
+        value_rub:
+          type: integer
+          minimum: 0
+
+    StaffMoneyTop:
+      type: object
+      required: [label, quantity]
+      properties:
+        label:
+          type: string
+        quantity:
+          type: integer
+          minimum: 0
+
+    StaffMoneyInflow:
+      type: object
+      required: [id, at, title, subtitle, amount_rub, channel]
+      properties:
+        id:
+          type: string
+          description: pay- + order UUID lower 8-4-4-4-12
+        at:
+          type: string
+          format: date-time
+        title:
+          type: string
+        subtitle:
+          type: string
+        amount_rub:
+          type: integer
+          minimum: 0
+        channel:
+          type: string
+          description: «Наличные / карта в точке» | «Онлайн-оплата»
+
+    StaffMoney:
+      type: object
+      required:
+        - revenue_rub
+        - avg_check_rub
+        - inflow_rub
+        - operation_count
+        - revenue_by_day
+        - top_by_qty
+        - inflows
+      properties:
+        revenue_rub:
+          type: integer
+          minimum: 0
+        avg_check_rub:
+          type: integer
+          minimum: 0
+        inflow_rub:
+          type: integer
+          minimum: 0
+        operation_count:
+          type: integer
+          minimum: 0
+        revenue_by_day:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMoneyDay'
+        top_by_qty:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMoneyTop'
+        inflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMoneyInflow'

@@ -27,6 +27,7 @@ from usecase.catalog.service import CatalogService
 from usecase.staff.service import StaffService
 from usecase.staff_catalog.service import StaffCatalogService
 from usecase.staff_categories.service import StaffCategoryService
+from usecase.staff_analytics.service import StaffAnalyticsService
 from usecase.staff_orders.service import StaffOrdersService
 
 
@@ -51,6 +52,7 @@ class AppContext:
     staff_catalog: StaffCatalogService
     staff_categories: StaffCategoryService
     staff_orders: StaffOrdersService
+    staff_analytics: StaffAnalyticsService
     catalog_live: CatalogLiveHub
     redis: Redis
 
@@ -98,7 +100,9 @@ def build_context(settings: Settings) -> AppContext:
         PostgresStaffCategoryStore(session_factory),
         catalog_live,
     )
-    staff_orders = StaffOrdersService(staff_store, PostgresStaffOrderStore(session_factory))
+    order_store = PostgresStaffOrderStore(session_factory)
+    staff_orders = StaffOrdersService(staff_store, order_store)
+    staff_analytics = StaffAnalyticsService(staff_store, order_store)
     return AppContext(
         settings=settings,
         engine=engine,
@@ -113,6 +117,7 @@ def build_context(settings: Settings) -> AppContext:
         staff_catalog=staff_catalog,
         staff_categories=staff_categories,
         staff_orders=staff_orders,
+        staff_analytics=staff_analytics,
         catalog_live=catalog_live,
         redis=redis,
     )

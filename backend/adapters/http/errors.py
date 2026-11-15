@@ -27,6 +27,7 @@ from usecase.staff_catalog.errors import StaffCatalogForbidden
 from usecase.staff_catalog.errors import StaffCatalogValidation
 from usecase.staff_catalog.errors import StaffProductNotFound
 from usecase.staff_categories.errors import StaffCategoryFailure, StaffCategoryForbidden
+from usecase.staff_analytics.errors import StaffAnalyticsForbidden
 from usecase.staff_orders.errors import StaffOrderError, StaffOrdersForbidden
 
 _UNAUTHORIZED = {"code": "unauthorized", "message": "Credentials are not valid"}
@@ -77,6 +78,7 @@ def register_errors(app: FastAPI) -> None:
     app.add_exception_handler(StaffCatalogForbidden, _status(403, _FORBIDDEN))
     app.add_exception_handler(StaffCategoryForbidden, _status(403, _FORBIDDEN))
     app.add_exception_handler(StaffOrdersForbidden, _status(403, _FORBIDDEN))
+    app.add_exception_handler(StaffAnalyticsForbidden, _status(403, _FORBIDDEN))
     app.add_exception_handler(StaffOrderError, _staff_order_error)
     app.add_exception_handler(StaffCategoryFailure, _category_failure)
     app.add_exception_handler(OwnerImmutable, _status(403, _OWNER_IMMUTABLE))

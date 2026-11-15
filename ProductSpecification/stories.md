@@ -54,11 +54,11 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 |---|-------|------|-------|------|-------|-------|
 | 15 | Staff: заказы — список и статусы | x | x | x | x | `/admin/orders`; снимок покупателя на POST /orders |
 
-## Backlog — Wave 5 (owner analytics)
+## Done — Wave 5 (owner analytics)
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 16 | Владелец: Статистика и Деньги | · | · | · | · | после 15; без эквайринга |
+| 16 | Владелец: Статистика и Деньги | x | x | x | x | `/admin/stats`+`/money`; owner-only; без эквайринга |
 
 ## Backlog — UI reference (site/)
 

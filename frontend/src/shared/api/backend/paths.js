@@ -41,6 +41,8 @@ export const BACKEND = {
       `${V1}/staff/catalog/categories/${encodeURIComponent(categoryId)}`,
     orders: `${V1}/staff/orders`,
     order: (orderId) => `${V1}/staff/orders/${encodeURIComponent(orderId)}`,
+    stats: `${V1}/staff/stats`,
+    money: `${V1}/staff/money`,
   },
   media: {
     product: (productId) => `${V1}/media/products/${encodeURIComponent(productId)}`,

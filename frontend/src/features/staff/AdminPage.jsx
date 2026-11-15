@@ -5,8 +5,9 @@ import { AdminTabs } from './components/AdminTabs'
 import { CatalogPanel } from './components/CatalogPanel'
 import { CategoriesPanel } from './components/CategoriesPanel'
 import { EmployeesPanel } from './components/EmployeesPanel'
+import { MoneyPanel } from './components/MoneyPanel'
 import { OrdersPanel } from './components/OrdersPanel'
-import { MoneyShell, StatsShell } from './components/ShellPanels'
+import { StatsPanel } from './components/StatsPanel'
 import { useAdminPage } from './useAdminPage'
 import '../../styles/admin.css'
 
@@ -32,8 +33,8 @@ export function AdminPage() {
         {page.tab === 'catalog' ? <CatalogPanel /> : null}
         {page.tab === 'categories' ? <CategoriesPanel /> : null}
         {page.tab === 'orders' ? <OrdersPanel /> : null}
-        {page.tab === 'stats' ? <StatsShell /> : null}
-        {page.tab === 'money' ? <MoneyShell /> : null}
+        {page.tab === 'stats' ? <StatsPanel /> : null}
+        {page.tab === 'money' ? <MoneyPanel /> : null}
         {page.tab === 'employees' ? (
           <EmployeesPanel
             actorRole={page.me.role}

@@ -175,8 +175,10 @@ export {
   isStaffMeBody,
   isStaffMemberBody,
   isStaffMemberListBody,
+  isStaffMoneyBody,
   isStaffOrderBody,
   isStaffOrderListBody,
   isStaffProductBody,
   isStaffProductListBody,
+  isStaffStatsBody,
 } from './staffBodyGuards'

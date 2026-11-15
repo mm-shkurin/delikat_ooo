@@ -89,3 +89,60 @@ export function isStaffOrderBody(value) {
 export function isStaffOrderListBody(value) {
   return isRecord(value) && Array.isArray(value.items) && value.items.every(isStaffOrderBody)
 }
+
+function isMoneySlice(value) {
+  return isRecord(value) && typeof value.label === 'string' && typeof value.value_rub === 'number'
+}
+
+export function isStaffStatsBody(value) {
+  return (
+    isRecord(value) &&
+    typeof value.order_count === 'number' &&
+    typeof value.buyer_count === 'number' &&
+    Array.isArray(value.buyer_slices) &&
+    value.buyer_slices.every(isMoneySlice) &&
+    Array.isArray(value.product_slices) &&
+    value.product_slices.every(isMoneySlice)
+  )
+}
+
+function isDaySlice(value) {
+  return (
+    isRecord(value) &&
+    typeof value.day === 'string' &&
+    typeof value.label === 'string' &&
+    typeof value.value_rub === 'number'
+  )
+}
+
+function isQtySlice(value) {
+  return isRecord(value) && typeof value.label === 'string' && typeof value.quantity === 'number'
+}
+
+function isInflow(value) {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.at === 'string' &&
+    typeof value.title === 'string' &&
+    typeof value.subtitle === 'string' &&
+    typeof value.amount_rub === 'number' &&
+    typeof value.channel === 'string'
+  )
+}
+
+export function isStaffMoneyBody(value) {
+  return (
+    isRecord(value) &&
+    typeof value.revenue_rub === 'number' &&
+    typeof value.avg_check_rub === 'number' &&
+    typeof value.inflow_rub === 'number' &&
+    typeof value.operation_count === 'number' &&
+    Array.isArray(value.revenue_by_day) &&
+    value.revenue_by_day.every(isDaySlice) &&
+    Array.isArray(value.top_by_qty) &&
+    value.top_by_qty.every(isQtySlice) &&
+    Array.isArray(value.inflows) &&
+    value.inflows.every(isInflow)
+  )
+}

@@ -11,7 +11,7 @@ info:
     Story 12: session/me + roster assign.
     Story 13: staff catalog list/create/patch + image blob (Postgres) + anonymous media GET.
     Story 17: staff category list/create/patch/delete/order. Buyer live signal is store_api `x-websocket`.
-    Orders / stats — later stories.
+    Story 15: staff order list and status patch. Stats — later.
 
 servers:
   - url: http://127.0.0.1:8000
@@ -26,6 +26,8 @@ tags:
     description: Staff catalog write (owner/manager); stories 13 and 17
   - name: media
     description: Public product image bytes from Postgres
+  - name: staff-orders
+    description: Staff order list and status (owner, manager, cashier); story 15
 
 paths:
   /api/v1/staff/me:
@@ -629,6 +631,101 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/staff/orders:
+    get:
+      summary: Список заказов магазина
+      description: |
+        Owner, manager и cashier. Не staff → 403. Без токена → 401.
+        Без query и без страниц. Порядок: `created_at` убывает, затем `order_id`
+        как строка UUID `8-4-4-4-12` в нижнем регистре возрастает.
+        Телефона нет. `buyer_email` и `customer_note` — null, если значения нет.
+        Старые заказы без снимка: `buyer_name` «Гость», `buyer_email` null.
+      operationId: listStaffOrders
+      tags: [staff-orders]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Все заказы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffOrderList'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden — не staff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/staff/orders/{order_id}:
+    patch:
+      summary: Сменить статус заказа
+      description: |
+        Тело только `{ "status" }`. Лишние поля игнорируются. Версии нет.
+        Цепочка: accepted → packing|cancelled; packing → ready|cancelled;
+        ready → done|cancelled. done и cancelled без выхода.
+        Тот же статус — 200 без ошибки. Иной запрещённый — 409 `invalid_status_transition`,
+        message «Этот статус отсюда не поставить.»
+        Пустое тело, нет status, неизвестный status, тело не объект — 400 `validation_error`,
+        «Некорректный статус.» Не-UUID в path — 400 `validation_error`, «Некорректный номер заказа.»
+        Нет заказа — 404 `order_not_found`, «Заказ не найден.»
+      operationId: patchStaffOrderStatus
+      tags: [staff-orders]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffOrderStatusPatch'
+      responses:
+        '200':
+          description: Карточка после записи, в том числе если статус не изменился
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffOrder'
+        '400':
+          description: validation_error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: forbidden — не staff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: order_not_found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: invalid_status_transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -658,6 +755,13 @@ components:
       schema:
         type: string
         pattern: '^[a-z][a-z0-9-]{0,31}$'
+    OrderId:
+      name: order_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
 
   schemas:
     Error:
@@ -677,6 +781,8 @@ components:
             - category_not_found
             - category_id_taken
             - category_id_reserved
+            - order_not_found
+            - invalid_status_transition
         message:
           type: string
 
@@ -996,3 +1102,105 @@ components:
           items:
             type: string
             pattern: '^[a-z][a-z0-9-]{0,31}$'
+
+    StaffOrderStatus:
+      type: string
+      enum: [accepted, packing, ready, done, cancelled]
+
+    StaffOrderStatusPatch:
+      type: object
+      required: [status]
+      additionalProperties: true
+      properties:
+        status:
+          $ref: '#/components/schemas/StaffOrderStatus'
+      description: |
+        Лишние поля игнорируются. Пустое тело и тело не объект — 400 validation_error.
+
+    StaffOrderLine:
+      type: object
+      required: [product_id, product_name, weight_label, quantity, unit_price_rub, line_total_rub]
+      properties:
+        product_id:
+          type: string
+        product_name:
+          type: string
+        weight_label:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        unit_price_rub:
+          type: integer
+        line_total_rub:
+          type: integer
+
+    StaffOrder:
+      type: object
+      required:
+        - order_id
+        - status
+        - allowed_next
+        - total_rub
+        - created_at
+        - buyer_name
+        - buyer_email
+        - customer_note
+        - fulfillment
+        - lines
+      properties:
+        order_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/StaffOrderStatus'
+        allowed_next:
+          type: array
+          description: |
+            Шаг вперёд, если есть, затем cancelled, если разрешён. У done и cancelled пусто.
+            Текущего статуса в массиве нет.
+          items:
+            $ref: '#/components/schemas/StaffOrderStatus'
+        total_rub:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        buyer_name:
+          type: string
+        buyer_email:
+          type: string
+          nullable: true
+        customer_note:
+          type: string
+          nullable: true
+        fulfillment:
+          type: object
+          required: [mode, address]
+          properties:
+            mode:
+              type: string
+              enum: [delivery, pickup]
+            address:
+              type: object
+              required: [city]
+              properties:
+                city:
+                  type: string
+                street_line:
+                  type: string
+                  nullable: true
+        lines:
+          type: array
+          description: Порядок как в OrderCreated, по возрастанию id вставки.
+          items:
+            $ref: '#/components/schemas/StaffOrderLine'
+
+    StaffOrderList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffOrder'

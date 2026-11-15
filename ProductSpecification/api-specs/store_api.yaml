@@ -477,11 +477,20 @@ paths:
   /api/v1/orders:
     post:
       summary: Оформить заказ из корзины
+      description: |
+        Cookie shop-сессии обязательна. Authorization необязателен.
+        Нет заголовка — buyer snapshot «Гость» и почта null, в это тело они не входят.
+        Верный Bearer — снимок display_name (пустое → «Гость») и email на заказ, не в ответ.
+        Неверный или просроченный Bearer — 401, строка не создаётся и не меняется.
+        Первый успех пишет status accepted. Повтор Idempotency-Key той же сессии
+        возвращает текущую строку. Снимок и message не переписываются.
+        Чужая shop-сессия с тем же ключом — 409 idempotency_conflict.
       operationId: createOrder
       tags: [orders]
       security:
         - sessionCookie: []
-        - bearerAuth: []
+        - sessionCookie: []
+          bearerAuth: []
       parameters:
         - name: Idempotency-Key
           in: header
@@ -506,8 +515,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrderCreated'
+        '401':
+          description: |
+            Неверный или просроченный Bearer. Без заголовка Authorization этого ответа нет.
         '409':
-          description: cart_empty | address_required | cannot_checkout
+          description: cart_empty | address_required | cannot_checkout | idempotency_conflict
           content:
             application/json:
               schema:
@@ -555,6 +567,7 @@ components:
             - address_required
             - cart_empty
             - cannot_checkout
+            - idempotency_conflict
             - invalid_phone
             - invalid_code
             - invalid_display_name
@@ -889,8 +902,11 @@ components:
           format: uuid
         status:
           type: string
-          enum: [accepted]
-          description: v1 — сразу accepted; UI может показывать локальный «processing» до получения 201
+          enum: [accepted, packing, ready, done, cancelled]
+          description: |
+            Создание пишет accepted. Повтор Idempotency-Key возвращает текущий статус,
+            уже после правки кабинета. Тело не содержит buyer_name и buyer_email.
+            Чек статус не рисует.
         total_rub:
           type: integer
         message:

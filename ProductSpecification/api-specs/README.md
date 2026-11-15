@@ -32,6 +32,7 @@
 | кабинет `/admin` (12) | `GET /staff/me`, `GET/POST/PATCH/DELETE /staff/members` — см. `admin_api.yaml` |
 | кабинет Каталог (13) | `GET/POST/PATCH /staff/catalog/products`, `PUT .../image`, `GET /media/products/{id}` — `admin_api.yaml`; categories select → store `GET /catalog/categories` |
 | кабинет Категории (17) | `GET/POST /staff/catalog/categories`, `PATCH/DELETE .../{id}`, `PUT .../order` — `admin_api.yaml`; витрина `WS /catalog/live` кадр `catalog_changed` |
+| кабинет Заказы (15) | `GET /staff/orders`, `PATCH /staff/orders/{order_id}` — `admin_api.yaml`; снимок имени на `POST /orders` не входит в `OrderCreated` |
 | витрина sync hide (14) | store `GET /catalog/products` + `/{id}` + `POST /cart/items`: hidden ≡ not found; buyer DTO без `hidden` |
 
 ## Seed product ids

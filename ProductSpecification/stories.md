@@ -48,11 +48,11 @@ Wave 1 backend полоса (**07 + 09**) закрыта. Docker `infra/` под
 |---|-------|------|-------|------|-------|-------|
 | 17 | Staff: категории каталога (CRUD + порядок) | x | x | x | x | `/admin/categories`; WS `catalog_changed` |
 
-## Backlog — Wave 4 (orders staff)
+## In progress — Wave 4 (orders staff)
 
 | # | Story | Spec | Front | Back | Check | Notes |
 |---|-------|------|-------|------|-------|-------|
-| 15 | Staff: заказы — список и статусы | · | · | · | · | после 12; статусы packing…cancelled |
+| 15 | Staff: заказы — список и статусы | x | · | · | · | спеки готовы; код — следующая сессия |
 
 ## Backlog — Wave 5 (owner analytics)
 

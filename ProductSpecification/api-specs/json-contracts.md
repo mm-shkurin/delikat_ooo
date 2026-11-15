@@ -382,6 +382,56 @@ Response (данные для экрана «чек»):
 | `cart_empty` | Пустая корзина |
 | `address_required` | delivery без улицы |
 | `cannot_checkout` | `can_checkout` было false |
+| `idempotency_conflict` | Ключ уже использован другой shop-сессией |
+
+Повтор своего ключа возвращает текущую строку: `status` может быть уже не `accepted`, `message` остаётся с создания. В этом теле нет `buyer_name` и `buyer_email`. Неверный Bearer — 401, чек не открывается.
+
+---
+
+## 5b. Заказы кабинета (story 15)
+
+Bearer staff. Роли owner, manager, cashier.
+
+### `GET /api/v1/staff/orders` → `200`
+
+```json
+{
+  "items": [
+    {
+      "order_id": "b10e8400-e29b-41d4-a716-446655440000",
+      "status": "accepted",
+      "allowed_next": ["packing", "cancelled"],
+      "total_rub": 2900,
+      "created_at": "2026-11-06T02:12:00Z",
+      "buyer_name": "Гость",
+      "buyer_email": null,
+      "customer_note": null,
+      "fulfillment": {
+        "mode": "delivery",
+        "address": { "city": "Омск", "street_line": "Ленина 10" }
+      },
+      "lines": [
+        {
+          "product_id": "rib",
+          "product_name": "Стейк Рибай",
+          "weight_label": "~350 г",
+          "quantity": 2,
+          "unit_price_rub": 1450,
+          "line_total_rub": 2900
+        }
+      ]
+    }
+  ]
+}
+```
+
+### `PATCH /api/v1/staff/orders/{order_id}` → `200`
+
+```json
+{ "status": "packing" }
+```
+
+Ответ — тот же `StaffOrder`. Тот же статус тоже 200. Запрещённый переход — 409 `invalid_status_transition`.
 
 ---
 

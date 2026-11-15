@@ -1,4 +1,7 @@
-class StaffOrdersForbidden(Exception):
+from usecase.staff.errors import Forbidden
+
+
+class StaffOrdersForbidden(Forbidden):
     """Caller is not an active owner, manager, or cashier."""
 
 

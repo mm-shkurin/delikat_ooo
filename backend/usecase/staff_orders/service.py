@@ -37,6 +37,7 @@ class StaffOrdersService:
             raise InvalidStatusTransition()
         if status == current.status:
             return current
+        # Store re-checks under FOR UPDATE so concurrent writers cannot race past allowed_next.
         return await self._orders.save_status(order_id, status)
 
     async def _require(self, actor: Account) -> None:

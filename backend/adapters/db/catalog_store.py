@@ -61,9 +61,15 @@ class PostgresCatalogStore:
             elif query.visibility == "hidden":
                 stmt = stmt.where(ProductRow.hidden.is_(True))
             if query.q:
-                needle = f"%{query.q}%"
+                escaped = (
+                    query.q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+                )
+                needle = f"%{escaped}%"
                 stmt = stmt.where(
-                    or_(ProductRow.name.ilike(needle), ProductRow.id.ilike(needle))
+                    or_(
+                        ProductRow.name.ilike(needle, escape="\\"),
+                        ProductRow.id.ilike(needle, escape="\\"),
+                    )
                 )
             rows = (await session.scalars(stmt)).all()
             return [row.to_domain() for row in rows]

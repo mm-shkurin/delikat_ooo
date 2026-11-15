@@ -1,4 +1,7 @@
-class StaffCatalogForbidden(Exception):
+from usecase.staff.errors import Forbidden
+
+
+class StaffCatalogForbidden(Forbidden):
     pass
 
 

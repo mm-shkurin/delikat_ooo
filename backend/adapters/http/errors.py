@@ -5,8 +5,6 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from usecase.account.errors import InvalidDisplayName, StoreUnavailable, Unauthorized
-from usecase.staff.errors import Forbidden as StaffForbidden
-from usecase.staff.errors import OwnerImmutable, StaffNotFound, StaffValidation
 from usecase.cart.errors import (
     AddressRequired,
     CannotCheckout,
@@ -20,15 +18,17 @@ from usecase.cart.errors import (
     ShopSessionRequired,
 )
 from usecase.catalog.errors import InvalidCatalogQuery, ProductNotFound
-from usecase.staff_catalog.errors import CategoryNotFound
-from usecase.staff_catalog.errors import MediaNotFound
-from usecase.staff_catalog.errors import ProductIdTaken
-from usecase.staff_catalog.errors import StaffCatalogForbidden
-from usecase.staff_catalog.errors import StaffCatalogValidation
-from usecase.staff_catalog.errors import StaffProductNotFound
-from usecase.staff_categories.errors import StaffCategoryFailure, StaffCategoryForbidden
-from usecase.staff_analytics.errors import StaffAnalyticsForbidden
-from usecase.staff_orders.errors import StaffOrderError, StaffOrdersForbidden
+from usecase.staff.errors import Forbidden as StaffForbidden
+from usecase.staff.errors import OwnerImmutable, StaffNotFound, StaffValidation
+from usecase.staff_catalog.errors import (
+    CategoryNotFound,
+    MediaNotFound,
+    ProductIdTaken,
+    StaffCatalogValidation,
+    StaffProductNotFound,
+)
+from usecase.staff_categories.errors import StaffCategoryFailure
+from usecase.staff_orders.errors import StaffOrderError
 
 _UNAUTHORIZED = {"code": "unauthorized", "message": "Credentials are not valid"}
 _SESSION_REQUIRED = {"code": "unauthorized", "message": "Shop session is required"}
@@ -74,11 +74,8 @@ def register_errors(app: FastAPI) -> None:
     app.add_exception_handler(StaffCatalogValidation, _status(400, _STAFF_CATALOG_VALIDATION))
     app.add_exception_handler(ProductIdTaken, _status(400, _PRODUCT_ID_TAKEN))
     app.add_exception_handler(CategoryNotFound, _status(400, _CATEGORY_NOT_FOUND))
+    # Staff*Forbidden subclasses share Forbidden — one handler covers ACL denials.
     app.add_exception_handler(StaffForbidden, _status(403, _FORBIDDEN))
-    app.add_exception_handler(StaffCatalogForbidden, _status(403, _FORBIDDEN))
-    app.add_exception_handler(StaffCategoryForbidden, _status(403, _FORBIDDEN))
-    app.add_exception_handler(StaffOrdersForbidden, _status(403, _FORBIDDEN))
-    app.add_exception_handler(StaffAnalyticsForbidden, _status(403, _FORBIDDEN))
     app.add_exception_handler(StaffOrderError, _staff_order_error)
     app.add_exception_handler(StaffCategoryFailure, _category_failure)
     app.add_exception_handler(OwnerImmutable, _status(403, _OWNER_IMMUTABLE))

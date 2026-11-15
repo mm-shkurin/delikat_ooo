@@ -10,6 +10,7 @@ from usecase.staff_catalog.queries import StaffProductDraft, StaffProductPatch
 _ID = re.compile(r"^[a-z][a-z0-9-]{0,31}$")
 _BADGES = frozenset({"NEW", "SALE", "TOP"})
 _MAX_IMAGE = 2 * 1024 * 1024
+MAX_IMAGE_BYTES = _MAX_IMAGE
 _MEDIA_PREFIX = "/api/v1/media/products/"
 
 
@@ -20,7 +21,7 @@ def media_url(product_id: str) -> str:
 def parse_properties(raw: str | list | tuple | None) -> tuple[str, ...]:
     if raw is None:
         return ()
-    if isinstance(raw, (list, tuple)):
+    if isinstance(raw, list | tuple):
         values = list(raw)
     else:
         text = str(raw).strip()

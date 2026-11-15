@@ -1,3 +1,5 @@
+from usecase.staff.errors import Forbidden
+
 BAD_ID = "Некорректный код категории."
 EMPTY_TITLE = "Введите название."
 LONG_TITLE = "Название не длиннее 120 символов."
@@ -7,7 +9,7 @@ MISSING = "Категория не найдена."
 FAILED = "Не получилось. Попробуйте ещё раз."
 
 
-class StaffCategoryForbidden(Exception):
+class StaffCategoryForbidden(Forbidden):
     pass
 
 

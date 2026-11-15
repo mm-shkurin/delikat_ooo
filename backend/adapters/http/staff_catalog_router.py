@@ -8,9 +8,14 @@ from adapters.http.deps import bearer_token
 from domain.catalog.product import Product
 from usecase.staff_catalog.queries import StaffProductDraft, StaffProductListQuery, StaffProductPatch
 from usecase.staff_catalog.service import StaffCatalogService
-from usecase.staff_catalog.validation import parse_properties
+from usecase.staff_catalog.validation import MAX_IMAGE_BYTES, parse_properties
 
 router = APIRouter(tags=["staff-catalog"])
+
+
+async def _read_upload(image: UploadFile) -> bytes:
+    """Cap RAM: read at most MAX_IMAGE_BYTES+1 so detect_image can reject oversize."""
+    return await image.read(MAX_IMAGE_BYTES + 1)
 
 
 class StaffProductResponse(BaseModel):
@@ -106,7 +111,7 @@ async def create_staff_product(
     hidden: Annotated[bool, Form()] = False,
 ) -> StaffProductResponse:
     account = await request.app.state.ctx.session.caller(access_token)
-    data = await image.read()
+    data = await _read_upload(image)
     draft = StaffProductDraft(
         id=id,
         name=name,
@@ -148,7 +153,7 @@ async def put_staff_product_image(
     image: Annotated[UploadFile, File()],
 ) -> StaffProductResponse:
     account = await request.app.state.ctx.session.caller(access_token)
-    data = await image.read()
+    data = await _read_upload(image)
     updated = await _service(request).replace_image(
         account, product_id, data, image.content_type
     )

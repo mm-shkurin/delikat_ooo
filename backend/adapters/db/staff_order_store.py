@@ -11,7 +11,7 @@ from domain.cart.buyer import present_buyer_name
 from domain.cart.models import DeliveryAddress, Fulfillment, OrderLineSnapshot
 from domain.cart.staff_order import StaffOrder
 from usecase.account.errors import StoreUnavailable
-from usecase.staff_orders.errors import OrderNotFound
+from usecase.staff_orders.errors import InvalidStatusTransition, OrderNotFound
 
 
 class PostgresStaffOrderStore:
@@ -28,27 +28,42 @@ class PostgresStaffOrderStore:
 
     async def list_all(self) -> list[StaffOrder]:
         async with self._open() as session:
-            rows = await session.scalars(select(OrderRow).options(selectinload(OrderRow.lines)))
+            stmt = (
+                select(OrderRow)
+                .options(selectinload(OrderRow.lines))
+                .order_by(OrderRow.created_at.desc())
+                .limit(500)
+            )
+            rows = await session.scalars(stmt)
             return [_to_staff(row) for row in rows]
 
     async def get(self, order_id: UUID) -> StaffOrder | None:
         async with self._open() as session:
-            row = await _load(session, order_id)
+            row = await _load(session, order_id, for_update=False)
             return None if row is None else _to_staff(row)
 
     async def save_status(self, order_id: UUID, status: str) -> StaffOrder:
         async with self._open() as session:
-            row = await _load(session, order_id)
+            row = await _load(session, order_id, for_update=True)
             if row is None:
                 raise OrderNotFound()
+            current = _to_staff(row)
+            if status != current.status and status not in current.allowed_next:
+                raise InvalidStatusTransition()
+            if status == current.status:
+                return current
             row.status = status
             staff = _to_staff(row)
             await session.commit()
             return staff
 
 
-async def _load(session: AsyncSession, order_id: UUID) -> OrderRow | None:
+async def _load(
+    session: AsyncSession, order_id: UUID, *, for_update: bool = False
+) -> OrderRow | None:
     stmt = select(OrderRow).where(OrderRow.order_id == order_id).options(selectinload(OrderRow.lines))
+    if for_update:
+        stmt = stmt.with_for_update()
     return await session.scalar(stmt)
 
 

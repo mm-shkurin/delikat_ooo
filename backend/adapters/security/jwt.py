@@ -65,3 +65,7 @@ class JwtTokenIssuer:
     @property
     def access_ttl_sec(self) -> int:
         return int(self._config.access_ttl.total_seconds())
+
+    @property
+    def refresh_ttl_sec(self) -> int:
+        return int(self._config.refresh_ttl.total_seconds())

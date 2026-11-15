@@ -1,10 +1,16 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, ConfigDict
 
+from adapters.http.auth_cookie import (
+    clear_auth_cookies,
+    refresh_from_cookies,
+    set_auth_cookies,
+)
 from adapters.http.deps import bearer_token
+from usecase.account.errors import Unauthorized
 from usecase.account.profile import UserProfileView
 
 BROWSER_COOKIE = "signin_browser"
@@ -20,7 +26,7 @@ class ExchangeBody(BaseModel):
 
 class RefreshBody(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    refresh_token: str
+    refresh_token: str | None = None
 
 
 class LogoutBody(BaseModel):
@@ -58,6 +64,25 @@ def _profile_response(view: UserProfileView) -> UserProfileResponse:
     )
 
 
+def _attach_auth_cookies(request: Request, pair, *, access_ttl: int, refresh_ttl: int):
+    body = TokenPairResponse(
+        access_token=pair.access_token,
+        refresh_token=pair.refresh_token,
+        token_type=pair.token_type,
+        expires_in_sec=access_ttl,
+    )
+    response = JSONResponse(content=body.model_dump())
+    set_auth_cookies(
+        response,
+        request,
+        access_token=pair.access_token,
+        refresh_token=pair.refresh_token,
+        access_max_age=access_ttl,
+        refresh_max_age=refresh_ttl,
+    )
+    return response
+
+
 @router.get("/oauth/yandex/start")
 async def start_yandex(request: Request):
     ctx = request.app.state.ctx
@@ -82,26 +107,29 @@ async def finish_yandex(request: Request, code: str = "", state: str = "", error
 
 
 @router.post("/oauth/exchange", response_model=TokenPairResponse)
-async def exchange(body: ExchangeBody, request: Request) -> TokenPairResponse:
+async def exchange(body: ExchangeBody, request: Request):
     ctx = request.app.state.ctx
     pair = await ctx.sign_in.exchange(body.code, request.cookies.get(BROWSER_COOKIE, ""))
-    return TokenPairResponse(
-        access_token=pair.access_token,
-        refresh_token=pair.refresh_token,
-        token_type=pair.token_type,
-        expires_in_sec=ctx.sign_in.tokens.access_ttl_sec,
+    return _attach_auth_cookies(
+        request,
+        pair,
+        access_ttl=ctx.sign_in.tokens.access_ttl_sec,
+        refresh_ttl=ctx.sign_in.tokens.refresh_ttl_sec,
     )
 
 
 @router.post("/refresh", response_model=TokenPairResponse)
-async def refresh(body: RefreshBody, request: Request) -> TokenPairResponse:
+async def refresh(body: RefreshBody | None, request: Request):
     ctx = request.app.state.ctx
-    pair = await ctx.session.refresh(body.refresh_token)
-    return TokenPairResponse(
-        access_token=pair.access_token,
-        refresh_token=pair.refresh_token,
-        token_type=pair.token_type,
-        expires_in_sec=ctx.sign_in.tokens.access_ttl_sec,
+    token = (body.refresh_token if body is not None else None) or refresh_from_cookies(request)
+    if not token:
+        raise Unauthorized("missing refresh token")
+    pair = await ctx.session.refresh(token)
+    return _attach_auth_cookies(
+        request,
+        pair,
+        access_ttl=ctx.sign_in.tokens.access_ttl_sec,
+        refresh_ttl=ctx.sign_in.tokens.refresh_ttl_sec,
     )
 
 
@@ -111,9 +139,13 @@ async def post_logout(
     _access: Annotated[str, Depends(bearer_token)],
     body: LogoutBody | None = None,
 ) -> Response:
-    refresh_token = body.refresh_token if body is not None else None
+    refresh_token = (body.refresh_token if body is not None else None) or refresh_from_cookies(
+        request
+    )
     await request.app.state.ctx.session.logout(_access, refresh_token)
-    return Response(status_code=204)
+    response = Response(status_code=204)
+    clear_auth_cookies(response)
+    return response
 
 
 @me_router.get("/me", response_model=UserProfileResponse)

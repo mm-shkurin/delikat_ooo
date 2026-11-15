@@ -6,7 +6,10 @@ os.environ["OAUTH_PROVIDER"] = "fake"
 os.environ.setdefault("REDIS_URL", "redis://127.0.0.1:6379/0")
 os.environ.setdefault("JWT_ACCESS_SECRET", "test-access-secret")
 os.environ.setdefault("JWT_REFRESH_SECRET", "test-refresh-secret")
-os.environ["DATABASE_URL"] = "postgresql+asyncpg://delikat:change-me@127.0.0.1:5434/delikat"
+os.environ.setdefault(
+    "DATABASE_URL",
+    "postgresql+asyncpg://delikat:delikat_dev_password@127.0.0.1:5434/delikat",
+)
 
 from fastapi.testclient import TestClient
 
@@ -34,7 +37,13 @@ def test_fake_oauth_exchange_flow():
         assert exchange.status_code == 200
         tokens = exchange.json()
         assert tokens["access_token"]
+        assert exchange.cookies.get("delikat_access")
+        assert exchange.cookies.get("delikat_refresh")
 
         me = client.get("/api/v1/me", headers={"Authorization": f"Bearer {tokens['access_token']}"})
         assert me.status_code == 200
         assert me.json()["email"]
+
+        me_cookie = client.get("/api/v1/me")
+        assert me_cookie.status_code == 200
+        assert me_cookie.json()["email"]

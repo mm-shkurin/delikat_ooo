@@ -6,15 +6,21 @@ Hexagonal layout (как `adaptive-tutor`): **Yandex OAuth**, JWT, Postgres, Red
 
 ```
 backend/
-  domain/account/ | domain/catalog/ | domain/cart/
-  usecase/account/     # sign_in, session, profile
-  usecase/catalog/     # list categories/products, get product
-  usecase/cart/        # cart, fulfillment, checkout
+  domain/account/ | domain/catalog/ | domain/cart/ | domain/staff/
+  usecase/account/          # sign_in, session, profile
+  usecase/catalog/          # list categories/products, get product
+  usecase/cart/             # cart, fulfillment, checkout
+  usecase/staff/            # roster ACL
+  usecase/staff_catalog/    # staff product CRUD + media
+  usecase/staff_categories/ # category CRUD + reorder
+  usecase/staff_orders/     # staff order list + status
+  usecase/staff_analytics/  # owner stats + money (Asia/Omsk)
   adapters/
     oauth/             # yandex + fake (local PUBLIC_BASE_URL only)
     cache/             # redis oauth state + revocations
-    db/                # accounts, catalog, cart, orders
-    http/              # auth, catalog, cart, orders
+    db/                # accounts, catalog, cart, orders, staff
+    http/              # auth, catalog, cart, orders, staff*
+    live/              # catalog WebSocket hub
     security/          # JWT
   application/
 ```
@@ -66,7 +72,18 @@ POST /api/v1/orders  (+ Idempotency-Key)
 
 Cookie `delikat_session` обязателен для `GET /cart` (middleware выдаёт cookie на других GET).
 
-Спека API: `ProductSpecification/api-specs/store_api.yaml`.
+Staff (stories 12–17, Bearer JWT + роль):
+
+```text
+GET/POST/PATCH/DELETE /api/v1/staff/...
+GET/POST/PATCH /api/v1/staff/catalog/...
+GET/POST/PATCH/DELETE /api/v1/staff/catalog/categories...
+GET/PATCH /api/v1/staff/orders...
+GET /api/v1/staff/analytics/stats|money
+WS  /api/v1/live/catalog
+```
+
+Спека: `ProductSpecification/api-specs/store_api.yaml`, `admin_api.yaml`.
 
 ## Ветки и коммиты
 

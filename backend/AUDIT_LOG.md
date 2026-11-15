@@ -83,3 +83,12 @@
 - CORS PUT added
 ### Outstanding Blockers:
 - same deferred items; score held
+## Iteration 5 — Score: 2.0 / 3.0 — 2026-11-15 — f827fb6
+### Fixed Issues:
+- (none — fresh /sprint-check audit)
+### Outstanding Blockers:
+- composition root growth; duplicate Staff*Forbidden types
+- unbounded staff order/analytics loads; staff status race
+- image.read unbounded before size check; ilike wildcard not escaped
+- tzdata missing; pytest skips adapters/http/tests; CI skips Ruff + some tests
+- README/CHANGELOG stale past stories 09–10; no structured logging / OAuth rate limit

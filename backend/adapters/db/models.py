@@ -130,7 +130,13 @@ class OrderRow(Base):
     city: Mapped[str] = mapped_column(String(64), nullable=False)
     street_line: Mapped[str | None] = mapped_column(String(80), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    lines: Mapped[list["OrderLineRow"]] = relationship(back_populates="order", cascade="all, delete-orphan")
+    buyer_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    buyer_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    lines: Mapped[list["OrderLineRow"]] = relationship(
+        back_populates="order",
+        cascade="all, delete-orphan",
+        order_by="OrderLineRow.id",
+    )
 
 
 class OrderLineRow(Base):

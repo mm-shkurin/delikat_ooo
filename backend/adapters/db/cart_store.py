@@ -89,6 +89,8 @@ class PostgresCartStore:
         session_id: str,
         order_message: str,
         customer_note: str | None,
+        buyer_name: str,
+        buyer_email: str | None,
     ) -> OrderCreated:
         try:
             async with self._open() as session:
@@ -107,6 +109,8 @@ class PostgresCartStore:
                         idempotency_key=idempotency_key,
                         session_id=session_id,
                         customer_note=customer_note,
+                        buyer_name=buyer_name,
+                        buyer_email=buyer_email,
                     )
                 )
                 cart_row.lines.clear()

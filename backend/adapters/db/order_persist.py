@@ -69,6 +69,8 @@ def order_row_for(
     idempotency_key: UUID,
     session_id: str,
     customer_note: str | None,
+    buyer_name: str,
+    buyer_email: str | None,
 ) -> OrderRow:
     row = OrderRow(
         order_id=order.order_id,
@@ -82,6 +84,8 @@ def order_row_for(
         city=order.fulfillment.address.city,
         street_line=order.fulfillment.address.street_line,
         created_at=datetime.now(UTC),
+        buyer_name=buyer_name,
+        buyer_email=buyer_email,
     )
     for line in order.lines:
         row.lines.append(

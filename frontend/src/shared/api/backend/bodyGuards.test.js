@@ -34,7 +34,11 @@ describe('bodyGuards vs api-spec examples', () => {
   })
 
   it('order-created.json', () => {
-    expect(isOrderCreatedBody(load('order-created.json'))).toBe(true)
+    const body = load('order-created.json')
+    expect(isOrderCreatedBody(body)).toBe(true)
+    expect(isOrderCreatedBody({ ...body, status: 'cancelled' })).toBe(true)
+    expect(isOrderCreatedBody({ ...body, buyer_name: 'Ада' })).toBe(false)
+    expect(isOrderCreatedBody({ ...body, buyer_email: 'a@b.test' })).toBe(false)
   })
 
   it('me-profile.json', () => {

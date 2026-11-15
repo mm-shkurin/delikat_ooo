@@ -39,6 +39,8 @@ export const BACKEND = {
     catalogCategoryOrder: `${V1}/staff/catalog/categories/order`,
     catalogCategory: (categoryId) =>
       `${V1}/staff/catalog/categories/${encodeURIComponent(categoryId)}`,
+    orders: `${V1}/staff/orders`,
+    order: (orderId) => `${V1}/staff/orders/${encodeURIComponent(orderId)}`,
   },
   media: {
     product: (productId) => `${V1}/media/products/${encodeURIComponent(productId)}`,

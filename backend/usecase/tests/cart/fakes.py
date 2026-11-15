@@ -60,6 +60,8 @@ class FakeCartRepository:
         session_id: str,
         order_message: str,
         customer_note: str | None,
+        buyer_name: str = "Гость",
+        buyer_email: str | None = None,
     ) -> OrderCreated:
         from uuid import uuid4
 
@@ -67,7 +69,7 @@ class FakeCartRepository:
         from domain.cart.rules import can_checkout, street_ok
         from usecase.cart.errors import AddressRequired, CannotCheckout, CartEmpty
 
-        del customer_note
+        del customer_note, buyer_name, buyer_email
         cart = self._carts.get(session_id)
         if cart is None or not cart.lines:
             raise CartEmpty()

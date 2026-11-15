@@ -1,18 +1,4 @@
-/** Placeholder panels from site/admin — live write in stories 14–16. Catalog is live (13). */
-
-export function OrdersShell() {
-  return (
-    <section id="panel-orders" role="tabpanel" aria-labelledby="tab-orders" data-testid="panel-orders">
-      <div className="admin-toolbar">
-        <label className="admin-field grow">
-          <span>Поиск</span>
-          <input type="search" placeholder="Номер, имя, телефон" disabled />
-        </label>
-      </div>
-      <p className="admin-empty">Каркас заказов — статусы появятся позже.</p>
-    </section>
-  )
-}
+/** Placeholder panels from site/admin. Orders are live (15). Stats and money stay shells until 16. */
 
 export function StatsShell() {
   return (

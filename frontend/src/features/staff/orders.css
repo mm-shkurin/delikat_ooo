@@ -1,0 +1,64 @@
+.order-list {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.order-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.order-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.order-card h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: var(--line-lg);
+}
+
+.order-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.order-pill[data-status='accepted'] { color: var(--text); }
+.order-pill[data-status='packing'] { color: var(--accent); }
+.order-pill[data-status='ready'] { color: var(--success); }
+.order-pill[data-status='done'] { color: var(--text-muted); }
+.order-pill[data-status='cancelled'] { color: var(--danger); }
+
+.order-meta,
+.order-contact,
+.order-note,
+.order-total,
+.order-count {
+  margin: 0;
+}
+
+.order-total { font-weight: 800; }
+.order-count { margin-top: var(--space-3); color: var(--text-muted); }
+
+.order-lines {
+  margin: 0;
+  padding-left: 1.1rem;
+}

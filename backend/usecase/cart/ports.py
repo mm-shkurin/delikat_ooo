@@ -25,6 +25,8 @@ class CartRepository(Protocol):
         session_id: str,
         order_message: str,
         customer_note: str | None,
+        buyer_name: str,
+        buyer_email: str | None,
     ) -> OrderCreated:
         """Lock the cart, build the order from the locked rows, clear lines, commit."""
         ...

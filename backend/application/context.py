@@ -13,6 +13,8 @@ from adapters.db.category_store import PostgresStaffCategoryStore
 from adapters.live.catalog_hub import CatalogLiveHub
 from adapters.db.session import create_db_engine, create_session_factory
 from adapters.db.staff_store import PostgresStaffStore
+from adapters.db.staff_order_store import PostgresStaffOrderStore
+from adapters.http.buyer_lookup import SessionBuyerLookup
 from adapters.oauth.fake import FakeOAuthProvider
 from adapters.oauth.yandex import YandexOAuthProvider
 from adapters.security.jwt import JwtConfig, JwtTokenIssuer
@@ -25,6 +27,7 @@ from usecase.catalog.service import CatalogService
 from usecase.staff.service import StaffService
 from usecase.staff_catalog.service import StaffCatalogService
 from usecase.staff_categories.service import StaffCategoryService
+from usecase.staff_orders.service import StaffOrdersService
 
 
 @dataclass
@@ -47,6 +50,7 @@ class AppContext:
     staff: StaffService
     staff_catalog: StaffCatalogService
     staff_categories: StaffCategoryService
+    staff_orders: StaffOrdersService
     catalog_live: CatalogLiveHub
     redis: Redis
 
@@ -86,7 +90,7 @@ def build_context(settings: Settings) -> AppContext:
     session = SessionService(accounts, tokens, RedisRevocations(redis))
     catalog_store = PostgresCatalogStore(session_factory)
     catalog = CatalogService(catalog_store)
-    cart = CartService(PostgresCartStore(session_factory), catalog_store)
+    cart = CartService(PostgresCartStore(session_factory), catalog_store, SessionBuyerLookup(session))
     staff_catalog = StaffCatalogService(staff_store, catalog_store)
     catalog_live = CatalogLiveHub()
     staff_categories = StaffCategoryService(
@@ -94,6 +98,7 @@ def build_context(settings: Settings) -> AppContext:
         PostgresStaffCategoryStore(session_factory),
         catalog_live,
     )
+    staff_orders = StaffOrdersService(staff_store, PostgresStaffOrderStore(session_factory))
     return AppContext(
         settings=settings,
         engine=engine,
@@ -107,6 +112,7 @@ def build_context(settings: Settings) -> AppContext:
         staff=staff,
         staff_catalog=staff_catalog,
         staff_categories=staff_categories,
+        staff_orders=staff_orders,
         catalog_live=catalog_live,
         redis=redis,
     )

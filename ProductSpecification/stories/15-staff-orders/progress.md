@@ -12,15 +12,15 @@
 
 ## Front (frontend/)
 
-- [ ] implement
+- [x] implement
 - [ ] refactor
 - [ ] check
 
 ## Back (backend/)
 
-- [ ] implement
+- [x] implement
 - [ ] refactor
-- [ ] contract tests
+- [x] contract tests
 
 ## Close
 

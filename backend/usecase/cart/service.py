@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 from domain.cart.defaults import DEFAULT_CITY
 from domain.cart.models import Cart, CartLine, DeliveryAddress, Fulfillment, OrderCreated
 from domain.cart.rules import can_checkout, street_ok
+from usecase.cart.checkout_buyer import BuyerLookup, resolve_checkout_buyer
 from usecase.cart.errors import (
     AddressRequired,
     CannotCheckout,
@@ -20,9 +21,15 @@ _ORDER_MESSAGE = "Заказ принят. Мы свяжемся для подт
 
 
 class CartService:
-    def __init__(self, carts: CartRepository, catalog: CatalogRepository) -> None:
+    def __init__(
+        self,
+        carts: CartRepository,
+        catalog: CatalogRepository,
+        buyers: BuyerLookup | None = None,
+    ) -> None:
         self._carts = carts
         self._catalog = catalog
+        self._buyers = buyers
 
     async def ensure_session(self, session_id: str) -> None:
         await self._carts.ensure(session_id)
@@ -120,7 +127,9 @@ class CartService:
         *,
         idempotency_key: UUID | None,
         customer_note: str | None,
+        access_token: str | None = None,
     ) -> OrderCreated:
+        buyer_name, buyer_email = await resolve_checkout_buyer(access_token, self._buyers)
         if idempotency_key is None:
             raise MissingIdempotencyKey()
         existing = await self._carts.find_order_by_idempotency(session_id, idempotency_key)
@@ -138,4 +147,6 @@ class CartService:
             session_id=session_id,
             order_message=_ORDER_MESSAGE,
             customer_note=customer_note,
+            buyer_name=buyer_name,
+            buyer_email=buyer_email,
         )

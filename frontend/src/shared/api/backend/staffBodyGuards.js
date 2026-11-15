@@ -1,4 +1,4 @@
-import { isCategoryBody, isProductSummaryBody } from './bodyGuards'
+import { isCartFulfillmentBody, isCategoryBody, isOrderLineBody, isProductSummaryBody } from './bodyGuards'
 
 function isRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -67,4 +67,25 @@ export function isStaffCategoryBody(value) {
 
 export function isStaffCategoryListBody(value) {
   return isRecord(value) && Array.isArray(value.items) && value.items.every(isStaffCategoryBody)
+}
+
+const ORDER_STATUSES = new Set(['accepted', 'packing', 'ready', 'done', 'cancelled'])
+
+export function isStaffOrderBody(value) {
+  if (!isRecord(value)) return false
+  if (typeof value.order_id !== 'string' || !ORDER_STATUSES.has(value.status)) return false
+  if (!Array.isArray(value.allowed_next) || !value.allowed_next.every((item) => ORDER_STATUSES.has(item))) {
+    return false
+  }
+  if (typeof value.total_rub !== 'number' || typeof value.created_at !== 'string') return false
+  if (typeof value.buyer_name !== 'string') return false
+  if (value.buyer_email !== null && typeof value.buyer_email !== 'string') return false
+  if (value.customer_note !== null && typeof value.customer_note !== 'string') return false
+  if ('phone' in value || 'buyer_phone' in value) return false
+  if (!isCartFulfillmentBody(value.fulfillment)) return false
+  return Array.isArray(value.lines) && value.lines.every(isOrderLineBody)
+}
+
+export function isStaffOrderListBody(value) {
+  return isRecord(value) && Array.isArray(value.items) && value.items.every(isStaffOrderBody)
 }

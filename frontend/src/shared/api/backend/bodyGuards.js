@@ -152,11 +152,15 @@ export function isOrderLineBody(value) {
   )
 }
 
+const ORDER_STATUSES = new Set(['accepted', 'packing', 'ready', 'done', 'cancelled'])
+
 export function isOrderCreatedBody(value) {
   return (
     isRecord(value) &&
     typeof value.order_id === 'string' &&
-    value.status === 'accepted' &&
+    ORDER_STATUSES.has(value.status) &&
+    !Object.hasOwn(value, 'buyer_name') &&
+    !Object.hasOwn(value, 'buyer_email') &&
     typeof value.total_rub === 'number' &&
     typeof value.message === 'string' &&
     isCartFulfillmentBody(value.fulfillment) &&
@@ -171,6 +175,8 @@ export {
   isStaffMeBody,
   isStaffMemberBody,
   isStaffMemberListBody,
+  isStaffOrderBody,
+  isStaffOrderListBody,
   isStaffProductBody,
   isStaffProductListBody,
 } from './staffBodyGuards'

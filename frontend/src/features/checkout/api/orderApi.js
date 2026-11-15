@@ -1,3 +1,4 @@
+import { currentSession } from '../../../shared/session/authSession'
 import { send } from '../../../shared/api/send'
 import { isOrderCreatedBody } from '../../../shared/api/backend/bodyGuards'
 import { BACKEND } from '../../../shared/api/backend/paths'
@@ -11,6 +12,7 @@ export function createOrder({ customerNote, idempotencyKey, signal }) {
     method: 'POST',
     body,
     signal,
+    bearer: Boolean(currentSession()?.accessToken),
     headers: { 'Idempotency-Key': idempotencyKey },
     guard: isOrderCreatedBody,
   })

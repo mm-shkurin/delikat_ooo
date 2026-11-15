@@ -41,7 +41,7 @@ export function StoreOverlays({ chrome, catalogMode = false, productPanel = null
           tabIndex={-1}
         >
           Адрес и состав корзины сохраняются на сервере для оформления заказа. Сессия входа — в
-          HttpOnly-cookie, не в localStorage.
+          HttpOnly-cookie, не в веб-хранилище браузера.
         </p>
       ) : null}
     </>

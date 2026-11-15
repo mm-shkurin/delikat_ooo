@@ -9,8 +9,10 @@ import {
 import { BACKEND } from '../../shared/api/backend/paths'
 import { isCatalogChangedFrame } from './logic/catalogRefresh'
 
-const BASE_MS = 400
-const MAX_MS = 8_000
+import { CATALOG_LIVE_BACKOFF } from '../../shared/config/timing'
+
+const BASE_MS = CATALOG_LIVE_BACKOFF.baseMs
+const MAX_MS = CATALOG_LIVE_BACKOFF.maxMs
 
 /** @param {() => void} onChange */
 export function useCatalogLive(onChange) {

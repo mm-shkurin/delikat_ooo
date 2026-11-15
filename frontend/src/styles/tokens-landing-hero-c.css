@@ -1,0 +1,42 @@
+.hero-art img {
+  width: min(100%, 560px);
+  max-height: 90svh;
+  object-fit: contain;
+  filter: drop-shadow(0 28px 40px rgba(0, 0, 0, 0.45));
+}
+.hero-bottom {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+.hero-shop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 28px;
+  border-radius: 999px;
+  min-width: min(420px, 100%);
+  background: rgba(255, 255, 255, 0.92);
+  color: #000;
+  font-weight: 700;
+  font-size: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+}
+@media (max-width: 1100px) {
+  .nav-links {
+    display: none;
+  }
+  .nav-phone {
+    display: none;
+  }
+  .burger {
+    display: grid;
+    place-items: center;
+  }
+  .nav-bar {
+    grid-template-columns: auto 1fr auto;
+  }
+}

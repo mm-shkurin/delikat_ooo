@@ -1,3 +1,9 @@
+import {
+  isBrowser,
+  readSessionStorage,
+  writeSessionStorage,
+} from '../../../shared/browser/dom'
+
 /** @typedef {'delivery' | 'pickup'} FulfillmentMode */
 
 /**
@@ -14,9 +20,9 @@ export const FULFILLMENT_STORAGE_KEY = 'delikat.fulfillment'
 /** @returns {{ mode: FulfillmentMode, address: string }} */
 export function readStoredFulfillment() {
   const fallback = { mode: /** @type {FulfillmentMode} */ ('delivery'), address: '' }
-  if (typeof sessionStorage === 'undefined') return fallback
+  if (!isBrowser()) return fallback
   try {
-    const raw = sessionStorage.getItem(FULFILLMENT_STORAGE_KEY)
+    const raw = readSessionStorage(FULFILLMENT_STORAGE_KEY)
     if (!raw) return fallback
     const parsed = JSON.parse(raw)
     const mode = parsed?.mode === 'pickup' ? 'pickup' : 'delivery'
@@ -29,8 +35,8 @@ export function readStoredFulfillment() {
 
 /** @param {{ mode: FulfillmentMode, address: string }} snapshot */
 export function writeStoredFulfillment(snapshot) {
-  if (typeof sessionStorage === 'undefined') return
-  sessionStorage.setItem(
+  if (!isBrowser()) return
+  writeSessionStorage(
     FULFILLMENT_STORAGE_KEY,
     JSON.stringify({ mode: snapshot.mode, address: snapshot.address.trim() }),
   )

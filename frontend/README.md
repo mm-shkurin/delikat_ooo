@@ -9,9 +9,12 @@ Feature-sliced module map (layers inward):
 
 | Layer | Path | Purpose |
 |-------|------|---------|
-| app | `src/app/` | Shell, ErrorBoundary, store chrome composition |
+| app | `src/app/` | Shell, ErrorBoundary, store chrome composition root |
+| widgets | `src/widgets/` | Reusable chrome UI (overlays, sheets, nav chrome) |
 | features | `src/features/<feature>/` | Pages, hooks, feature API, `logic/*View.js` |
 | shared | `src/shared/` | HTTP client, backend paths, session, browser helpers |
+
+Dependency direction: `app` → `widgets`/`features` → `shared`. Features may import widgets for chrome UI; shared never imports features/widgets.
 
 Staff JWT access/refresh are **HttpOnly cookies** (`delikat_access` / `delikat_refresh`) set by the API on exchange/refresh. The SPA keeps only an in-memory expiry hint — token strings never enter JS memory, `localStorage`, or `sessionStorage`.
 
